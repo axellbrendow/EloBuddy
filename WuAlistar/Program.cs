@@ -36,7 +36,7 @@ namespace WuAlistar
 
         static void OnLoadingComplete(EventArgs args)
         {
-            //if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't choose " + CN + ", addon disabled"); return; }
+            if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't choose " + CN + ", addon disabled"); return; }
 
             AssVersion = Assembly.GetExecutingAssembly().GetName().Version;
             SearchVersion();
