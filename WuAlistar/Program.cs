@@ -36,7 +36,7 @@ namespace WuAlistar
 
         static void OnLoadingComplete(EventArgs args)
         {
-            //if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't choose " + CN + ", addon disabled"); return; }
+            if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't choose " + CN + ", addon disabled"); return; }
 
             AssVersion = Assembly.GetExecutingAssembly().GetName().Version;
             SearchVersion();
@@ -182,10 +182,13 @@ namespace WuAlistar
                             EloBuddy.Player.IssueOrder( GameObjectOrder.MoveTo, WalkPos );
                             Core.DelayAction( () => W.Cast(Target), delay );
                         }
-                        else if (Target.IsValidTarget(Flash.Range - 50) && Flash.IsReady())
+                        else if (Target.IsValidTarget(Flash.Range - 50) && Flash != null)
                         {
-                            Flash.Cast(WalkPos);
-                            W.Cast(Target);
+							if (Flash.IsReady())
+							{
+								Flash.Cast(WalkPos);
+								W.Cast(Target);
+							}
                         }
                     }
 
