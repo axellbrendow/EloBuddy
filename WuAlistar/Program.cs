@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections.Generic;
+using SharpDX;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+using EloBuddy.SDK.Enumerations;
 using Color = System.Drawing.Color;
 using Version = System.Version;
 using System.Net;
@@ -20,10 +22,11 @@ namespace WuAlistar
         static Version AssVersion;//Kappa
         static readonly String CN = "Alistar";
         static AIHeroClient Player { get { return ObjectManager.Player; } }
-        static Spell.Active Flash;
+        static Spell.Skillshot Flash;
 
         static Item Bilgewater, Randuin, QSS, Glory, FOTMountain, Mikael;
         static Menu Menu;
+        static bool Insecing = new bool();
         static AIHeroClient Target = null;
         static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
         static readonly Spell.Active Q = new Spell.Active(SpellSlot.Q, 365);
@@ -55,7 +58,7 @@ namespace WuAlistar
             SpellDataInst flash = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("flash")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("flash")).First() : null;
             if (flash != null)
             {
-                Flash = new Spell.Active(flash.Slot, 425);
+                Flash = new Spell.Skillshot(flash.Slot, 425, SkillShotType.Linear);
             }
             flash = null;
 
@@ -100,7 +103,6 @@ namespace WuAlistar
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan], Version: " + AssVersion);
         }
-
         //-------------------------------------Obj_AI_Base_OnProcessSpellCast--------------------------------------
 
         static void AIHeroClient_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -120,20 +122,26 @@ namespace WuAlistar
             {
                 if (Target != null && W.IsReady())
                 {
-                    if ((Target.IsValidTarget(Q.Range - 30) || (Target.IsValidTarget(Q.Range) && !Target.CanMove)) && Q.IsReady())
+                    var WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100).To3D();
+
+                    if ((Target.IsValidTarget(Q.Range - 40) || (Target.IsValidTarget(Q.Range) && !Target.CanMove)) && (Q.IsReady() || !Target.CanMove))
                     {
-                        Drawing.DrawText(Target.Position.X, Target.Position.Y + 50, Color.LightSkyBlue, "Q/W Insec !!");
-                        Drawing.DrawLine(Target.Position.To2D(), Game.CursorPos2D, 4, Color.Yellow);
-                        Drawing.DrawCircle( Game.CursorPos.Extend( Target, Target.Distance(Game.CursorPos) + 100 ).To3D(), 70, Color.Yellow );
+                        Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Q/W Insec !!");
+                        Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 4, Color.Yellow);
+                        Drawing.DrawCircle(WalkPos, 70, Color.Yellow);
                     }
-                    else if (Target.IsValidTarget(Flash.Range - 50) && Flash.IsReady())
+                    else if (Target.IsValidTarget(Flash.Range) && Flash != null)
                     {
-                        Drawing.DrawText(Target.Position.X, Target.Position.Y + 50, Color.LightSkyBlue, "Flash Insec !!");
-                        Drawing.DrawLine(Target.Position.To2D(), Game.CursorPos2D, 4, Color.Yellow);
-                        Drawing.DrawCircle(Game.CursorPos.Extend(Target, Target.Distance(Game.CursorPos) + 100).To3D(), 70, Color.Yellow);
+                        if (Flash.IsReady())
+                        {
+                            Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Flash Insec !!");
+                            Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 4, Color.Yellow);
+                            Drawing.DrawCircle(WalkPos, 70, Color.Yellow);
+                        }
+
                     }
                 }
-                
+
                 if (Menu["DrawW"].Cast<CheckBox>().CurrentValue)
                     Drawing.DrawCircle(Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
 
@@ -171,23 +179,18 @@ namespace WuAlistar
                 {
                     //---------------------------------------------------Insec--------------------------------------------
 
-                    if ( Menu["Insec"].Cast<KeyBind>().CurrentValue && W.IsReady() )
+                    if ( Menu["Insec"].Cast<KeyBind>().CurrentValue && W.IsReady() && !Insecing)
                     {
-                        var WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100).To3D();
-
-                        if ( (Target.IsValidTarget(Q.Range - 30) || ( Target.IsValidTarget(Q.Range) && !Target.CanMove) ) && Q.IsReady() )
+                        if ( (Target.IsValidTarget(Q.Range - 40) || (Target.IsValidTarget(Q.Range) && !Target.CanMove) ) && (Q.IsReady() || !Target.CanMove) )
                         {
-                            Q.Cast();
-                            int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 100;
-                            EloBuddy.Player.IssueOrder( GameObjectOrder.MoveTo, WalkPos );
-                            Core.DelayAction( () => W.Cast(Target), delay );
+                            QWInsec();
                         }
-                        else if (Target.IsValidTarget(Flash.Range - 50) && Flash != null)
+                        else if (Flash != null)
                         {
-							if (Flash.IsReady())
+							if (Target.IsValidTarget(Flash.Range) && Flash.IsReady())
 							{
-								Flash.Cast(WalkPos);
-								W.Cast(Target);
+								Flash.Cast(Target);
+                                QWInsec();
 							}
                         }
                     }
@@ -225,6 +228,22 @@ namespace WuAlistar
                     else E.Cast();
                 }
             }
+
+            return;
+        }
+
+        //----------------------------------------------QWInsec()----------------------------------------
+
+        static void QWInsec()
+        {
+            var WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100).To3D();
+
+            Insecing = true;
+            Q.Cast();
+            int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos);
+            Core.DelayAction(() => W.Cast(Target), delay);
+            Core.DelayAction(() => Insecing = false, delay);
 
             return;
         }
