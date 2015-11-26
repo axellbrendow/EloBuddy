@@ -130,9 +130,9 @@ namespace WuAlistar
                         Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 4, Color.Yellow);
                         Drawing.DrawCircle(WalkPos, 70, Color.Yellow);
                     }
-                    else if (Target.IsValidTarget(Flash.Range) && Flash != null)
+                    else if (Flash != null)
                     {
-                        if (Flash.IsReady())
+                        if (Flash.IsReady() && Target.IsValidTarget(Flash.Range))
                         {
                             Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Flash Insec !!");
                             Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 4, Color.Yellow);
