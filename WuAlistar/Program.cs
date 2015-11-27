@@ -26,6 +26,7 @@ namespace WuAlistar
 
         static Item Bilgewater, Randuin, QSS, Glory, FOTMountain, Mikael;
         static Menu Menu;
+        static Vector2 WalkPos;
         static bool Insecing = new bool();
         static AIHeroClient Target = null;
         static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
@@ -93,16 +94,29 @@ namespace WuAlistar
 
             Menu.AddSeparator();
 
-            Menu.Add("Insec", new KeyBind("Insec", false, KeyBind.BindTypes.HoldActive, 'T'));
+            Menu.Add("Insec", new KeyBind("Insec", false, KeyBind.BindTypes.HoldActive, 'J'));
 
             Menu.AddSeparator();
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
+            Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan], Version: " + AssVersion);
         }
+
+        //-------------------------------------Interrupter_OnInterruptableSpell--------------------------------------
+
+        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
+        {
+            if (e.DangerLevel == DangerLevel.High)
+            {
+                if (W.IsReady() && sender.IsValidTarget(W.Range)) W.Cast(sender);
+                else if (Q.IsReady() && sender.IsValidTarget(Q.Range)) Q.Cast();
+            }
+        }
+
         //-------------------------------------Obj_AI_Base_OnProcessSpellCast--------------------------------------
 
         static void AIHeroClient_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -122,21 +136,29 @@ namespace WuAlistar
             {
                 if (Target != null && W.IsReady())
                 {
-                    var WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100).To3D();
+                    if (!Menu["Insec"].Cast<KeyBind>().CurrentValue && !Insecing) WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
                     if ((Target.IsValidTarget(Q.Range - 40) || (Target.IsValidTarget(Q.Range) && !Target.CanMove)) && (Q.IsReady() || !Target.CanMove))
                     {
                         Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Q/W Insec !!");
-                        Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 4, Color.Yellow);
-                        Drawing.DrawCircle(WalkPos, 70, Color.Yellow);
+                        Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 3, Color.Yellow);
+                        Drawing.DrawCircle(WalkPos.To3D(), 70, Color.BlueViolet);
                     }
                     else if (Flash != null)
                     {
-                        if (Flash.IsReady() && Target.IsValidTarget(Flash.Range))
+                        if (Flash.IsReady() && Player.Distance(WalkPos) <= Flash.Range - 40)
                         {
-                            Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Flash Insec !!");
-                            Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 4, Color.Yellow);
-                            Drawing.DrawCircle(WalkPos, 70, Color.Yellow);
+                            Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Flash/W Insec !!");
+                            Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 3, Color.Yellow);
+                            Drawing.DrawCircle(WalkPos.To3D(), 70, Color.BlueViolet);
+                        }
+
+                        else if (Flash.IsReady() && Q.IsReady() && Target.IsValidTarget(Flash.Range + Q.Range - 40))
+                        {
+                            Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Flash/Q/W Insec !!");
+                            Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 3, Color.Yellow);
+                            Drawing.DrawCircle(Player.Position.Extend(Target, Flash.Range).To3D(), 70, Color.Yellow);
+                            Drawing.DrawCircle(WalkPos.To3D(), 70, Color.BlueViolet);
                         }
 
                     }
@@ -171,7 +193,7 @@ namespace WuAlistar
                 }
             }
 
-            Target = TargetSelector.GetTarget(700, DamageType.Magical);
+            Target = TargetSelector.GetTarget(800, DamageType.Magical);
 
             if (Target != null)
             {
@@ -179,19 +201,32 @@ namespace WuAlistar
                 {
                     //---------------------------------------------------Insec--------------------------------------------
 
-                    if ( Menu["Insec"].Cast<KeyBind>().CurrentValue && W.IsReady() && !Insecing)
+                    if (Menu["Insec"].Cast<KeyBind>().CurrentValue && !Insecing && !Target.HasBuffOfType(BuffType.SpellImmunity) && !Target.HasBuffOfType(BuffType.Invulnerability))
                     {
-                        if ( (Target.IsValidTarget(Q.Range - 40) || (Target.IsValidTarget(Q.Range) && !Target.CanMove) ) && (Q.IsReady() || !Target.CanMove) )
+                        EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, Target);
+
+                        if (W.IsReady())
                         {
-                            QWInsec();
-                        }
-                        else if (Flash != null)
-                        {
-							if (Target.IsValidTarget(Flash.Range) && Flash.IsReady())
-							{
-								Flash.Cast(Target);
+                            if ((Target.IsValidTarget(Q.Range - 40) || (Target.IsValidTarget(Q.Range) && !Target.CanMove)) && (Q.IsReady() || !Target.CanMove))
+                            {
+                                Insecing = true;
                                 QWInsec();
-							}
+                            }
+                            else if (Flash != null)
+                            {
+                                WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100);
+
+                                if (Player.Distance(WalkPos) <= Flash.Range - 40 && Flash.IsReady())
+                                {
+                                    Flash.Cast(WalkPos.To3D());
+                                    W.Cast(Target);
+                                }
+
+                                else if (Target.IsValidTarget(Flash.Range + Q.Range - 40) && Flash.IsReady() && Q.IsReady())
+                                {
+                                    QWInsec(true);
+                                }
+                            }
                         }
                     }
 
@@ -232,19 +267,34 @@ namespace WuAlistar
             return;
         }
 
-        //----------------------------------------------QWInsec()----------------------------------------
+        //----------------------------------------------QWInsec(bool flash)----------------------------------------
 
-        static void QWInsec()
+        static void QWInsec(bool flash = false)
         {
-            var WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100).To3D();
+            if (flash) Flash.Cast(Player.Position.Extend(Target, Flash.Range).To3D());
+
+            WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
             Insecing = true;
             Q.Cast();
-            int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
-            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos);
-            Core.DelayAction(() => W.Cast(Target), delay);
-            Core.DelayAction(() => Insecing = false, delay);
 
+            int delay;
+            if (flash) delay = (int)(Player.Position.Extend(Target, Flash.Range).Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+            else delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+
+            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
+            Core.DelayAction( () => CheckWDistance(), delay );
+            Core.DelayAction( () => Insecing = false, delay );
+
+            return;
+        }
+
+        //----------------------------------------------CheckWDistance()----------------------------------------
+
+        static void CheckWDistance()
+        {
+            Chat.Print("CheckWDistance");
+            if (Player.Distance(WalkPos) <= 40) W.Cast(Target);
             return;
         }
 
