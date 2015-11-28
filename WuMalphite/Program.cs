@@ -308,19 +308,19 @@ namespace WuMalphite
 
                 else if (E.IsReady())
                 {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range) && SpellDamage(it, SpellSlot.E) >= it.Health);
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.E) >= it.Health);
                     if (bye != null) E.Cast();
                 }
 
                 else if (Q.IsReady() && E.IsReady())
                 {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.E) >= it.Health);
-                    if (bye != null) { E.Cast(); Core.DelayAction( () => Q.Cast(bye), 100 ); }
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.E) >= it.Health);
+                    if (bye != null) { E.Cast(); Core.DelayAction( () => Q.Cast(bye), E.CastDelay + Game.Ping ); }
                 }
 
                 else if (Smite != null)
                 {
-                    if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
                     {
                         bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                         if (bye != null) Smite.Cast(bye);
@@ -383,8 +383,8 @@ namespace WuMalphite
                         {
                             if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                             {
-                                if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
-                                else if (Smite.Name.Contains("Duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                                if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                                else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
                             }
                         }
 

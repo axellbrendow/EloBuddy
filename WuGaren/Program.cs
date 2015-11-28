@@ -165,11 +165,14 @@ namespace WuGaren
 
         static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
-            if (!sender.IsAlly && !sender.IsMe && sender.IsValidTarget(Player.GetAutoAttackRange()) && Q.IsReady())
+            if (Menu["Interrupter"].Cast<CheckBox>().CurrentValue)
             {
-                Q.Cast();
-                Orbwalker.ResetAutoAttack();
-                EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, sender);
+                if (!sender.IsAlly && !sender.IsMe && sender.IsValidTarget(Player.GetAutoAttackRange()) && Q.IsReady())
+                {
+                    Q.Cast();
+                    Orbwalker.ResetAutoAttack();
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, sender);
+                }
             }
 
             return;
@@ -179,11 +182,14 @@ namespace WuGaren
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            if (Q.IsReady() && target.IsValidTarget(Player.GetAutoAttackRange() + 200) && (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)))
+            if (Menu["QAfterAA"].Cast<CheckBox>().CurrentValue)
             {
-                Q.Cast();
-                Orbwalker.ResetAutoAttack();
-                if (Target != null) EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, Target);
+                if (Q.IsReady() && target.IsValidTarget(Player.GetAutoAttackRange() + 200) && (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)))
+                {
+                    Q.Cast();
+                    Orbwalker.ResetAutoAttack();
+                    if (Target != null) EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, Target);
+                }
             }
 
             return;
@@ -298,7 +304,7 @@ namespace WuGaren
                     {
 						if (R.IsReady())
 						{
-							AIHeroClient bye = EntityManager.Heroes.Enemies.Where(enemy => SpellDamage(SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range)).FirstOrDefault();
+							AIHeroClient bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range));
 							if (bye != default(AIHeroClient))
 							{
 								if (Player.HasBuff("GarenE")) E.Cast();
@@ -308,7 +314,7 @@ namespace WuGaren
                         
 						else if (Q.IsReady())
 						{
-							AIHeroClient bye = EntityManager.Heroes.Enemies.Where(enemy => SpellDamage(SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange())).FirstOrDefault();
+							AIHeroClient bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange()));
 							if (bye != default(AIHeroClient))
 							{
 								if (Player.HasBuff("GarenE")) E.Cast();
@@ -319,7 +325,7 @@ namespace WuGaren
 
                         else if (Smite != null)
                         {
-                            if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                            if (Smite.Name.Contains("gank") && Smite.IsReady())
                             {
                                 AIHeroClient bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                                 if (bye != null) Smite.Cast(bye);
@@ -356,8 +362,8 @@ namespace WuGaren
                         {
                             if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                             {
-                                if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
-                                else if (Smite.Name.Contains("Duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                                if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                                else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
                             }
                         }
 
@@ -489,13 +495,13 @@ namespace WuGaren
             switch (slot)
             {
                 case SpellSlot.Q:
-                    damage = Damage.CalculateDamageOnUnit(Player, Target, DamageType.Physical, QDamages[Q.Level - 1] + 0.4f * Player.TotalAttackDamage, true, true);
+                    damage = Damage.CalculateDamageOnUnit(Player, Target, DamageType.Physical, QDamages[Q.Level - 1] + 0.4f * Player.TotalAttackDamage, true, true) - 60;
                     break;
                 case SpellSlot.E:
-                    damage = Damage.CalculateDamageOnUnit(Player, Target, DamageType.Physical, (EDamages[E.Level-1] + EPercentADSpin[E.Level-1] * Player.TotalAttackDamage) * Espins());
+                    damage = Damage.CalculateDamageOnUnit(Player, Target, DamageType.Physical, (EDamages[E.Level-1] + EPercentADSpin[E.Level-1] * Player.TotalAttackDamage) * Espins()) - 60;
                     break;
                 case SpellSlot.R:
-                    damage = Damage.CalculateDamageOnUnit(Player, Target, DamageType.Magical, RDamages[R.Level - 1] + (Target.MaxHealth - Target.Health) * RMissingHealth[R.Level - 1]);
+                    damage = Damage.CalculateDamageOnUnit(Player, Target, DamageType.Magical, RDamages[R.Level - 1] + (Target.MaxHealth - Target.Health) * RMissingHealth[R.Level - 1]) - 150;
                     break;
             }
 
