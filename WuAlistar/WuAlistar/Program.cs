@@ -89,7 +89,7 @@ namespace WuAlistar
 
             Menu.AddSeparator();
 
-            Menu.Add("W/Q Delay", new Slider("W/Q Delay", 0, -500, 500));
+            Menu.Add("W/Q Delay", new Slider("W/Q Delay", 50, -200, 200));
 
             Menu.AddSeparator();
 
@@ -115,7 +115,7 @@ namespace WuAlistar
         {
             if (e.DangerLevel == DangerLevel.High)
             {
-                if (W.IsReady() && sender.IsValidTarget(W.Range)) W.Cast(sender);
+                if (W.IsReady() && sender.IsValidTarget(200)) W.Cast(sender);
                 else if (Q.IsReady() && sender.IsValidTarget(Q.Range)) Q.Cast();
             }
         }
