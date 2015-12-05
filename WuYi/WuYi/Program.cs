@@ -44,7 +44,7 @@ namespace WuYi
 
         static void OnLoadingComplete(EventArgs args)
         {
-            //if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't pick " + CN + ", addon disabled"); return; }
+            if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't pick " + CN + ", addon disabled"); return; }
 
             AssVersion = Assembly.GetExecutingAssembly().GetName().Version;
             SearchVersion();
