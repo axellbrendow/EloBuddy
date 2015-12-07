@@ -44,7 +44,7 @@ namespace WuYi
 
         static void OnLoadingComplete(EventArgs args)
         {
-            //if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't pick " + CN + ", addon disabled"); return; }
+            if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't pick " + CN + ", addon disabled"); return; }
 
             AssVersion = Assembly.GetExecutingAssembly().GetName().Version;
             SearchVersion();
@@ -274,7 +274,6 @@ namespace WuYi
 
                     else if (sender.IsValidTarget(Q.Range))
                     {
-                        Chat.Print(args.SData.SpellCastTime);
                         Core.DelayAction( () => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 20 );
                     }
                 }
@@ -366,7 +365,7 @@ namespace WuYi
 
                     if (Menu["KS"].Cast<CheckBox>().CurrentValue)
                     {
-                        AIHeroClient bye;
+                        AIHeroClient bye = null;
 
                         if (Q.IsReady())
                         {
@@ -374,7 +373,7 @@ namespace WuYi
                             if (bye != null) Q.Cast(bye);
                         }
 
-                        else if (Smite != null)
+                        if (Smite != null && bye == null)
                         {
                             if (Smite.Name.Contains("gank") && Smite.IsReady())
                             {

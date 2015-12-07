@@ -300,7 +300,7 @@ namespace WuMalphite
 
             if (Menu["KS"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(Q.Range) > 0)
             {
-                AIHeroClient bye;
+                AIHeroClient bye = null;
 
                 if (Q.IsReady())
                 {
@@ -308,19 +308,19 @@ namespace WuMalphite
 					if (bye != null) Q.Cast(bye);
                 }
 
-                else if (E.IsReady())
+                if (E.IsReady() && bye == null)
                 {
                     bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.E) >= it.Health);
                     if (bye != null) E.Cast();
                 }
 
-                else if (Q.IsReady() && E.IsReady())
+                if (Q.IsReady() && E.IsReady() && bye == null)
                 {
                     bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.E) >= it.Health);
                     if (bye != null) { E.Cast(); Core.DelayAction( () => Q.Cast(bye), E.CastDelay + Game.Ping ); }
                 }
 
-                else if (Smite != null)
+                else if (Smite != null && bye == null)
                 {
                     if (Smite.Name.Contains("gank") && Smite.IsReady())
                     {

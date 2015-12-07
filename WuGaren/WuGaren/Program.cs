@@ -430,19 +430,21 @@ namespace WuGaren
 
         static void KS()
         {
+            AIHeroClient bye = null;
+
             if (R.IsReady())
             {
-                AIHeroClient bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range));
+                bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range));
                 if (bye != default(AIHeroClient))
                 {
                     if (Player.HasBuff("GarenE")) E.Cast();
-                    if (R.Cast(bye)) Chat.Print(SpellDamage(bye, SpellSlot.R).ToString());
+                    R.Cast(bye);
                 }
             }
 
-            else if (Q.IsReady())
+            if (Q.IsReady() && bye == null)
             {
-                AIHeroClient bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange()));
+                bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange()));
                 if (bye != default(AIHeroClient))
                 {
                     if (Player.HasBuff("GarenE")) E.Cast();
@@ -451,11 +453,11 @@ namespace WuGaren
                 }
             }
 
-            else if (Smite != null)
+            if (Smite != null && bye == null)
             {
                 if (Smite.Name.Contains("gank") && Smite.IsReady())
                 {
-                    AIHeroClient bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                     if (bye != null) Smite.Cast(bye);
                 }
             }

@@ -282,7 +282,7 @@ namespace WuAnnie
             if (Menu["StackStun"].Cast<CheckBox>().CurrentValue)
             {
                 if (!Player.HasBuff("pyromania_particle") && !(Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)) && !Player.HasBuff("recall") && E.IsReady()) { E.Cast(); }
-                if (!Player.HasBuff("pyromania_particle") && Player.IsInShopRange() && E.IsReady() && W.IsReady()) { W.Cast(Player.Position); }
+                if (!Player.HasBuff("pyromania_particle") && Player.IsInShopRange() && W.IsReady()) { W.Cast(Player.Position); }
             }
 
             //--------------------------------------------Orbwalker Modes-------------------------------------------
@@ -320,7 +320,7 @@ namespace WuAnnie
 
                     if (Menu["KS"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(Q.Range) > 0)
                     {
-                        AIHeroClient bye;
+                        AIHeroClient bye = null;
 
                         if (Q.IsReady())
                         {
@@ -328,19 +328,19 @@ namespace WuAnnie
 							if (bye != null) Q.Cast(bye);
                         }
 
-                        else if (W.IsReady())
+                        if (W.IsReady() && bye == null)
                         {
                             bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(W.Range) && SpellDamage(it, SpellSlot.W) >= it.Health);
                             if (bye != null) W.Cast(bye);
                         }
 
-                        else if (Q.IsReady() && W.IsReady())
+                        if (Q.IsReady() && W.IsReady() && bye == null)
                         {
                             bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.W) >= it.Health);
                             if (bye != null){ W.Cast(bye); Core.DelayAction(() => Q.Cast(bye), 100); }
                         }
 
-                        else if (Smite != null)
+                        if (Smite != null && bye == null)
                         {
                             if (Smite.Name.Contains("gank") && Smite.IsReady())
                             {
@@ -468,7 +468,7 @@ namespace WuAnnie
             return;
         }
 
-        //-----------------------------------------------CountRHits(Vector3 CastPosition)-------------------------------------------
+        //-----------------------------------------------CountRHits(Vector2 CastPosition)-------------------------------------------
 
         static int CountRHits(Vector2 CastPosition)
         {
