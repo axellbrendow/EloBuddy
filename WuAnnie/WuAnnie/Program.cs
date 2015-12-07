@@ -282,7 +282,7 @@ namespace WuAnnie
             if (Menu["StackStun"].Cast<CheckBox>().CurrentValue)
             {
                 if (!Player.HasBuff("pyromania_particle") && !(Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)) && !Player.HasBuff("recall") && E.IsReady()) { E.Cast(); }
-                if (!Player.HasBuff("pyromania_particle") && Player.IsInShopRange() && E.IsReady() && W.IsReady()) { W.Cast(Player.Position); }
+                if (!Player.HasBuff("pyromania_particle") && Player.IsInShopRange() && W.IsReady()) { W.Cast(Player.Position); }
             }
 
             //--------------------------------------------Orbwalker Modes-------------------------------------------
@@ -302,18 +302,18 @@ namespace WuAnnie
 
                     if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
                     {
-						if (Ignite.IsReady())
-						{
-							var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
-							
-							if (IgniteEnemy != null)
-							{
-								if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
-								{
-									Ignite.Cast(IgniteEnemy);
-								}
-							}
-						}						
+			if (Ignite.IsReady())
+			{
+		    	    var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
+					
+			    if (IgniteEnemy != null)
+			    {
+				if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
+				{
+				    Ignite.Cast(IgniteEnemy);
+				}
+			    }
+			}						
                     }
 
                     //----------------------------------------------------KS----------------------------------------------
@@ -325,7 +325,7 @@ namespace WuAnnie
                         if (Q.IsReady())
                         {
                             bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health);
-							if (bye != null) Q.Cast(bye);
+			    if (bye != null) Q.Cast(bye);
                         }
 
                         else if (W.IsReady())
