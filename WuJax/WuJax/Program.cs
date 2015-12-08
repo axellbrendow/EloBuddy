@@ -543,7 +543,7 @@ namespace WuJax
 
             if ((Scimitar.IsReady() || QSS.IsReady()) && Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt)) { Scimitar.Cast(); QSS.Cast(); }
 
-            if (E.IsReady() && !Player.HasBuff("JaxCounterStrike"))
+            if (E.IsReady() && !Player.HasBuff("JaxCounterStrike") && Menu["UseECombo"].Cast<CheckBox>().CurrentValue)
             {
                 if (Target.IsValidTarget(745) && (Player.MoveSpeed - Target.MoveSpeed) >= 25) E.Cast();
                 if (Target.IsValidTarget(Q.Range)) E.Cast();
