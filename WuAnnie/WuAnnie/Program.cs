@@ -20,7 +20,7 @@ namespace WuAnnie
 {
     static class Program
     {
-        static Version AssVersion;//Kappa
+        static Version AssVersion;///Kappa
         static readonly String CN = "Annie";
         static Spell.Targeted Smite = null;
         static Spell.Targeted Ignite = null;
