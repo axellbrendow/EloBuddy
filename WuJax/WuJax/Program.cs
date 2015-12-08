@@ -317,7 +317,7 @@ namespace WuJax
                     {
                         var Ward = JumpWard();
                         Ward.Cast( Player.Position.Extend(CursorPos, 600).To3D() );
-                        Core.DelayAction( () => Q.Cast( ObjectManager.Get<Obj_AI_Base>().FirstOrDefault( it => it.Distance(CursorPos) <= 150 && it.IsValidTarget(Q.Range)) ), Game.Ping + 200);
+                        Core.DelayAction( () => Q.Cast( ObjectManager.Get<Obj_AI_Base>().FirstOrDefault( it => it.Distance(CursorPos) <= 150 && it.IsValidTarget(Q.Range)) ), Game.Ping + 100);
                     }
                 }
 
@@ -647,7 +647,7 @@ namespace WuJax
             {
                 try
                 {
-                    string Text = new WebClient().DownloadString("https://raw.githubusercontent.com/WujuSan/EloBuddy/master/Wu" + CN + " /Wu" + CN + "/Properties/AssemblyInfo.cs");
+                    string Text = new WebClient().DownloadString("https://raw.githubusercontent.com/WujuSan/EloBuddy/master/Wu" + CN + "/Wu" + CN + "/Properties/AssemblyInfo.cs");
 
                     var Match = new Regex(@"\[assembly\: AssemblyVersion\(""(\d{1,})\.(\d{1,})\.(\d{1,})\.(\d{1,})""\)\]").Match(Text);
 
