@@ -549,9 +549,8 @@ namespace WuJax
                 if (Target.IsValidTarget(Q.Range)) E.Cast();
             }
 
-            if (R.IsReady())
+            if (R.IsReady() && Menu["UseRCombo"].Cast<CheckBox>().CurrentValue)
             {
-                if (Player.Distance(Target) <= Target.GetAutoAttackRange() && (Target.HealthPercent >= 30 || Player.HealthPercent <= 50)) R.Cast();
                 if (Player.CountEnemiesInRange(650) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue) R.Cast();
             }
             
