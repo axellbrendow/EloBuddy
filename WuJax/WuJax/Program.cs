@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Reflection;
-using System.Collections.Generic;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
@@ -121,6 +120,7 @@ namespace WuJax
                 Menu.Add("UseQLaneClear", new CheckBox("Use Q LaneClear"));
                 Menu.Add("JustQIMWD", new CheckBox("Just Q if minion will die"));
                 Menu.Add("UseWLaneClear", new CheckBox("Use W LaneClear"));
+                Menu.Add("UseELaneClear", new CheckBox("Use E Lane Clear"));
                 Menu.Add("Min Minions E", new Slider("Min Minions E", 3, 1, 10));
                 Menu.Add("LaneClear, Mana %", new Slider("LaneClear, Mana %", 30, 1, 100));
             }
@@ -159,7 +159,6 @@ namespace WuJax
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
             Menu.Add("WardJump", new KeyBind("Ward Jump", false, KeyBind.BindTypes.HoldActive, 'T'));
-            Menu.Add("Buffs", new KeyBind("Buffs", false, KeyBind.BindTypes.HoldActive, 'J'));
 
             Menu.AddSeparator();
 
@@ -274,14 +273,6 @@ namespace WuJax
 
             Target = TargetSelector.GetTarget(900, DamageType.Physical);
 
-            if (Menu["Buffs"].Cast<KeyBind>().CurrentValue)
-            {
-                foreach (BuffInstance buff in Player.Buffs)
-                {
-                    Chat.Print(buff.Name);
-                }
-            }
-
             //---------------------------------------------Smite Usage---------------------------------------------
 
             if (Smite != null)
@@ -324,10 +315,64 @@ namespace WuJax
                     if (JumpPlace != default(Obj_AI_Base)) Q.Cast(JumpPlace);
                     else if (JumpWard() != default(InventorySlot))
                     {
-                        JumpWard().Cast( Player.Position.Extend(CursorPos, 600).To3D() );
+                        var Ward = JumpWard();
+                        Ward.Cast( Player.Position.Extend(CursorPos, 600).To3D() );
+                        Core.DelayAction( () => Q.Cast( ObjectManager.Get<Obj_AI_Base>().FirstOrDefault( it => it.Distance(CursorPos) <= 150 && it.IsValidTarget(Q.Range)) ), Game.Ping + 200);
                     }
                 }
 
+            }
+
+            //-----------------------------------------------KS----------------------------------------
+
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue)
+            {
+                AIHeroClient bye = null;
+
+                if (Q.IsReady())
+                {
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
+                    if (bye != null) Q.Cast(bye);
+                }
+
+                if (E.IsReady() && Player.HasBuff("JaxCounterStrike"))
+                {
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(E.Range) && SpellDamage(enemy, SpellSlot.E) >= enemy.Health);
+                    if (bye != null) E.Cast();
+                }
+
+                if (W.IsReady() && bye == null)
+                {
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Player.GetAutoAttackRange()) && SpellDamage(enemy, SpellSlot.W) >= enemy.Health);
+                    if (bye != null) { W.Cast(); EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, bye); }
+
+                    if (Smite != null && bye == null)
+                    {
+                        if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                        {
+                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                            if (bye != null) Smite.Cast(bye);
+                        }
+                    }
+                }
+            }
+
+            //-----------------------------------------------Auto Ignite----------------------------------------
+
+            if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
+            {
+                if (Ignite.IsReady())
+                {
+                    var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
+
+                    if (IgniteEnemy != null)
+                    {
+                        if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
+                        {
+                            Ignite.Cast(IgniteEnemy);
+                        }
+                    }
+                }
             }
 
             //--------------------------------------------Orbwalker Modes-------------------------------------------
@@ -337,127 +382,82 @@ namespace WuJax
                 if (Target.IsValidTarget())
                 {
                     bool QRange = Target.IsValidTarget(Q.Range);
+                    
+                    //---------------------------------------------------Combo--------------------------------------------
 
-                    //-----------------------------------------------KS----------------------------------------
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
 
-                    if (Menu["KS"].Cast<CheckBox>().CurrentValue)
+                    //---------------------------------------------------Harass--------------------------------------------
+
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
                     {
-                        AIHeroClient bye = null;
-
-                        if (Q.IsReady())
+                        if (Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue)
                         {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
-                            if (bye != null) Q.Cast(bye);
-                        }
+                            if (E.IsReady() && !Player.HasBuff("JaxCounterStrike") && Target.IsValidTarget(745) && (Player.MoveSpeed - Target.MoveSpeed) >= 25) E.Cast();
 
-                        if (W.IsReady() && bye == null)
-                        {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsInAutoAttackRange(Player) && SpellDamage(enemy, SpellSlot.W) >= enemy.Health);
-                            if (bye != null) { W.Cast(); EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, bye); }
-
-                            if (Smite != null && bye == null)
+                            if (QRange)
                             {
-                                if (Smite.Name.Contains("gank") && Smite.IsReady())
-                                {
-                                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                                    if (bye != null) Smite.Cast(bye);
-                                }
-                            }
-                        }
-
-                        //-----------------------------------------------Auto Ignite----------------------------------------
-
-                        if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
-                        {
-                            if (Ignite.IsReady())
-                            {
-                                var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
-
-                                if (IgniteEnemy != null)
-                                {
-                                    if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
-                                    {
-                                        Ignite.Cast(IgniteEnemy);
-                                    }
-                                }
-                            }
-                        }
-
-                        //---------------------------------------------------Combo--------------------------------------------
-
-                        if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
-
-                        //---------------------------------------------------Harass--------------------------------------------
-
-                        if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-                        {
-                            if (Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue)
-                            {
-                                if (E.IsReady() && !Player.HasBuff("jaxcounterstrike") && Target.IsValidTarget(745) && (Player.MoveSpeed - Target.MoveSpeed) >= 25) E.Cast();
-
-                                if (QRange)
-                                {
-                                    if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady() && !Player.HasBuff("jaxcounterstrike")) E.Cast();
-                                    if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady()) Q.Cast(Target);
-                                    if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && W.IsReady() && !Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue) W.Cast();
-                                }
+                                if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady() && !Player.HasBuff("JaxCounterStrike")) E.Cast();
+                                if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady()) Q.Cast(Target);
+                                if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && W.IsReady() && !Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue) W.Cast();
                             }
                         }
                     }
+                }
                     else Target = null;
-                }
-
-                //---------------------------------------------------LastHit--------------------------------------------
-
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
-                {
-                    if (Player.ManaPercent >= Menu["LastHit, Mana %"].Cast<Slider>().CurrentValue)
-                    {
-                        if (Menu["UseQLastHit"].Cast<CheckBox>().CurrentValue && Q.IsReady())
-                        {
-                            var QMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault( it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it) );
-                            if (QMinion != null) Q.Cast(QMinion);
-                        }
-
-                        if (Menu["UseWLastHit"].Cast<CheckBox>().CurrentValue && W.IsReady())
-                        {
-                            var WMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(it => it.IsValidTarget(Player.GetAutoAttackRange()) && SpellDamage(it, SpellSlot.W) >= it.Health && it.Health > Player.GetAutoAttackDamage(it) );
-                            if (WMinion != null) { W.Cast(); EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, WMinion); }
-                        }
-                    }
-                }
-
-                //---------------------------------------------------LaneClear--------------------------------------------
-
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-                {
-                    if (Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) LaneClear();
-
-                    if (Tiamat != null)
-                    {
-                        if (Tiamat.IsReady())
-                        {
-                            bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                            if (UseItem) Tiamat.Cast();
-                            UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                            if (UseItem) Tiamat.Cast();
-                        }
-                    }
-
-                    if (Hydra != null)
-                    {
-                        if (Hydra.IsReady())
-                        {
-                            bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                            if (UseItem) Hydra.Cast();
-                            UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                            if (UseItem) Hydra.Cast();
-                        }
-                    }
-                }
-
-                return;
             }
+
+            //---------------------------------------------------LastHit--------------------------------------------
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            {
+                Chat.Print("LastHit called");
+                if (Player.ManaPercent >= Menu["LastHit, Mana %"].Cast<Slider>().CurrentValue)
+                {
+                    if (Menu["UseQLastHit"].Cast<CheckBox>().CurrentValue && Q.IsReady())
+                    {
+                        var QMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault( it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it) );
+                        if (QMinion != default(Obj_AI_Minion)) Q.Cast(QMinion);
+                    }
+
+                    if (Menu["UseWLastHit"].Cast<CheckBox>().CurrentValue && W.IsReady())
+                    {
+                        var WMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(it => it.IsValidTarget(Player.GetAutoAttackRange()) && SpellDamage(it, SpellSlot.W) >= it.Health && it.Health > Player.GetAutoAttackDamage(it) );
+                        if (WMinion != default(Obj_AI_Minion)) { W.Cast(); EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, WMinion); }
+                    }
+                }
+            }
+
+            //---------------------------------------------------LaneClear--------------------------------------------
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            {
+                if (Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) LaneClear();
+
+                if (Tiamat != null)
+                {
+                    if (Tiamat.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Tiamat.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Tiamat.Cast();
+                    }
+                }
+
+                if (Hydra != null)
+                {
+                    if (Hydra.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Hydra.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Hydra.Cast();
+                    }
+                }
+            }
+
+            return;
         }
 
         //---------------------------------------------JumpWard()--------------------------------------------------
@@ -483,26 +483,44 @@ namespace WuJax
         {
             if (Q.IsReady() && Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
             {
-                Obj_AI_Minion QMinion = null;
+                var JungleMinion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Q.Range).FirstOrDefault(it => it.IsValidTarget(Q.Range) && Player.GetAutoAttackDamage(it) < it.Health);
+
+                if (JungleMinion != default(Obj_AI_Minion)) Q.Cast(JungleMinion);
 
                 if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
                 {
-                    QMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health);
-                    if (QMinion != null) Q.Cast(QMinion);
+                    var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+                    if (QMinions.Any())
+                    {
+                        var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
+                        if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                    }
+                    
                 }
                 else
                 {
-                    QMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault( it => it.IsValidTarget(Q.Range) );
-                    if (QMinion != null) Q.Cast(QMinion);
+                    var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+                    if (QMinions.Any())
+                    {
+                        var QMinion = QMinions.FirstOrDefault();
+                        if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                    }
                 }
             }
 
             if (E.IsReady() && Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue)
             {
-                var EMinions = EntityManager.MinionsAndMonsters.EnemyMinions.Where( it => it.IsValidTarget(E.Range + 100) );
+                var EMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range + 100);
                 if (EMinions.Any())
                 {
                     if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
+                }
+
+                var EJungleMinions = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, E.Range);
+                if (EJungleMinions.Any())
+                {
+                    if (Player.Level <= 6 && EJungleMinions.Any(it => it.Health >= 250)) E.Cast();
+                    if (Player.Level > 6 && EJungleMinions.Any(it => it.Health >= 400)) E.Cast();
                 }
             }
         }
@@ -515,16 +533,16 @@ namespace WuJax
 
             if ((Scimitar.IsReady() || QSS.IsReady()) && Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt)) { Scimitar.Cast(); QSS.Cast(); }
 
-            if (E.IsReady() && !Player.HasBuff("jaxcounterstrike"))
+            if (E.IsReady() && !Player.HasBuff("JaxCounterStrike"))
             {
                 if (Target.IsValidTarget(745) && (Player.MoveSpeed - Target.MoveSpeed) >= 25) E.Cast();
-                else if (Target.IsValidTarget(Q.Range)) E.Cast();
+                if (Target.IsValidTarget(Q.Range)) E.Cast();
             }
 
             if (R.IsReady())
             {
                 if (Player.Distance(Target) <= Target.GetAutoAttackRange() && (Target.HealthPercent >= 30 || Player.HealthPercent <= 50)) R.Cast();
-                else if (Player.CountEnemiesInRange(650) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue) R.Cast();
+                if (Player.CountEnemiesInRange(650) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue) R.Cast();
             }
             
             if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Q.Range))
