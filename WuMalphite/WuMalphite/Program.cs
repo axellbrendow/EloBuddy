@@ -322,7 +322,7 @@ namespace WuMalphite
 
                 else if (Smite != null && bye == null)
                 {
-                    if (Smite.Name.Contains("gank") && Smite.IsReady())
+                    if (Smite.Name.Contains("Gank") && Smite.IsReady())
                     {
                         bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                         if (bye != null) Smite.Cast(bye);
@@ -385,8 +385,8 @@ namespace WuMalphite
                         {
                             if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                             {
-                                if (Smite.Name.Contains("gank")) Smite.Cast(Target);
-                                else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                                if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
+                                else if (Smite.Name.Contains("Duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
                             }
                         }
 
