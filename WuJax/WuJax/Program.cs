@@ -26,6 +26,7 @@ namespace WuJax
         static ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
+        static int WardTick = new int();
         static Item BOTRK, Hextech, GhostBlade, Tiamat, Hydra, Bilgewater, Randuin, Scimitar, QSS;
         static Menu Menu;
         static AIHeroClient Target = null;
@@ -301,23 +302,25 @@ namespace WuJax
 
             //---------------------------------------------Ward Jump---------------------------------------------
 
-            if (Menu["WardJump"].Cast<KeyBind>().CurrentValue && Q.IsReady())
+            if (Menu["WardJump"].Cast<KeyBind>().CurrentValue && Q.IsReady() && Environment.TickCount >= WardTick + 2000)
             {
                 var CursorPos = Game.CursorPos;
 
-                Obj_AI_Base JumpPlace = EntityManager.Heroes.Allies.FirstOrDefault( it => it.Distance(CursorPos) <= 150 && Q.IsInRange(it) );
+                Obj_AI_Base JumpPlace = EntityManager.Heroes.Allies.FirstOrDefault( it => it.Distance(CursorPos) <= 250 && Q.IsInRange(it) );
 
                 if (JumpPlace != default(Obj_AI_Base)) Q.Cast(JumpPlace);
                 else
                 {
-                    JumpPlace = EntityManager.MinionsAndMonsters.Minions.FirstOrDefault( it => it.Distance(CursorPos) <= 150 && Q.IsInRange(it) );
+                    JumpPlace = EntityManager.MinionsAndMonsters.Minions.FirstOrDefault( it => it.Distance(CursorPos) <= 250 && Q.IsInRange(it) );
 
                     if (JumpPlace != default(Obj_AI_Base)) Q.Cast(JumpPlace);
                     else if (JumpWard() != default(InventorySlot))
                     {
                         var Ward = JumpWard();
-                        Ward.Cast( Player.Position.Extend(CursorPos, 600).To3D() );
-                        Core.DelayAction( () => Q.Cast( ObjectManager.Get<Obj_AI_Base>().FirstOrDefault( it => it.Distance(CursorPos) <= 150 && it.IsValidTarget(Q.Range)) ), Game.Ping + 100);
+                        CursorPos = Player.Position.Extend(CursorPos, 600).To3D();
+                        Ward.Cast( CursorPos );
+                        WardTick = Environment.TickCount;
+                        Core.DelayAction( () => WardJump(CursorPos), Game.Ping + 100);
                     }
                 }
 
@@ -404,14 +407,13 @@ namespace WuJax
                         }
                     }
                 }
-                    else Target = null;
+                else Target = null;
             }
 
             //---------------------------------------------------LastHit--------------------------------------------
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
             {
-                Chat.Print("LastHit called");
                 if (Player.ManaPercent >= Menu["LastHit, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     if (Menu["UseQLastHit"].Cast<CheckBox>().CurrentValue && Q.IsReady())
@@ -458,6 +460,14 @@ namespace WuJax
             }
 
             return;
+        }
+
+        //---------------------------------------------WardJump()-------------------------------------------------
+
+        static void WardJump(Vector3 cursorpos)
+        {
+            var Ward = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(it => it.IsValidTarget(Q.Range) && it.Distance(cursorpos) <= 250);
+            if (Ward != null) { Chat.Print("WTF"); Q.Cast(Ward); }
         }
 
         //---------------------------------------------JumpWard()--------------------------------------------------
