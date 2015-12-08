@@ -467,7 +467,7 @@ namespace WuJax
         static void WardJump(Vector3 cursorpos)
         {
             var Ward = ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(it => it.IsValidTarget(Q.Range) && it.Distance(cursorpos) <= 250);
-            if (Ward != null) { Chat.Print("WTF"); Q.Cast(Ward); }
+            if (Ward != null) Q.Cast(Ward);
         }
 
         //---------------------------------------------JumpWard()--------------------------------------------------
@@ -567,8 +567,8 @@ namespace WuJax
             {
                 if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                 {
-                    if (Smite.Name.Contains("gank")) Smite.Cast(Target);
-                    else if (Smite.Name.Contains("duel") && AARange) Smite.Cast(Target);
+                    if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
+                    else if (Smite.Name.Contains("Duel") && AARange) Smite.Cast(Target);
                 }
             }
 
