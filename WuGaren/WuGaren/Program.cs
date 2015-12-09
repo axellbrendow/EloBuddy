@@ -299,34 +299,34 @@ namespace WuGaren
                 }
             }
 
+            //-----------------------------------------------KS----------------------------------------
+
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue) KS();
+
+            //-----------------------------------------------Auto Ignite----------------------------------------
+
+            if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
+            {
+                if (Ignite.IsReady())
+                {
+                    var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
+
+                    if (IgniteEnemy != null)
+                    {
+                        if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
+                        {
+                            Ignite.Cast(IgniteEnemy);
+                        }
+                    }
+                }
+            }
+
             //--------------------------------------------Orbwalker Modes-------------------------------------------
 
             if (Target != null)
             {
                 if (Target.IsValidTarget())
                 {
-                    //-----------------------------------------------KS----------------------------------------
-
-                    if (Menu["KS"].Cast<CheckBox>().CurrentValue) KS();
-
-                    //-----------------------------------------------Auto Ignite----------------------------------------
-
-                    if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
-                    {
-                        if (Ignite.IsReady())
-                        {
-                            var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
-
-                            if (IgniteEnemy != null)
-                            {
-                                if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
-                                {
-                                    Ignite.Cast(IgniteEnemy);
-                                }
-                            }
-                        }
-                    }
-
                     //---------------------------------------------------Combo--------------------------------------------
 
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
@@ -363,13 +363,26 @@ namespace WuGaren
                     else if (EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.ServerPosition, E.Range).Where(it => Player.GetSpellDamage(it, SpellSlot.Q) < it.Health).Any() && !Player.HasBuff("GarenE")) E.Cast();
                 }
 
-                if (Tiamat.IsReady() || Hydra.IsReady())
+                if (Tiamat != null)
                 {
-                    bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                    if (UseItem) { Tiamat.Cast(); Hydra.Cast(); }
-                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                    if (UseItem) { Tiamat.Cast(); Hydra.Cast(); }
-                    UseItem = false;
+                    if (Tiamat.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Tiamat.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Tiamat.Cast();
+                    }
+                }
+
+                if (Hydra != null)
+                {
+                    if (Hydra.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Hydra.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Hydra.Cast();
+                    }
                 }
             }
 

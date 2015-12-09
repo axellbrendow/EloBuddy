@@ -330,6 +330,24 @@ namespace WuMalphite
                 }
             }
 
+            //-----------------------------------------------Auto Ignite----------------------------------------
+
+            if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
+            {
+                if (Ignite.IsReady())
+                {
+                    var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
+
+                    if (IgniteEnemy != null)
+                    {
+                        if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
+                        {
+                            Ignite.Cast(IgniteEnemy);
+                        }
+                    }
+                }
+            }
+
             //--------------------------------------------Orbwalker Modes-------------------------------------------
 
             if (Target != null)
@@ -343,25 +361,7 @@ namespace WuMalphite
 
                     bool QIsReady = Q.IsReady();
                     bool EIsReady = E.IsReady();
-
-                    //-----------------------------------------------Auto Ignite----------------------------------------
-
-                    if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
-                    {
-                        if (Ignite.IsReady())
-                        {
-                            var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
-
-                            if (IgniteEnemy != null)
-                            {
-                                if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
-                                {
-                                    Ignite.Cast(IgniteEnemy);
-                                }
-                            }
-                        }
-                    }
-
+                    
                     //-----------------------------------------------Ult On Target----------------------------------------
 
                     if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue) R.Cast(Target);
@@ -443,6 +443,28 @@ namespace WuMalphite
                     {
                         if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
                             Q.Cast(IEMinions.First());
+                    }
+                }
+
+                if (Tiamat != null)
+                {
+                    if (Tiamat.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Tiamat.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Tiamat.Cast();
+                    }
+                }
+
+                if (Hydra != null)
+                {
+                    if (Hydra.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Hydra.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Hydra.Cast();
                     }
                 }
             }

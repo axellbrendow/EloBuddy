@@ -188,22 +188,22 @@ namespace WuYi
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            if (Target != null)
+            if (target != null)
             {
-                if (W.IsReady() && Player.Distance(Target) <= Player.GetAutoAttackRange() - 30)
+                if (W.IsReady() && Player.Distance(target) <= Player.GetAutoAttackRange() - 30)
                 {
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && Menu["UseWAARCombo"].Cast<CheckBox>().CurrentValue)
                     {
                         W.Cast();
                         Orbwalker.ResetAutoAttack();
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, Target);
+                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
                     }
 
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue)
                     {
                         W.Cast();
                         Orbwalker.ResetAutoAttack();
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, Target);
+                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
                     }
                 }
             }
@@ -259,7 +259,7 @@ namespace WuYi
             {
                 if (Q.IsReady() && (EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 3 || EOMenu[args.SData.AlternateName].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.AlternateName].Cast<Slider>().CurrentValue == 3))
                 {
-                    if (args.SData.Name.ToLower() == "jaxcounterstrike") { Core.DelayAction(() => Q.Cast(sender), 2000 - Game.Ping - 100); }
+                    if (args.SData.Name == "JaxCounterStrike") { Core.DelayAction(() => Q.Cast(sender), 2000 - Game.Ping - 100); }
 
                     if (args.SData.Name == "timebombenemybuff" || args.SData.Name == "karthusfallenonetarget")
                     { Core.DelayAction(() => Q.Cast(Target), 250); Core.DelayAction(() => WaitAndBleed(), 250); }
@@ -274,7 +274,7 @@ namespace WuYi
 
                     else if (sender.IsValidTarget(Q.Range))
                     {
-                        Core.DelayAction( () => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 20 );
+                        Core.DelayAction( () => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 50 );
                     }
                 }
                 
@@ -353,6 +353,46 @@ namespace WuYi
                 }
             }
 
+            //-----------------------------------------------KS----------------------------------------
+
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue)
+            {
+                AIHeroClient bye = null;
+
+                if (Q.IsReady())
+                {
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
+                    if (bye != null) Q.Cast(bye);
+                }
+
+                if (Smite != null && bye == null)
+                {
+                    if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                    {
+                        bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                        if (bye != null) Smite.Cast(bye);
+                    }
+                }
+            }
+
+            //-----------------------------------------------Auto Ignite----------------------------------------
+
+            if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
+            {
+                if (Ignite.IsReady())
+                {
+                    var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
+
+                    if (IgniteEnemy != null)
+                    {
+                        if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
+                        {
+                            Ignite.Cast(IgniteEnemy);
+                        }
+                    }
+                }
+            }
+
             //--------------------------------------------Orbwalker Modes-------------------------------------------
 
             if (Target != null)
@@ -360,47 +400,7 @@ namespace WuYi
                 if (Target.IsValidTarget())
                 {
                     bool QRange = Target.IsValidTarget(Q.Range);
-
-                    //-----------------------------------------------KS----------------------------------------
-
-                    if (Menu["KS"].Cast<CheckBox>().CurrentValue)
-                    {
-                        AIHeroClient bye = null;
-
-                        if (Q.IsReady())
-                        {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
-                            if (bye != null) Q.Cast(bye);
-                        }
-
-                        if (Smite != null && bye == null)
-                        {
-                            if (Smite.Name.Contains("Gank") && Smite.IsReady())
-                            {
-                                bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                                if (bye != null) Smite.Cast(bye);
-                            }
-                        }
-                    }
-
-                    //-----------------------------------------------Auto Ignite----------------------------------------
-
-                    if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
-                    {
-                        if (Ignite.IsReady())
-                        {
-                            var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
-
-                            if (IgniteEnemy != null)
-                            {
-                                if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
-                                {
-                                    Ignite.Cast(IgniteEnemy);
-                                }
-                            }
-                        }
-                    }
-
+                    
                     //---------------------------------------------------Combo--------------------------------------------
 
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
@@ -426,13 +426,26 @@ namespace WuYi
             {
                 if (Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) LaneClear();
 
-                if (Tiamat.IsReady() || Hydra.IsReady())
+                if (Tiamat != null)
                 {
-                    bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                    if (UseItem) { Tiamat.Cast(); Hydra.Cast(); }
-                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                    if (UseItem) { Tiamat.Cast(); Hydra.Cast(); }
-                    UseItem = false;
+                    if (Tiamat.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Tiamat.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Tiamat.Cast();
+                    }
+                }
+
+                if (Hydra != null)
+                {
+                    if (Hydra.IsReady())
+                    {
+                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                        if (UseItem) Hydra.Cast();
+                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                        if (UseItem) Hydra.Cast();
+                    }
                 }
             }
 

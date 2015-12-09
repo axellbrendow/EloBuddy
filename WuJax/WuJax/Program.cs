@@ -518,7 +518,7 @@ namespace WuJax
                 }
             }
 
-            if (E.IsReady() && Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue)
+            if (E.IsReady() && Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue && !Player.HasBuff("JaxCounterStrike"))
             {
                 var EMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range + 100);
                 if (EMinions.Any())
