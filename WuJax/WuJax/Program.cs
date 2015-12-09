@@ -351,7 +351,7 @@ namespace WuJax
 
                     if (Smite != null && bye == null)
                     {
-                        if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                        if (Smite.Name.Contains("gank") && Smite.IsReady())
                         {
                             bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                             if (bye != null) Smite.Cast(bye);
@@ -567,8 +567,8 @@ namespace WuJax
             {
                 if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                 {
-                    if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
-                    else if (Smite.Name.Contains("Duel") && AARange) Smite.Cast(Target);
+                    if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                    else if (Smite.Name.Contains("duel") && AARange) Smite.Cast(Target);
                 }
             }
 
@@ -622,11 +622,10 @@ namespace WuJax
                 ComboDamage += Bilgewater.IsReady() ? DamageLibrary.GetItemDamage(Player, target, ItemId.Bilgewater_Cutlass) : 0;
                 ComboDamage += BOTRK.IsReady() ? DamageLibrary.GetItemDamage(Player, target, ItemId.Blade_of_the_Ruined_King) : 0;
                 ComboDamage += Hydra.IsReady() ? DamageLibrary.GetItemDamage(Player, target, ItemId.Ravenous_Hydra_Melee_Only) : 0;
-                ComboDamage += Tiamat.IsReady() ? DamageLibrary.GetItemDamage(Player, target, ItemId.Tiamat_Melee_Only) : 0;
                 ComboDamage += Hextech.IsReady() ? DamageLibrary.GetItemDamage(Player, target, ItemId.Hextech_Gunblade) : 0;
 
                 if (Ignite != null) ComboDamage += Convert.ToSingle(Ignite.IsReady() ? DamageLibrary.GetSummonerSpellDamage(Player, target, DamageLibrary.SummonerSpells.Ignite) : 0);
-                if (Smite != null) ComboDamage += Convert.ToSingle(Smite.IsReady() && Smite.Name.Contains("Gank") ? DamageLibrary.GetSummonerSpellDamage(Player, target, DamageLibrary.SummonerSpells.Smite) : 0);
+                if (Smite != null) ComboDamage += Convert.ToSingle(Smite.IsReady() && Smite.Name.Contains("gank") ? DamageLibrary.GetSummonerSpellDamage(Player, target, DamageLibrary.SummonerSpells.Smite) : 0);
 
                 return ComboDamage;
             }

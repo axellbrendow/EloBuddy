@@ -399,8 +399,8 @@ namespace WuGaren
             {
                 if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                 {
-                    if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
-                    else if (Smite.Name.Contains("Duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                    if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                    else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
                 }
             }
 
@@ -468,7 +468,7 @@ namespace WuGaren
 
             if (Smite != null && bye == null)
             {
-                if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                if (Smite.Name.Contains("gank") && Smite.IsReady())
                 {
                     bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                     if (bye != null) Smite.Cast(bye);
@@ -491,9 +491,9 @@ namespace WuGaren
                 ComboDamage += Bilgewater.IsReady() ? DamageLibrary.GetItemDamage(Player, Target, ItemId.Bilgewater_Cutlass) : 0;
                 ComboDamage += BOTRK.IsReady() ? DamageLibrary.GetItemDamage(Player, Target, ItemId.Blade_of_the_Ruined_King) : 0;
                 ComboDamage += Hydra.IsReady() ? DamageLibrary.GetItemDamage(Player, Target, ItemId.Ravenous_Hydra_Melee_Only) : 0;
-                ComboDamage += Tiamat.IsReady() ? DamageLibrary.GetItemDamage(Player, Target, ItemId.Tiamat_Melee_Only) : 0;
 
                 if (Ignite != null) ComboDamage += Convert.ToSingle(Ignite.IsReady() ? DamageLibrary.GetSummonerSpellDamage(Player, Target, DamageLibrary.SummonerSpells.Ignite) : 0);
+                if (Smite != null) ComboDamage += Convert.ToSingle(Smite.IsReady() && Smite.Name.Contains("gank") ? DamageLibrary.GetSummonerSpellDamage(Player, Target, DamageLibrary.SummonerSpells.Smite) : 0);
 
                 return ComboDamage;
             }

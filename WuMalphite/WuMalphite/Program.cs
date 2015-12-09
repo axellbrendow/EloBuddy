@@ -322,7 +322,7 @@ namespace WuMalphite
 
                 else if (Smite != null && bye == null)
                 {
-                    if (Smite.Name.Contains("Gank") && Smite.IsReady())
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
                     {
                         bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
                         if (bye != null) Smite.Cast(bye);
@@ -385,8 +385,8 @@ namespace WuMalphite
                         {
                             if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                             {
-                                if (Smite.Name.Contains("Gank")) Smite.Cast(Target);
-                                else if (Smite.Name.Contains("Duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                                if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                                else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
                             }
                         }
 
@@ -602,7 +602,9 @@ namespace WuMalphite
                 ComboDamage += Player.GetAutoAttackDamage(Target);
                 ComboDamage += Item.CanUseItem(3144) && Player.Distance(Target) <= 550 ? DamageLibrary.GetItemDamage(Player, Target, ItemId.Bilgewater_Cutlass) : 0;
                 ComboDamage += Item.CanUseItem(3153) && Player.Distance(Target) <= 550 ? DamageLibrary.GetItemDamage(Player, Target, ItemId.Blade_of_the_Ruined_King) : 0;
+
                 if (Ignite != null) ComboDamage += Convert.ToSingle(Ignite.IsReady() && Ignite.IsInRange(Target) ? DamageLibrary.GetSummonerSpellDamage(Player, Target, DamageLibrary.SummonerSpells.Ignite) : 0);
+                if (Ignite != null) ComboDamage += Convert.ToSingle(Smite.IsReady() && Smite.Name.Contains("gank") ? DamageLibrary.GetSummonerSpellDamage(Player, Target, DamageLibrary.SummonerSpells.Smite) : 0);
 
                 return ComboDamage;
             }
