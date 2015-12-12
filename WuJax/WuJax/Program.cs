@@ -88,6 +88,7 @@ namespace WuJax
                 Menu.Add("UseWAARCombo", new CheckBox("W AA Reset"));
                 Menu.Add("UseECombo", new CheckBox("Use E Combo"));
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
+                Menu.Add("Use1v1RLogic", new CheckBox("Use 1v1 R Logic"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
             }
             Menu.AddSeparator();
@@ -175,39 +176,40 @@ namespace WuJax
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            if (target.IsValidTarget())
+            if (W.IsReady() && Player.Distance(target) <= Player.GetAutoAttackRange() - 30)
             {
-                if (W.IsReady() && Player.Distance(target) <= Player.GetAutoAttackRange() - 30)
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && Menu["UseWAARCombo"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && Menu["UseWAARCombo"].Cast<CheckBox>().CurrentValue)
-                    {
-                        W.Cast();
-                        Orbwalker.ResetAutoAttack();
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
-                    }
-
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue)
-                    {
-                        W.Cast();
-                        Orbwalker.ResetAutoAttack();
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
-                    }
-
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && Menu["UseWLaneClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
-                    {
-                        W.Cast();
-                        Orbwalker.ResetAutoAttack();
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
-                    }
-
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
-                    {
-                        W.Cast();
-                        Orbwalker.ResetAutoAttack();
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
-                    }
-
+                    W.Cast();
+                    Orbwalker.ResetAutoAttack();
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                    return;
                 }
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue)
+                {
+                    W.Cast();
+                    Orbwalker.ResetAutoAttack();
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                    return;
+                }
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && Menu["UseWLaneClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
+                {
+                    W.Cast();
+                    Orbwalker.ResetAutoAttack();
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                    return;
+                }
+
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
+                {
+                    W.Cast();
+                    Orbwalker.ResetAutoAttack();
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                    return;
+                }
+
             }
 
             return;
@@ -336,6 +338,12 @@ namespace WuJax
                 {
                     bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
                     if (bye != null) Q.Cast(bye);
+                }
+
+                if (Q.IsReady() && W.IsReady())
+                {
+                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && (SpellDamage(enemy, SpellSlot.Q) + SpellDamage(enemy, SpellSlot.W)) >= enemy.Health);
+                    if (bye != null) { W.Cast(); Core.DelayAction(() => Q.Cast(bye), Game.Ping + 100); }
                 }
 
                 if (E.IsReady() && Player.HasBuff("JaxCounterStrike"))
@@ -552,6 +560,7 @@ namespace WuJax
             if (R.IsReady() && Menu["UseRCombo"].Cast<CheckBox>().CurrentValue)
             {
                 if (Player.CountEnemiesInRange(650) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue) R.Cast();
+                else if (Menu["Use1v1RLogic"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(600) && (Player.HealthPercent <= 42 || Target.HealthPercent > 30)) R.Cast();
             }
             
             if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Q.Range))
