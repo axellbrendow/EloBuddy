@@ -279,22 +279,47 @@ namespace WuAlistar
 
         static void QWInsec(bool flash = false)
         {
-            if (flash) Flash.Cast(Player.Position.Extend(Target, Flash.Range).To3D());
+            if (flash)
+            {
+                Insecing = true;
+                
+                Flash.Cast(Player.Position.Extend(Target, Flash.Range).To3D());
 
-            WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
+                Core.DelayAction( delegate
+                {
+                    WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
-            Insecing = true;
-            Q.Cast();
+                    Q.Cast();
 
-            int delay;
-            if (flash) delay = (int)(Player.Position.Extend(Target, Flash.Range).Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
-            else delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+                    int delay;
+                    if (flash) delay = (int)(Player.Position.Extend(Target, Flash.Range).Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+                    else delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
 
-            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
-            Core.DelayAction( () => CheckWDistance(), delay );
-            Core.DelayAction( () => Insecing = false, delay );
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
+                    Core.DelayAction(() => CheckWDistance(), delay);
+                    Core.DelayAction(() => Insecing = false, delay);
+                }, Game.Ping + 30);
 
-            return;
+                return;
+            }
+
+            else
+            {
+                WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
+
+                Insecing = true;
+                Q.Cast();
+
+                int delay;
+                if (flash) delay = (int)(Player.Position.Extend(Target, Flash.Range).Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+                else delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay;
+
+                EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
+                Core.DelayAction(() => CheckWDistance(), delay);
+                Core.DelayAction(() => Insecing = false, delay);
+
+                return;
+            }
         }
 
         //----------------------------------------------CheckWDistance()----------------------------------------
