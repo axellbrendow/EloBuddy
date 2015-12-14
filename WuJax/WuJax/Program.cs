@@ -119,12 +119,23 @@ namespace WuJax
 
             Menu.AddGroupLabel("LaneClear");
             {
-                Menu.Add("UseQLaneClear", new CheckBox("Use Q LaneClear"));
+                Menu.Add("UseQLaneClear", new CheckBox("Use Q Lane Clear"));
                 Menu.Add("JustQIMWD", new CheckBox("Just Q if minion will die"));
-                Menu.Add("UseWLaneClear", new CheckBox("Use W LaneClear"));
+                Menu.Add("UseWLaneClear", new CheckBox("Use W Lane Clear"));
                 Menu.Add("UseELaneClear", new CheckBox("Use E Lane Clear"));
                 Menu.Add("Min Minions E", new Slider("Min Minions E", 3, 1, 10));
                 Menu.Add("LaneClear, Mana %", new Slider("LaneClear, Mana %", 30, 1, 100));
+            }
+            Menu.AddSeparator();
+
+            //------------------------------JungleClear-------------------------------
+
+            Menu.AddGroupLabel("JungleClear");
+            {
+                Menu.Add("UseQJungleClear", new CheckBox("Use Q Jungle Clear"));
+                Menu.Add("UseWJungleClear", new CheckBox("Use W Jungle Clear"));
+                Menu.Add("UseEJungleClear", new CheckBox("Use E Jungle Clear"));
+                Menu.Add("JungleClear, Mana %", new Slider("JungleClear, Mana %", 30, 1, 100));
             }
             Menu.AddSeparator();
 
@@ -202,7 +213,7 @@ namespace WuJax
                     return;
                 }
 
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Menu["UseWJungleClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     W.Cast();
                     Orbwalker.ResetAutoAttack();
@@ -499,11 +510,14 @@ namespace WuJax
 
         static void LaneClear()
         {
-            if (Q.IsReady() && Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
+            if (Q.IsReady())
             {
-                var JungleMinion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Q.Range).FirstOrDefault(it => it.IsValidTarget(Q.Range) && Player.GetAutoAttackDamage(it) < it.Health);
+                if (Menu["UseQJungleClear"].Cast<CheckBox>().CurrentValue)
+                {
+                    var JungleMinion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Q.Range).FirstOrDefault(it => it.IsValidTarget(Q.Range) && Player.GetAutoAttackDamage(it) < it.Health);
 
-                if (JungleMinion != default(Obj_AI_Minion)) Q.Cast(JungleMinion);
+                    if (JungleMinion != null) Q.Cast(JungleMinion);
+                }
 
                 if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
                 {
@@ -511,7 +525,7 @@ namespace WuJax
                     if (QMinions.Any())
                     {
                         var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
-                        if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                        if (QMinion != null) Q.Cast(QMinion);
                     }
                     
                 }
@@ -534,11 +548,14 @@ namespace WuJax
                     if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
                 }
 
-                var EJungleMinions = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, E.Range);
-                if (EJungleMinions.Any())
+                if (Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (Player.Level <= 6 && EJungleMinions.Any(it => it.Health >= 250)) E.Cast();
-                    if (Player.Level > 6 && EJungleMinions.Any(it => it.Health >= 400)) E.Cast();
+                    var EJungleMinions = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, E.Range);
+                    if (EJungleMinions.Any())
+                    {
+                        if (Player.Level <= 6 && EJungleMinions.Any(it => it.Health >= 250)) E.Cast();
+                        if (Player.Level > 6 && EJungleMinions.Any(it => it.Health >= 400)) E.Cast();
+                    }
                 }
             }
         }
