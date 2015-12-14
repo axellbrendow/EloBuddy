@@ -519,23 +519,26 @@ namespace WuJax
                     if (JungleMinion != null) Q.Cast(JungleMinion);
                 }
 
-                if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
+                if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
                 {
-                    var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
-                    if (QMinions.Any())
+                    if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
                     {
-                        var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
-                        if (QMinion != null) Q.Cast(QMinion);
-                    }
+                        var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+                        if (QMinions.Any())
+                        {
+                            var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
+                            if (QMinion != null) Q.Cast(QMinion);
+                        }
                     
-                }
-                else
-                {
-                    var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
-                    if (QMinions.Any())
+                    }
+                    else
                     {
-                        var QMinion = QMinions.FirstOrDefault();
-                        if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                        var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+                        if (QMinions.Any())
+                        {
+                            var QMinion = QMinions.FirstOrDefault();
+                            if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                        }
                     }
                 }
             }
