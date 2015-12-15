@@ -187,7 +187,7 @@ namespace WuJax
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            if (W.IsReady() && Player.Distance(target) <= Player.GetAutoAttackRange() - 30)
+            if (W.IsReady() && Player.IsInAutoAttackRange(target))
             {
                 if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && Menu["UseWAARCombo"].Cast<CheckBox>().CurrentValue)
                 {
@@ -319,21 +319,21 @@ namespace WuJax
             {
                 var CursorPos = Game.CursorPos;
 
-                Obj_AI_Base JumpPlace = EntityManager.Heroes.Allies.FirstOrDefault( it => it.Distance(CursorPos) <= 250 && Q.IsInRange(it) );
+                Obj_AI_Base JumpPlace = EntityManager.Heroes.Allies.FirstOrDefault(it => it.Distance(CursorPos) <= 250 && Q.IsInRange(it));
 
                 if (JumpPlace != default(Obj_AI_Base)) Q.Cast(JumpPlace);
                 else
                 {
-                    JumpPlace = EntityManager.MinionsAndMonsters.Minions.FirstOrDefault( it => it.Distance(CursorPos) <= 250 && Q.IsInRange(it) );
+                    JumpPlace = EntityManager.MinionsAndMonsters.Minions.FirstOrDefault(it => it.Distance(CursorPos) <= 250 && Q.IsInRange(it));
 
                     if (JumpPlace != default(Obj_AI_Base)) Q.Cast(JumpPlace);
                     else if (JumpWard() != default(InventorySlot))
                     {
                         var Ward = JumpWard();
                         CursorPos = Player.Position.Extend(CursorPos, 600).To3D();
-                        Ward.Cast( CursorPos );
+                        Ward.Cast(CursorPos);
                         WardTick = Environment.TickCount;
-                        Core.DelayAction( () => WardJump(CursorPos), Game.Ping + 100);
+                        Core.DelayAction(() => WardJump(CursorPos), Game.Ping + 100);
                     }
                 }
 
@@ -367,14 +367,14 @@ namespace WuJax
                 {
                     bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Player.GetAutoAttackRange()) && SpellDamage(enemy, SpellSlot.W) >= enemy.Health);
                     if (bye != null) { W.Cast(); EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, bye); }
+                }
 
-                    if (Smite != null && bye == null)
+                if (Smite != null && bye == null)
+                {
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
                     {
-                        if (Smite.Name.Contains("gank") && Smite.IsReady())
-                        {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                            if (bye != null) Smite.Cast(bye);
-                        }
+                        bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                        if (bye != null) Smite.Cast(bye);
                     }
                 }
             }
@@ -404,7 +404,7 @@ namespace WuJax
                 if (Target.IsValidTarget())
                 {
                     bool QRange = Target.IsValidTarget(Q.Range);
-                    
+
                     //---------------------------------------------------Combo--------------------------------------------
 
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
@@ -437,13 +437,13 @@ namespace WuJax
                 {
                     if (Menu["UseQLastHit"].Cast<CheckBox>().CurrentValue && Q.IsReady())
                     {
-                        var QMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault( it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it) );
+                        var QMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
                         if (QMinion != default(Obj_AI_Minion)) Q.Cast(QMinion);
                     }
 
                     if (Menu["UseWLastHit"].Cast<CheckBox>().CurrentValue && W.IsReady())
                     {
-                        var WMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(it => it.IsValidTarget(Player.GetAutoAttackRange()) && SpellDamage(it, SpellSlot.W) >= it.Health && it.Health > Player.GetAutoAttackDamage(it) );
+                        var WMinion = EntityManager.MinionsAndMonsters.EnemyMinions.FirstOrDefault(it => it.IsValidTarget(Player.GetAutoAttackRange()) && SpellDamage(it, SpellSlot.W) >= it.Health && it.Health > Player.GetAutoAttackDamage(it));
                         if (WMinion != default(Obj_AI_Minion)) { W.Cast(); EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, WMinion); }
                     }
                 }
@@ -495,13 +495,13 @@ namespace WuJax
         {
             var Inventory = Player.InventoryItems;
 
-            if (Item.CanUseItem(3340)) return Inventory.First( it => it.Id == ItemId.Warding_Totem_Trinket );
-            if (Item.CanUseItem(2049)) return Inventory.First( it => it.Id == ItemId.Sightstone );
-            if (Item.CanUseItem(2045)) return Inventory.First( it => it.Id == ItemId.Ruby_Sightstone );
-            if (Item.CanUseItem(2301)) return Inventory.First( it => (int)it.Id == 2301 );
-            if (Item.CanUseItem(2302)) return Inventory.First( it => (int)it.Id == 2302 );
-            if (Item.CanUseItem(2303)) return Inventory.First( it => (int)it.Id == 2303 );
-            if (Item.CanUseItem(2043)) return Inventory.First( it => it.Id == ItemId.Vision_Ward );
+            if (Item.CanUseItem(3340)) return Inventory.First(it => it.Id == ItemId.Warding_Totem_Trinket);
+            if (Item.CanUseItem(2049)) return Inventory.First(it => it.Id == ItemId.Sightstone);
+            if (Item.CanUseItem(2045)) return Inventory.First(it => it.Id == ItemId.Ruby_Sightstone);
+            if (Item.CanUseItem(2301)) return Inventory.First(it => (int)it.Id == 2301);
+            if (Item.CanUseItem(2302)) return Inventory.First(it => (int)it.Id == 2302);
+            if (Item.CanUseItem(2303)) return Inventory.First(it => (int)it.Id == 2303);
+            if (Item.CanUseItem(2043)) return Inventory.First(it => it.Id == ItemId.Vision_Ward);
 
             return default(InventorySlot);
         }
@@ -512,43 +512,49 @@ namespace WuJax
         {
             if (Q.IsReady())
             {
-                if (Menu["UseQJungleClear"].Cast<CheckBox>().CurrentValue && Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue >= Player.ManaPercent)
+                if (Menu["UseQJungleClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     var JungleMinion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Q.Range).FirstOrDefault(it => it.IsValidTarget(Q.Range) && Player.GetAutoAttackDamage(it) < it.Health);
 
                     if (JungleMinion != null) Q.Cast(JungleMinion);
                 }
 
-                if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
+                if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
                 {
-                    var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
-                    if (QMinions.Any())
+                    if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
                     {
-                        var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
-                        if (QMinion != null) Q.Cast(QMinion);
+                        var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+                        if (QMinions.Any())
+                        {
+                            var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
+                            if (QMinion != null) Q.Cast(QMinion);
+                        }
+
                     }
-                    
-                }
-                else
-                {
-                    var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
-                    if (QMinions.Any())
+                    else
                     {
-                        var QMinion = QMinions.FirstOrDefault();
-                        if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                        var QMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+                        if (QMinions.Any())
+                        {
+                            var QMinion = QMinions.FirstOrDefault();
+                            if (QMinion != default(Obj_AI_Minion) && QMinion != null) Q.Cast(QMinion);
+                        }
                     }
                 }
             }
 
-            if (E.IsReady() && Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue && !Player.HasBuff("JaxCounterStrike"))
+            if (E.IsReady() && !Player.HasBuff("JaxCounterStrike"))
             {
-                var EMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range + 100);
-                if (EMinions.Any())
+                if (Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
+                    var EMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range + 100);
+                    if (EMinions.Any())
+                    {
+                        if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
+                    }
                 }
 
-                if (Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue && Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue >= Player.ManaPercent)
+                if (Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     var EJungleMinions = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, E.Range);
                     if (EJungleMinions.Any())
@@ -579,7 +585,7 @@ namespace WuJax
                 if (Player.CountEnemiesInRange(650) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue) R.Cast();
                 else if (Menu["Use1v1RLogic"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(600) && (Player.HealthPercent <= 42 || Target.HealthPercent > 30)) R.Cast();
             }
-            
+
             if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Q.Range))
             {
                 if (Menu["QOnDash"].Cast<CheckBox>().CurrentValue && Player.Distance(Target) <= Player.GetAutoAttackRange() + 100)
@@ -626,7 +632,7 @@ namespace WuJax
                     return Player.CalculateDamageOnUnit(target, DamageType.Magical, new float[] { 40, 75, 110, 145, 180 }[W.Level - 1] + 0.6f * Player.TotalMagicalDamage, true, true);
 
                 case SpellSlot.E:
-                    return Player.CalculateDamageOnUnit(target, DamageType.Physical, new float[] { 50, 75, 100, 125, 150 }[E.Level - 1] + Player.FlatPhysicalDamageMod/2);
+                    return Player.CalculateDamageOnUnit(target, DamageType.Physical, new float[] { 50, 75, 100, 125, 150 }[E.Level - 1] + Player.FlatPhysicalDamageMod / 2);
 
                 default:
                     return 0;
