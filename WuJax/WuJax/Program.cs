@@ -529,11 +529,7 @@ namespace WuJax
                             var QMinion = QMinions.FirstOrDefault(it => SpellDamage(it, SpellSlot.Q) >= it.Health && !Player.IsInAutoAttackRange(it));
                             if (QMinion != null) Q.Cast(QMinion);
                         }
-<<<<<<< HEAD
 
-=======
-                    
->>>>>>> 7dda51fd6e879f5c46ffed7624b628e2f1df74be
                     }
                     else
                     {
@@ -557,11 +553,7 @@ namespace WuJax
                         if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
                     }
                 }
-<<<<<<< HEAD
 
-=======
-                
->>>>>>> 7dda51fd6e879f5c46ffed7624b628e2f1df74be
                 if (Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     var EJungleMinions = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, E.Range);
