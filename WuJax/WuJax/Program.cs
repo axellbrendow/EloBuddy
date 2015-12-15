@@ -512,7 +512,7 @@ namespace WuJax
         {
             if (Q.IsReady())
             {
-                if (Menu["UseQJungleClear"].Cast<CheckBox>().CurrentValue && Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue >= Player.ManaPercent)
+                if (Menu["UseQJungleClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     var JungleMinion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Q.Range).FirstOrDefault(it => it.IsValidTarget(Q.Range) && Player.GetAutoAttackDamage(it) < it.Health);
 
@@ -543,15 +543,18 @@ namespace WuJax
                 }
             }
 
-            if (E.IsReady() && Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue && !Player.HasBuff("JaxCounterStrike"))
+            if (E.IsReady() && !Player.HasBuff("JaxCounterStrike"))
             {
-                var EMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range + 100);
-                if (EMinions.Any())
+                if (Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
+                    var EMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range + 100);
+                    if (EMinions.Any())
+                    {
+                        if (EMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
+                    }
                 }
-
-                if (Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue && Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue >= Player.ManaPercent)
+                
+                if (Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
                 {
                     var EJungleMinions = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, E.Range);
                     if (EJungleMinions.Any())
