@@ -86,6 +86,8 @@ namespace WuAnnie
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
+                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
+                Menu.Add("Auto Attack?", new CheckBox("Auto Attack?", false));
             }
             Menu.AddSeparator();
 
@@ -149,7 +151,6 @@ namespace WuAnnie
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("StackStun", new CheckBox("StackStun"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
-            Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
             Menu.Add("RWithStun", new CheckBox("Just R if stun is up", false));
             Menu.Add("Ult on Target", new KeyBind("Ult on Target", false, KeyBind.BindTypes.HoldActive, 'T'));
 
