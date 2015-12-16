@@ -169,7 +169,7 @@ namespace WuAnnie
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 if (!Menu["AAMaxRange?"].Cast<CheckBox>().CurrentValue && target.Distance(Player) >= Q.Range - 30) args.Process = false;
-                if (!Menu["Auto Attack ?"].Cast<CheckBox>().CurrentValue) args.Process = false;
+                if (!Menu["Auto Attack?"].Cast<CheckBox>().CurrentValue) args.Process = false;
             }
         }
 
