@@ -27,7 +27,7 @@ namespace WuAlistar
         static ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
-        static Item Bilgewater, Randuin, QSS, Glory, FOTMountain, Mikael;
+        static Item Bilgewater, Randuin, QSS, Glory, FOTMountain, Mikael, Talisma;
         static Menu Menu;
         static Vector2 WalkPos;
         static bool Insecing = new bool();
@@ -56,6 +56,7 @@ namespace WuAlistar
             QSS = new Item(3140);
             FOTMountain = new Item(3401);
             Mikael = new Item(3222, 750);
+            Talisma = new Item(ItemId.Talisman_of_Ascension);
 
             //-------------------------------------------------Flash--------------------------------------------------
 
@@ -118,6 +119,8 @@ namespace WuAlistar
                 if (W.IsReady() && sender.IsValidTarget(200)) W.Cast(sender);
                 else if (Q.IsReady() && sender.IsValidTarget(Q.Range)) Q.Cast();
             }
+
+            return;
         }
 
         //-------------------------------------Obj_AI_Base_OnProcessSpellCast--------------------------------------
@@ -126,9 +129,18 @@ namespace WuAlistar
         {
             if (DodgeSpells.Any(el => el == args.SData.Name) && Menu[args.SData.Name].Cast<CheckBox>().CurrentValue)
             {
-                if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
-                else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
+                if (args.SData.Name == "KatarinaR")
+                {
+                    if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
+                    else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
+                    return;
+                }
+
+                if (Q.IsReady() && Q.IsInRange(sender)) { Q.Cast(); return; }
+                if (W.IsReady() && sender.Distance(Player) <= 200) { W.Cast(sender); return; }
             }
+
+            return;
         }
         
         //----------------------------------------------Drawing_OnDraw----------------------------------------
@@ -163,7 +175,6 @@ namespace WuAlistar
                             Drawing.DrawCircle(Player.Position.Extend(Target, Flash.Range).To3D(), 70, Color.Yellow);
                             Drawing.DrawCircle(WalkPos.To3D(), 70, Color.BlueViolet);
                         }
-
                     }
                 }
 
@@ -180,21 +191,7 @@ namespace WuAlistar
         {
             if (Player.IsDead) return;
 
-            if (Player.CountEnemiesInRange(1000) > 0)
-            {
-                foreach (AIHeroClient enemy in EntityManager.Heroes.Enemies)
-                {
-                    foreach (AIHeroClient ally in EntityManager.Heroes.Allies)
-                    {
-                        if (ally.IsFacing(enemy) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750)
-                        {
-                            if (FOTMountain.IsReady()) FOTMountain.Cast(ally);
-
-                            if ((ally.HasBuffOfType(BuffType.Charm) || ally.HasBuffOfType(BuffType.Fear) || ally.HasBuffOfType(BuffType.Poison) || ally.HasBuffOfType(BuffType.Polymorph) || ally.HasBuffOfType(BuffType.Silence) || ally.HasBuffOfType(BuffType.Sleep) || ally.HasBuffOfType(BuffType.Slow) || ally.HasBuffOfType(BuffType.Snare) || ally.HasBuffOfType(BuffType.Stun) || ally.HasBuffOfType(BuffType.Taunt)) && Mikael.IsReady()) Mikael.Cast(ally);
-                        }
-                    }
-                }
-            }
+            if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
             Target = TargetSelector.GetTarget(800, DamageType.Magical);
 
@@ -234,32 +231,61 @@ namespace WuAlistar
 
                     //---------------------------------------------------Combo--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-                    {
-                        if (QSS.IsReady() && (Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt))) QSS.Cast();
-
-                        if (Q.IsReady() && Target.IsValidTarget(Q.Range - 40) && !Player.IsDashing()) Q.Cast();
-
-                        else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 30) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) WQ();
-
-                        if (Target.IsValidTarget(Bilgewater.Range) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
-
-                        if (Target.IsValidTarget(Randuin.Range) && Randuin.IsReady()) Randuin.Cast();
-
-                    }
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
                 }
             }
 
-            if (!Player.HasBuff("recall"))
-            {
-                if (E.IsReady() && EntityManager.Heroes.Allies.Where(ally => ally.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && E.IsInRange(ally)).Any() && Player.ManaPercent >= Menu["ManaToE"].Cast<Slider>().CurrentValue)
-                {
-                    if (Player.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && !Menu["EYourself"].Cast<CheckBox>().CurrentValue) { }
-                    else E.Cast();
-                }
-            }
+            Modes.Heal();
 
             return;
+        }
+
+        //----------------------------------------class Modes---------------------------------------
+
+        class Modes
+        {
+            public static void Combo()
+            {
+                if (QSS.IsReady() && (Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt))) QSS.Cast();
+
+                if (Q.IsReady() && Target.IsValidTarget(Q.Range - 40) && !Player.IsDashing()) Q.Cast();
+
+                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 30) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) WQ();
+
+                if (Target.IsValidTarget(Bilgewater.Range) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
+
+                if (Target.IsValidTarget(Randuin.Range) && Randuin.IsReady()) Randuin.Cast();
+
+                return;
+            }
+
+            public static void SaveAlly()
+            {
+                var Ally = EntityManager.Heroes.Allies.FirstOrDefault(ally => EntityManager.Heroes.Enemies.Any(enemy => ally.IsFacing(enemy)) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750);
+
+                if (Ally != null)
+                {
+                    if (FOTMountain.IsReady()) FOTMountain.Cast(Ally);
+
+                    if (Mikael.IsReady() && (Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                }
+
+                return;
+            }
+
+            public static void Heal()
+            {
+                if (!Player.HasBuff("recall"))
+                {
+                    if (E.IsReady() && EntityManager.Heroes.Allies.Where(ally => ally.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && E.IsInRange(ally)).Any() && Player.ManaPercent >= Menu["ManaToE"].Cast<Slider>().CurrentValue)
+                    {
+                        if (Player.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && !Menu["EYourself"].Cast<CheckBox>().CurrentValue) { }
+                        else E.Cast();
+                    }
+                }
+
+                return;
+            }
         }
 
         //----------------------------------------------WQ()----------------------------------------
@@ -268,7 +294,12 @@ namespace WuAlistar
         {
             int delay = (int)(Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
 
-            if (EntityManager.Heroes.Allies.Where(ally => ally != Player && ally.Distance(Player) <= 700).Count() > 0 && Glory.IsReady()) Glory.Cast();
+            if (EntityManager.Heroes.Allies.Where(ally => !ally.IsMe && ally.Distance(Player) <= 600).Count() > 0)
+            {
+                if (Glory.IsReady()) Glory.Cast();
+                if (Talisma.IsReady()) Talisma.Cast();
+            }
+            
             Core.DelayAction(() => Q.Cast(), delay);
             W.Cast(Target);
 
@@ -279,6 +310,12 @@ namespace WuAlistar
 
         static void QWInsec(bool flash = false)
         {
+            if (EntityManager.Heroes.Allies.Where(ally => !ally.IsMe && ally.Distance(Player) <= 600).Count() > 0)
+            {
+                if (Glory.IsReady()) Glory.Cast();
+                if (Talisma.IsReady()) Talisma.Cast();
+            }
+
             if (flash)
             {
                 Insecing = true;

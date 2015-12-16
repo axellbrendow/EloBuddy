@@ -32,7 +32,7 @@ namespace WuYi
         static Menu EOMenu;
         static AIHeroClient Target = null;
         static List<string> MenuSpells = new List<string>();
-        static List<string> DodgeSpells = new List<string>() { "AzirR", "ZyraGraspingRoots", "XerathMageSpear", "BardQMissile", "BardQMissile2", "ZedQ", "Pulverize", "AhriSeduce", "CurseoftheSadMummy", "InfernalGuardian", "Incinerate", "EnchantedCrystalArrow", "BraumRWrapper", "CassiopeiaPetrifyingGaze", "Rupture", "EzrealTrueshotBarrage", "FizzMarinerDoom", "GnarR", "GragasE", "GragasR", "GravesChargeShot", "JinxR", "RiftWalk", "LeblancSlideM", "LeblancSlide", "LeonaSolarFlare", "UFSlash", "LuxMaliceCannon", "LuxLightStrikeKugel", "LuxLightBinding", "yasuoq3w", "VelkozE", "VeigarEventHorizon", "VeigarDarkMatter", "VarusR", "ThreshQ", "SonaR", "ShenShadowDash", "SejuaniGlacialPrisonCast", "RivenMartyr", "rivenizunablade", "JavelinToss", "NautilusAnchorDrag", "NamiR", "NamiQ", "DarkBindingMissile", "RocketGrabMissile", "timebombenemybuff", "karthusfallenonetarget", "SyndraR", "VayneCondemn", "Dazzle", "Overload", "IceBlast", "LeblancChaosOrb", "JudicatorReckoning", "KatarinaQ", "NullLance", "FiddlesticksDarkWind", "CaitlynHeadshotMissile", "BrandWildfire", "Disintegrate", "Frostbite", "AkaliMota", "InfiniteDuress", "PantheonW", "blindingdart", "JayceToTheSkies", "dariusexecute", "ireliaequilibriumstrike", "maokaiunstablegrowth", "missfortunericochetshot", "nautilusgandline", "runeprison", "BlueCardPreAttack", "bluecardpreattack", "RedCardPreAttack", "redcardpreattack", "GoldCardPreAttack", "goldcardpreattack", "vir", "ZedR", "AkaliShadowDance", "Headbutt", "PowerFist", "BrandConflagration", "CaitlynAceintheHole", "CassiopeiaTwinFang", "Feast", "DariusNoxianTacticsONH", "DariusExecute", "DianaTeleport", "dravenspinning", "EliseHumanQ", "EvelynnE", "EzrealArcaneShift", "Terrify", "FioraQ", "FioraDance", "FizzPiercingStrike", "Parley", "GarenQ", "GarenR", "IreliaGatotsu", "IreliaEquilibriumStrike", "SowTheWind", "JarvanIVCataclysm", "JaxLeapStrike", "JaxEmpowerTwo", "JayceThunderingBlow", "KarmaSpiritBind", "NetherBlade", "KatarinaE", "JudicatorRighteousFury", "KennenBringTheLight", "khazixqlong", "KhazixQ", "LeblancChaosOrbM", "BlindMonkRKick", "LeonaShieldOfDaybreak", "LissandraR", "LucianQ", "LuluW", "LuluE", "SeismicShard", "AlZaharMaleficVisions", "AlZaharNetherGrasp", "MaokaiUnstableGrowth", "AlphaStrike", "MissFortuneRicochetShot", "MordekaiserMaceOfSpades", "MordekaiserChildrenOfTheGrave", "SoulShackles", "NamiW", "NasusQ", "NasusW", "NautilusGandLine", "Takedown", "NocturneParanoia", "OlafRecklessStrike", "PantheonQ", "PoppyDevastatingBlow", "PoppyHeroicCharge", "QuinnE", "RengarQ", "PuncturingTaunt", "RenektonPreExecute", "SpellFlux", "SejuaniWintersClaw", "TwoShivPoisen", "ShenVorpalStar", "ShyvanaDoubleAttack", "shyvanadoubleattackdragon", "Fling", "SkarnerImpale", "SonaHymnofValor", "SwainTorment", "SwainDecrepify", "TalonNoxianDiplomacy", "TalonCutthroat", "BlindingDart", "DetonatingShot", "BusterShot", "TrundleTrollSmash", "TrundlePain", "MockingShout", "redcardpreattack", "bluecardpreattack", "Expunge", "UdyrBearStance", "UrgotHeatseekingLineMissile", "UrgotHeatseekingLineqqMissile", "UrgotSwap2", "VeigarBalefulStrike", "VeigarPrimordialBurst", "ViR", "ViktorDeathRay", "ViktorPowerTransfer", "VladimirTransfusion", "VolibearQ", "HungeringStrike", "XenZhaoComboTarget", "XenZhaoSweep", "YasuoDashWrapper", "YasuoRKnockUpComboW" };
+        static List<string> DodgeSpells = new List<string>() { "OrianaIzunaCommand", "OrianaDetonateCommand", "AzirR", "ZyraGraspingRoots", "XerathMageSpear", "BardQMissile", "BardQMissile2", "ZedQ", "Pulverize", "AhriSeduce", "CurseoftheSadMummy", "InfernalGuardian", "Incinerate", "EnchantedCrystalArrow", "BraumRWrapper", "CassiopeiaPetrifyingGaze", "Rupture", "EzrealTrueshotBarrage", "FizzMarinerDoom", "GnarR", "GragasE", "GragasR", "GravesChargeShot", "JinxR", "RiftWalk", "LeblancSlideM", "LeblancSlide", "LeonaSolarFlare", "UFSlash", "LuxMaliceCannon", "LuxLightStrikeKugel", "LuxLightBinding", "yasuoq3w", "VelkozE", "VeigarEventHorizon", "VeigarDarkMatter", "VarusR", "ThreshQ", "SonaR", "ShenShadowDash", "SejuaniGlacialPrisonCast", "RivenMartyr", "rivenizunablade", "JavelinToss", "NautilusAnchorDrag", "NamiR", "NamiQ", "DarkBindingMissile", "RocketGrabMissile", "timebombenemybuff", "karthusfallenonetarget", "SyndraR", "VayneCondemn", "Dazzle", "Overload", "IceBlast", "LeblancChaosOrb", "JudicatorReckoning", "KatarinaQ", "NullLance", "FiddlesticksDarkWind", "CaitlynHeadshotMissile", "BrandWildfire", "Disintegrate", "Frostbite", "AkaliMota", "InfiniteDuress", "PantheonW", "blindingdart", "JayceToTheSkies", "dariusexecute", "ireliaequilibriumstrike", "maokaiunstablegrowth", "missfortunericochetshot", "nautilusgandline", "runeprison", "BlueCardPreAttack", "bluecardpreattack", "RedCardPreAttack", "redcardpreattack", "GoldCardPreAttack", "goldcardpreattack", "vir", "ZedR", "AkaliShadowDance", "Headbutt", "PowerFist", "BrandConflagration", "CaitlynAceintheHole", "CassiopeiaTwinFang", "Feast", "DariusNoxianTacticsONH", "DariusExecute", "DianaTeleport", "dravenspinning", "EliseHumanQ", "EvelynnE", "EzrealArcaneShift", "Terrify", "FioraQ", "FioraDance", "FizzPiercingStrike", "Parley", "GarenQ", "GarenR", "IreliaGatotsu", "IreliaEquilibriumStrike", "SowTheWind", "JarvanIVCataclysm", "JaxLeapStrike", "JaxEmpowerTwo", "JayceThunderingBlow", "KarmaSpiritBind", "NetherBlade", "KatarinaE", "JudicatorRighteousFury", "KennenBringTheLight", "khazixqlong", "KhazixQ", "LeblancChaosOrbM", "BlindMonkRKick", "LeonaShieldOfDaybreak", "LissandraR", "LucianQ", "LuluW", "LuluE", "SeismicShard", "AlZaharMaleficVisions", "AlZaharNetherGrasp", "MaokaiUnstableGrowth", "AlphaStrike", "MissFortuneRicochetShot", "MordekaiserMaceOfSpades", "MordekaiserChildrenOfTheGrave", "SoulShackles", "NamiW", "NasusQ", "NasusW", "NautilusGandLine", "Takedown", "NocturneParanoia", "OlafRecklessStrike", "PantheonQ", "PoppyDevastatingBlow", "PoppyHeroicCharge", "QuinnE", "RengarQ", "PuncturingTaunt", "RenektonPreExecute", "SpellFlux", "SejuaniWintersClaw", "TwoShivPoisen", "ShenVorpalStar", "ShyvanaDoubleAttack", "shyvanadoubleattackdragon", "Fling", "SkarnerImpale", "SonaHymnofValor", "SwainTorment", "SwainDecrepify", "TalonNoxianDiplomacy", "TalonCutthroat", "BlindingDart", "DetonatingShot", "BusterShot", "TrundleTrollSmash", "TrundlePain", "MockingShout", "redcardpreattack", "bluecardpreattack", "Expunge", "UdyrBearStance", "UrgotHeatseekingLineMissile", "UrgotHeatseekingLineqqMissile", "UrgotSwap2", "VeigarBalefulStrike", "VeigarPrimordialBurst", "ViR", "ViktorDeathRay", "ViktorPowerTransfer", "VladimirTransfusion", "VolibearQ", "HungeringStrike", "XenZhaoComboTarget", "XenZhaoSweep", "YasuoDashWrapper", "YasuoRKnockUpComboW" };
         static readonly Spell.Targeted Q = new Spell.Targeted(SpellSlot.Q, 600);
         static readonly Spell.Active W = new Spell.Active(SpellSlot.W);
         static readonly Spell.Active E = new Spell.Active(SpellSlot.E);
@@ -173,7 +173,7 @@ namespace WuYi
 
                 EOMenu.AddSeparator();
             }
-
+            
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnEndScene += Drawing_OnEndScene;
@@ -197,6 +197,7 @@ namespace WuYi
                         W.Cast();
                         Orbwalker.ResetAutoAttack();
                         EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                        return;
                     }
 
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue)
@@ -204,6 +205,7 @@ namespace WuYi
                         W.Cast();
                         Orbwalker.ResetAutoAttack();
                         EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                        return;
                     }
                 }
             }
@@ -235,6 +237,7 @@ namespace WuYi
                             new Vector2(Target.HPBarPosition.X + 1, Target.HPBarPosition.Y + 9),
                             new Vector2(Target.HPBarPosition.X + 1 + FutureDamage * 104, Target.HPBarPosition.Y + 9)
                         );
+                        return;
                     }
                 }
 
@@ -249,6 +252,7 @@ namespace WuYi
         {
             Obj_AI_Minion minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(it => it.IsValidTarget(Q.Range) && !it.IsDead);
             if (minion != default(Obj_AI_Minion)) { Q.Cast(minion); }
+            return;
         }
 
         //-------------------------------------AIHeroClient_OnProcessSpellCast--------------------------------------
@@ -259,10 +263,10 @@ namespace WuYi
             {
                 if (Q.IsReady() && (EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 3 || EOMenu[args.SData.AlternateName].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.AlternateName].Cast<Slider>().CurrentValue == 3))
                 {
-                    if (args.SData.Name == "JaxCounterStrike") { Core.DelayAction(() => Q.Cast(sender), 2000 - Game.Ping - 100); }
+                    if (args.SData.Name == "JaxCounterStrike") { Core.DelayAction(() => Q.Cast(sender), 2000 - Game.Ping - 100); return; }
 
                     if (args.SData.Name == "timebombenemybuff" || args.SData.Name == "karthusfallenonetarget")
-                    { Core.DelayAction(() => Q.Cast(Target), 250); Core.DelayAction(() => WaitAndBleed(), 250); }
+                    { Core.DelayAction(() => Q.Cast(Target), 250); Core.DelayAction(() => WaitAndBleed(), 250); return; }
 
                     else if (args.SData.Name == "ZedR")
                     {
@@ -270,12 +274,15 @@ namespace WuYi
 
                         Core.DelayAction(() => WaitAndBleed(), 400);
                         if (otherchamp != null) Core.DelayAction(() => Q.Cast(otherchamp), 400);
+                        return;
                     }
 
                     else if (sender.IsValidTarget(Q.Range))
                     {
                         Core.DelayAction( () => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 50 );
+                        return;
                     }
+                    return;
                 }
                 
                 else if (W.IsReady() && Player.IsFacing(sender) && EOMenu[args.SData.Name].Cast<Slider>().CurrentValue > 1 && ( args.Target.IsMe || new Geometry.Polygon.Rectangle(args.Start, args.End, args.SData.LineWidth).IsInside(Player) || new Geometry.Polygon.Circle(args.End, args.SData.CastRadius).IsInside(Player)) )
@@ -287,8 +294,10 @@ namespace WuYi
                         Core.DelayAction(() => W.Cast(), delay);
                         Core.DelayAction(() => EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, Target), delay);
                     }
+                    return;
                 }
             }
+            return;
         }
 
         //----------------------------------------------Gapcloser_OnGapcloser----------------------------------------
@@ -299,10 +308,11 @@ namespace WuYi
             {
                 Q.Cast(sender);
             }
+            return;
         }
 
         //----------------------------------------------Drawing_OnDraw----------------------------------------
-
+        
         static void Drawing_OnDraw(EventArgs args)
         {
             if (!Player.IsDead)
@@ -353,27 +363,9 @@ namespace WuYi
                 }
             }
 
-            //-----------------------------------------------KS----------------------------------------
+            //------------------------------------------------KS------------------------------------------------
 
-            if (Menu["KS"].Cast<CheckBox>().CurrentValue)
-            {
-                AIHeroClient bye = null;
-
-                if (Q.IsReady())
-                {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
-                    if (bye != null) Q.Cast(bye);
-                }
-
-                if (Smite != null && bye == null)
-                {
-                    if (Smite.Name.Contains("gank") && Smite.IsReady())
-                    {
-                        bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                        if (bye != null) Smite.Cast(bye);
-                    }
-                }
-            }
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue && EntityManager.Heroes.Enemies.Any(it => Q.IsInRange(it))) Modes.KS();
 
             //-----------------------------------------------Auto Ignite----------------------------------------
 
@@ -399,135 +391,176 @@ namespace WuYi
             {
                 if (Target.IsValidTarget())
                 {
-                    bool QRange = Target.IsValidTarget(Q.Range);
+                    Modes.UpdateVariables();
                     
                     //---------------------------------------------------Combo--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
 
                     //---------------------------------------------------Mixed--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-                    {
-                        if (Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue)
-                        {
-                            if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady() && QRange) Q.Cast(Target);
-
-                            if (Player.Distance(Target) <= Player.GetAutoAttackRange() && Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady()) E.Cast();
-                        }
-                    }
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue) Modes.Harass();
                 }
                 else Target = null;
             }
 
-            //---------------------------------------------------LaneClear--------------------------------------------
+            //-----------------------------------------------LaneClear---------------------------------------------
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && Q.IsReady())
-            {
-                if (Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) LaneClear();
-
-                if (Tiamat != null)
-                {
-                    if (Tiamat.IsReady())
-                    {
-                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                        if (UseItem) Tiamat.Cast();
-                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                        if (UseItem) Tiamat.Cast();
-                    }
-                }
-
-                if (Hydra != null)
-                {
-                    if (Hydra.IsReady())
-                    {
-                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                        if (UseItem) Hydra.Cast();
-                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                        if (UseItem) Hydra.Cast();
-                    }
-                }
-            }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && Q.IsReady() && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) Modes.LaneClear();
 
             return;
         }
 
-        //---------------------------------------------LaneClear()------------------------------------------------
+        //---------------------------------------------class Modes-------------------------------------------------
 
-        static void LaneClear()
+        class Modes
         {
-            IEnumerable<Obj_AI_Minion> ListMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, 1000).OrderBy(minion => minion.Distance(Player));
-            int hits = new int();
+            static bool QIsReady;
+            static bool EIsReady;
 
-            if (ListMinions.Any())
+            static bool AARange;
+            static bool QRange;
+
+            //--------------------------------------------UpdateVariables()----------------------------------------
+
+            public static void UpdateVariables()
             {
-                if (!(ListMinions.First().Distance(Player) > Q.Range))
+                QIsReady = Q.IsReady();
+                EIsReady = E.IsReady();
+
+                AARange = Player.IsInAutoAttackRange(Target);
+                QRange = Q.IsInRange(Target);
+
+                return;
+            }
+
+            //----------------------------------------------Combo()------------------------------------------------
+
+            public static void Combo()
+            {
+                if ((Scimitar.IsReady() || QSS.IsReady()) && Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt)) { Scimitar.Cast(); QSS.Cast(); }
+
+                if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && QIsReady && QRange)
                 {
-                    hits += 1;
+                    if (Menu["SmartQ"].Cast<CheckBox>().CurrentValue) { QLogic(); }
+                    else if (Menu["SaveQDodge"].Cast<CheckBox>().CurrentValue) { }
+                    else { Q.Cast(Target); }
+                }
 
-                    for (int i = 0; i < ListMinions.Count(); i++)
+                if (Smite != null)
+                {
+                    if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
                     {
-                        if (i + 1 == ListMinions.Count()) break;
-                        else if (ListMinions.ElementAt(i).Distance(ListMinions.ElementAt(i + 1)) <= 200) { hits += 1; }
-                        else break;
+                        if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                        else if (Smite.Name.Contains("duel") && AARange) Smite.Cast(Target);
                     }
+                }
 
-                    if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue && hits >= Menu["Min Minions Q"].Cast<Slider>().CurrentValue)
+                if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && R.IsReady() && Player.Distance(Target) <= Player.GetAutoAttackRange(Target) + 300) { R.Cast(); }
+
+                if (Menu["UseECombo"].Cast<CheckBox>().CurrentValue && EIsReady && AARange) E.Cast();
+
+                if (QRange && GhostBlade.IsReady()) GhostBlade.Cast();
+
+                if (Target.IsValidTarget(550) && BOTRK.IsReady()) BOTRK.Cast(Target);
+
+                if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
+
+                if (Target.IsValidTarget(400) && Tiamat.IsReady()) Tiamat.Cast();
+
+                if (Target.IsValidTarget(400) && Hydra.IsReady()) Hydra.Cast();
+
+                if (Target.IsValidTarget(500) && Randuin.IsReady()) Randuin.Cast();
+
+                if (Target.IsValidTarget(700) && Hextech.IsReady()) Hextech.Cast(Target);
+
+                return;
+            }
+
+            //---------------------------------------------Harass()------------------------------------------------
+
+            public static void Harass()
+            {
+                if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && QIsReady && QRange) Q.Cast(Target);
+
+                if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && EIsReady && AARange) E.Cast();
+
+                return;
+            }
+
+            //-------------------------------------------LaneClear()-----------------------------------------------
+
+            public static void LaneClear()
+            {
+                IEnumerable<Obj_AI_Minion> ListMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, 1000).OrderBy(minion => minion.Distance(Player));
+                int hits = new int();
+
+                if (ListMinions.Any())
+                {
+                    if (!(ListMinions.First().Distance(Player) > Q.Range))
                     {
-                        if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
+                        hits += 1;
+
+                        for (int i = 0; i < ListMinions.Count(); i++)
                         {
-                            if ((SpellDamage(ListMinions.First(), SpellSlot.Q) > ListMinions.First().Health || SpellDamage(ListMinions.ElementAt(1), SpellSlot.Q) > ListMinions.ElementAt(1).Health)) Q.Cast(ListMinions.First());
+                            if (i + 1 == ListMinions.Count()) break;
+                            else if (ListMinions.ElementAt(i).Distance(ListMinions.ElementAt(i + 1)) <= 200) { hits += 1; }
+                            else break;
                         }
-                        else { Q.Cast(ListMinions.First()); }
+
+                        if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue && hits >= Menu["Min Minions Q"].Cast<Slider>().CurrentValue)
+                        {
+                            if (Menu["JustQIMWD"].Cast<CheckBox>().CurrentValue)
+                            {
+                                if ((SpellDamage(ListMinions.First(), SpellSlot.Q) > ListMinions.First().Health || SpellDamage(ListMinions.ElementAt(1), SpellSlot.Q) > ListMinions.ElementAt(1).Health)) Q.Cast(ListMinions.First());
+                            }
+                            else { Q.Cast(ListMinions.First()); }
+                        }
+                    }
+                }
+
+                if (Tiamat.IsReady())
+                {
+                    bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                    if (UseItem) Tiamat.Cast();
+                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                    if (UseItem) Tiamat.Cast();
+                }
+
+                if (Hydra.IsReady())
+                {
+                    bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                    if (UseItem) Hydra.Cast();
+                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                    if (UseItem) Hydra.Cast();
+                }
+
+                return;
+            }
+
+            //-------------------------------------------------KS--------------------------------------------------
+
+            public static void KS()
+            {
+                if (Q.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
+                    if (bye != null) { Q.Cast(bye); return; }
+                }
+
+                if (Smite != null)
+                {
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
+                    {
+                        var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                        if (bye != null) { Smite.Cast(bye); return; }
                     }
                 }
             }
+
         }
 
-        //---------------------------------------------Combo()------------------------------------------------
-
-        static void Combo()
-        {
-            bool AARange = Player.Distance(Target) <= Player.GetAutoAttackRange();
-
-            if ((Scimitar.IsReady() || QSS.IsReady()) && Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt)) { Scimitar.Cast(); QSS.Cast(); }
-
-            if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Q.Range))
-            {
-                if (Menu["SmartQ"].Cast<CheckBox>().CurrentValue) { QLogic(); }
-                else if (Menu["SaveQDodge"].Cast<CheckBox>().CurrentValue) { }
-                else { Q.Cast(Target); }
-            }
-
-            if (Smite != null)
-            {
-                if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
-                {
-                    if (Smite.Name.Contains("gank")) Smite.Cast(Target);
-                    else if (Smite.Name.Contains("duel") && AARange) Smite.Cast(Target);
-                }
-            }
-
-            if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && R.IsReady() && Player.Distance(Target) <= Player.GetAutoAttackRange(Target) + 300) { R.Cast(); }
-
-            if (AARange && Menu["UseECombo"].Cast<CheckBox>().CurrentValue && E.IsReady()) E.Cast();
-
-            if (Target.IsValidTarget(Q.Range) && GhostBlade.IsReady()) GhostBlade.Cast();
-
-            if (Target.IsValidTarget(550) && BOTRK.IsReady()) BOTRK.Cast(Target);
-
-            if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
-
-            if (Target.IsValidTarget(400) && Tiamat.IsReady()) Tiamat.Cast();
-
-            if (Target.IsValidTarget(400) && Hydra.IsReady()) Hydra.Cast();
-
-            if (Target.IsValidTarget(500) && Randuin.IsReady()) Randuin.Cast();
-
-            if (Target.IsValidTarget(700) && Hextech.IsReady()) Hextech.Cast(Target);
-        }
-
-        //---------------------------------------------QLogic()------------------------------------------------
+        //---------------------------------------------QLogic()-------------------------------------------------
 
         static void QLogic()
         {
@@ -537,7 +570,7 @@ namespace WuYi
             if (SpellDamage(Target, SpellSlot.Q) >= Target.Health) Q.Cast(Target);
         }
 
-        //---------------------------------------------SpellDamage()------------------------------------------------
+        //-------------------------------------------SpellDamage()----------------------------------------------
 
         static float SpellDamage(Obj_AI_Base target, SpellSlot slot)
         {
@@ -554,7 +587,7 @@ namespace WuYi
             }
         }
 
-        //---------------------------------GetComboDamage(Obj_AI_Hero Target)----------------------------------
+        //---------------------------------GetComboDamage(Obj_AI_Hero Target)-----------------------------------
 
         static float GetComboDamage(AIHeroClient Target)
         {

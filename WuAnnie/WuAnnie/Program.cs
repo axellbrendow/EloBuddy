@@ -52,7 +52,7 @@ namespace WuAnnie
 
             //-------------------------------------------------Itens--------------------------------------------------
 
-            Mikael = new Item(3222, 750);
+            Mikael = new Item(3222, 700);
 
             R.MinimumHitChance = HitChance.High;
             W.MinimumHitChance = HitChance.Medium;
@@ -149,17 +149,28 @@ namespace WuAnnie
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("StackStun", new CheckBox("StackStun"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
+            Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
             Menu.Add("RWithStun", new CheckBox("Just R if stun is up", false));
             Menu.Add("Ult on Target", new KeyBind("Ult on Target", false, KeyBind.BindTypes.HoldActive, 'T'));
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnEndScene += Drawing_OnEndScene;
+            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
         }
 
-        static void WIDThis(Vector3 CS) { if (CS != default(Vector3)) W.Cast(CS); return; }
+        //------------------------------------------Orbwalker_OnPreAttack----------------------------------------
+
+        static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        {
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+            {
+                if (!Menu["AAMaxRange?"].Cast<CheckBox>().CurrentValue && target.Distance(Player) >= Q.Range - 30) args.Process = false;
+                if (!Menu["Auto Attack ?"].Cast<CheckBox>().CurrentValue) args.Process = false;
+            }
+        }
 
         //----------------------------------------------Drawing_OnEndScene----------------------------------------
 
@@ -234,19 +245,7 @@ namespace WuAnnie
         {
             if (Player.IsDead) return;
 
-            if (Player.CountEnemiesInRange(1000) > 0)
-            {
-                foreach (AIHeroClient enemy in EntityManager.Heroes.Enemies)
-                {
-                    foreach (AIHeroClient ally in EntityManager.Heroes.Allies)
-                    {
-                        if (ally.IsFacing(enemy) && ally.HealthPercent <= 30)
-                        {
-                            if ((ally.HasBuffOfType(BuffType.Charm) || ally.HasBuffOfType(BuffType.Fear) || ally.HasBuffOfType(BuffType.Poison) || ally.HasBuffOfType(BuffType.Polymorph) || ally.HasBuffOfType(BuffType.Silence) || ally.HasBuffOfType(BuffType.Sleep) || ally.HasBuffOfType(BuffType.Slow) || ally.HasBuffOfType(BuffType.Snare) || ally.HasBuffOfType(BuffType.Stun) || ally.HasBuffOfType(BuffType.Taunt)) && Mikael.IsInRange(ally)) Mikael.Cast(ally);
-                        }
-                    }
-                }
-            }
+            if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
             Target = TargetSelector.GetTarget(1300, DamageType.Magical);
             Player2D = Player.ServerPosition.To2D();
@@ -285,120 +284,49 @@ namespace WuAnnie
                 if (!Player.HasBuff("pyromania_particle") && Player.IsInShopRange() && W.IsReady()) { W.Cast(Player.Position); }
             }
 
+            //-----------------------------------------------Auto Ignite----------------------------------------
+
+            if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
+            {
+                if (Ignite.IsReady())
+                {
+                    var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
+
+                    if (IgniteEnemy != null)
+                    {
+                        if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
+                        {
+                            Ignite.Cast(IgniteEnemy);
+                        }
+                    }
+                }
+            }
+
+            //----------------------------------------------------KS----------------------------------------------
+
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(Q.Range) > 0) Modes.KS();
+
             //--------------------------------------------Orbwalker Modes-------------------------------------------
 
             if (Target != null)
             {
                 if (Target.IsValidTarget())
                 {
+                    Modes.UpdateVariables();
+
                     if (Player.HasBuff("infernalguardiantime")) { EloBuddy.Player.IssueOrder(GameObjectOrder.MovePet, Target); EloBuddy.Player.IssueOrder(GameObjectOrder.AutoAttackPet, Target); }
-
-                    bool RRange = Target.IsValidTarget(R.Range);
-
-                    bool QIsReady = Q.IsReady();
-                    bool WIsReady = W.IsReady();
-
-                    //-----------------------------------------------Auto Ignite----------------------------------------
-
-                    if (Menu["Auto Ignite"].Cast<CheckBox>().CurrentValue && Ignite != null)
-                    {
-						if (Ignite.IsReady())
-						{
-							var IgniteEnemy = EntityManager.Heroes.Enemies.FirstOrDefault(it => DamageLibrary.GetSummonerSpellDamage(Player, it, DamageLibrary.SummonerSpells.Ignite) >= it.Health - 30);
-							
-							if (IgniteEnemy != null)
-							{
-								if ((IgniteEnemy.Distance(Player) >= 300 || Player.HealthPercent <= 40))
-								{
-									Ignite.Cast(IgniteEnemy);
-								}
-							}
-						}						
-                    }
-
-                    //----------------------------------------------------KS----------------------------------------------
-
-                    if (Menu["KS"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(Q.Range) > 0)
-                    {
-                        AIHeroClient bye = null;
-
-                        if (Q.IsReady())
-                        {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health);
-							if (bye != null) Q.Cast(bye);
-                        }
-
-                        if (W.IsReady() && bye == null)
-                        {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(W.Range) && SpellDamage(it, SpellSlot.W) >= it.Health);
-                            if (bye != null) W.Cast(bye);
-                        }
-
-                        if (Q.IsReady() && W.IsReady() && bye == null)
-                        {
-                            bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.W) >= it.Health);
-                            if (bye != null){ W.Cast(bye); Core.DelayAction(() => Q.Cast(bye), 100); }
-                        }
-
-                        if (Smite != null && bye == null)
-                        {
-                            if (Smite.Name.Contains("gank") && Smite.IsReady())
-                            {
-                                bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                                if (bye != null) Smite.Cast(bye);
-                            }
-                        }
-                    }
 
                     //-----------------------------------------------Ult On Target----------------------------------------
 
-                    if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range) && R.IsReady()) R.Cast(Target);
+                    if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range) && R.IsReady()) R.Cast(R.GetPrediction(Target).CastPosition);
 
                     //---------------------------------------------------Combo--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-                    {
-                        if (RRange && R.IsReady())
-                        {
-                            PosAndHits = GetBestRPos(Target.ServerPosition.To2D());
-
-                            if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && PosAndHits.First().Value >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue)
-                            {
-                                if (Menu["RWithStun"].Cast<CheckBox>().CurrentValue)
-                                {
-                                    if (Player.HasBuff("pyromania_particle")) R.Cast(PosAndHits.First().Key.To3D());
-                                }
-                                else R.Cast(PosAndHits.First().Key.To3D());
-                            }
-
-                        }
-
-                        if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && QIsReady && RRange) Q.Cast(Target);
-
-                        if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && WIsReady && RRange) WIDThis(GetBestWPos());
-
-                        if (Smite != null)
-                        {
-                            if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
-                            {
-                                if (Smite.Name.Contains("gank")) Smite.Cast(Target);
-                                else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
-                            }
-                        }
-                    }
-
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
 
                     //---------------------------------------------------Mixed--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-                    {
-                        if (Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue)
-                        {
-                            if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && QIsReady && RRange) Q.Cast(Target);
-
-                            if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && WIsReady && RRange) W.Cast(Target);
-                        }
-                    }
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue) Modes.Harass();
                 }
 
                 else Target = null;
@@ -406,44 +334,123 @@ namespace WuAnnie
 
             //---------------------------------------------------LaneClear--------------------------------------------
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-            {
-                if (Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
-                {
-                    if (Q.IsReady())
-                    {
-                        IEnumerable<Obj_AI_Base> IEMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, Q.Range).Where(minion => minion.Health <= SpellDamage(minion, SpellSlot.Q)).OrderBy(minion => minion.Distance(Player2D));
-
-                        if (IEMinions.Any())
-                        {
-                            if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
-                                switch (Menu["ModeQLaneClear"].Cast<Slider>().CurrentValue)
-                                {
-                                    case 0:
-                                        Q.Cast(IEMinions.First());
-                                        break;
-                                    case 1:
-                                        if (Player.CountEnemiesInRange(700) == 0) Q.Cast(IEMinions.First());
-                                        break;
-                                    case 2:
-                                        if (!Player.HasBuff("pyromania_particle")) Q.Cast(IEMinions.First());
-                                        break;
-                                }
-                        }
-                    }
-
-                    if (Menu["UseWLaneClear"].Cast<CheckBox>().CurrentValue && W.IsReady())
-                    {
-                        var FL = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(EntityManager.MinionsAndMonsters.EnemyMinions.Where(minion => minion.IsValidTarget(625) && !minion.IsDead), 210f, 625);
-
-                        if (FL.HitNumber >= Menu["Min Minions W"].Cast<Slider>().CurrentValue) W.Cast(FL.CastPosition);
-                    }
-                }
-            }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) Modes.LaneClear();
 
             //---------------------------------------------------LastHit--------------------------------------------
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) && Q.IsReady())
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) && Q.IsReady()) Modes.LastHit();
+
+            return;
+        }
+
+        //-------------------------------------------class Modes-------------------------------------------------
+        
+        class Modes
+        {
+            static bool RRange;
+
+            static bool QIsReady;
+            static bool WIsReady;
+
+            //----------------------------------------UpdateVariables()-------------------------------------------
+
+            public static void UpdateVariables()
+            {
+                RRange = R.IsInRange(Target);
+
+                QIsReady = Q.IsReady();
+                WIsReady = W.IsReady();
+
+                return;
+            }
+
+            //---------------------------------------------Combo()------------------------------------------------
+
+            public static void Combo()
+            {
+                if (RRange && R.IsReady())
+                {
+                    PosAndHits = GetBestRPos(Target.ServerPosition.To2D());
+
+                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && PosAndHits.First().Value >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue)
+                    {
+                        if (Menu["RWithStun"].Cast<CheckBox>().CurrentValue)
+                        {
+                            if (Player.HasBuff("pyromania_particle")) R.Cast(PosAndHits.First().Key.To3D());
+                        }
+                        else R.Cast(PosAndHits.First().Key.To3D());
+                    }
+
+                }
+
+                if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && QIsReady && RRange) Q.Cast(Target);
+
+                if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && WIsReady && RRange)
+                {
+                    var WPos = GetBestWPos();
+                    if (WPos != default(Vector3)) W.Cast(WPos);
+                }
+
+                if (Smite != null)
+                {
+                    if (Smite.IsInRange(Target) && Smite.IsReady())
+                    {
+                        if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                        else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                    }
+                }
+
+                return;
+            }
+
+            //---------------------------------------------Harass()-----------------------------------------------
+
+            public static void Harass()
+            {
+                if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && QIsReady && RRange) Q.Cast(Target);
+
+                if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && WIsReady && RRange) W.Cast(Target);
+
+                return;
+            }
+
+            //-------------------------------------------LaneClear()-----------------------------------------------
+
+            public static void LaneClear()
+            {
+                if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue && Q.IsReady())
+                {
+                    IEnumerable<Obj_AI_Base> IEMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, Q.Range).Where(minion => minion.Health <= SpellDamage(minion, SpellSlot.Q)).OrderBy(minion => minion.Distance(Player2D));
+
+                    if (IEMinions.Any())
+                    {
+                        switch (Menu["ModeQLaneClear"].Cast<Slider>().CurrentValue)
+                        {
+                            case 0:
+                                Q.Cast(IEMinions.First());
+                                break;
+                            case 1:
+                                if (Player.CountEnemiesInRange(700) == 0) Q.Cast(IEMinions.First());
+                                break;
+                            case 2:
+                                if (!Player.HasBuff("pyromania_particle")) Q.Cast(IEMinions.First());
+                                break;
+                        }
+                    }
+                }
+
+                if (Menu["UseWLaneClear"].Cast<CheckBox>().CurrentValue && W.IsReady() && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
+                {
+                    var WPos = GetBestWPos(true);
+                    if (WPos != default(Vector3)) W.Cast(WPos);
+                }
+
+                return;
+            }
+
+            //----------------------------------------------LastHit------------------------------------------------
+
+            public static void LastHit()
             {
                 IEnumerable<Obj_AI_Base> IEMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, Q.Range).Where(minion => minion.Health <= SpellDamage(minion, SpellSlot.Q)).OrderBy(minion => minion.Distance(Player2D));
 
@@ -463,9 +470,60 @@ namespace WuAnnie
                                 break;
                         }
                 }
+
+                return;
             }
 
-            return;
+            //-------------------------------------------------KS--------------------------------------------------
+
+            public static void KS()
+            {
+                if (Q.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health);
+                    if (bye != null) { Q.Cast(bye); return; }
+                }
+
+                if (W.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(W.Range) && SpellDamage(it, SpellSlot.W) >= it.Health);
+                    if (bye != null) { W.Cast(bye); return; }
+                }
+
+                if (Q.IsReady() && W.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.W) >= it.Health);
+                    if (bye != null) { W.Cast(bye); Core.DelayAction(() => Q.Cast(bye), 100); return; }
+                }
+
+                if (Smite != null)
+                {
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
+                    {
+                        var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                        if (bye != null) { Smite.Cast(bye); return; }
+                    }
+                }
+
+                return;
+            }
+
+            //----------------------------------------------SaveAlly-----------------------------------------------
+
+            public static void SaveAlly()
+            {
+                if (!Mikael.IsReady()) return;
+                
+                var Ally = EntityManager.Heroes.Allies.FirstOrDefault(ally => EntityManager.Heroes.Enemies.Any(enemy => ally.IsFacing(enemy)) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750);
+
+                if (Ally != null)
+                {
+                    if ((Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                }
+
+                return;
+            }
+
         }
 
         //-----------------------------------------------CountRHits(Vector2 CastPosition)-------------------------------------------
@@ -566,47 +624,96 @@ namespace WuAnnie
 
         //--------------------------------------------GetBestWPos()---------------------------------------------
 
-        static Vector3 GetBestWPos()
+        static Vector3 GetBestWPos(bool minions = false)
         {
-            var CS = new List<Geometry.Polygon.Sector>();
-            var Vectors = new List<Vector3>() { new Vector3(Target.ServerPosition.X + 550, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X - 550, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y + 550, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y - 550, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X + 230, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X - 230, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y + 230, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y - 230, Target.ServerPosition.Z), Target.ServerPosition };
-
-            var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 600);
-            var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 600);
-            var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 600);
-            var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 600);
-            var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 600);
-            var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 600);
-            var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 600);
-            var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 600);
-            var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 600);
-
-            CS.Add(CS1);
-            CS.Add(CS2);
-            CS.Add(CS3);
-            CS.Add(CS4);
-            CS.Add(CS5);
-            CS.Add(CS6);
-            CS.Add(CS7);
-            CS.Add(CS8);
-            CS.Add(CS9);
-
-            var CSHits = new List<byte>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-            for (byte j = 0; j < 9; j++)
+            if (minions)
             {
-                foreach (AIHeroClient hero in EntityManager.Heroes.Enemies.Where(enemy => !enemy.IsDead && enemy.IsValidTarget(W.Range)))
+                var CS = new List<Geometry.Polygon.Sector>();
+
+                var Minion = EntityManager.MinionsAndMonsters.EnemyMinions.Where(it => it.IsValidTarget(W.Range)).OrderByDescending(it => it.Distance(Player)).FirstOrDefault();
+
+                if (Minion == null) return default(Vector3);
+
+                var Vectors = new List<Vector3>() { new Vector3(Minion.ServerPosition.X + 550, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X - 550, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y + 550, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y - 550, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X + 230, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X - 230, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y + 230, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y - 230, Minion.ServerPosition.Z), Minion.ServerPosition };
+
+                var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 600);
+                var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 600);
+                var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 600);
+                var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 600);
+                var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 600);
+                var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 600);
+                var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 600);
+                var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 600);
+                var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 600);
+
+                CS.Add(CS1);
+                CS.Add(CS2);
+                CS.Add(CS3);
+                CS.Add(CS4);
+                CS.Add(CS5);
+                CS.Add(CS6);
+                CS.Add(CS7);
+                CS.Add(CS8);
+                CS.Add(CS9);
+
+                var CSHits = new List<byte>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                for (byte j = 0; j < 9; j++)
                 {
-                    if (CS.ElementAt(j).IsInside(hero)) CSHits[j]++;
-                    if (hero == Target) CSHits[j] += 10;
+                    foreach ( Obj_AI_Base minion in EntityManager.MinionsAndMonsters.EnemyMinions.Where(it => it.IsValidTarget(W.Range)) )
+                    {
+                        if (CS.ElementAt(j).IsInside(minion)) CSHits[j]++;
+                    }
                 }
+
+                int i = CSHits.Select((value, index) => new { Value = value, Index = index }).Aggregate((a, b) => (a.Value > b.Value) ? a : b).Index;
+
+                if (CSHits[i] < Menu["Min Minions W"].Cast<Slider>().CurrentValue) return default(Vector3);
+
+                return Vectors[i];
             }
+            else
+            {
+                var CS = new List<Geometry.Polygon.Sector>();
+                var Vectors = new List<Vector3>() { new Vector3(Target.ServerPosition.X + 550, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X - 550, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y + 550, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y - 550, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X + 230, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X - 230, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y + 230, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y - 230, Target.ServerPosition.Z), Target.ServerPosition };
 
-            byte i = (byte)CSHits.Select((value, index) => new { Value = value, Index = index }).Aggregate((a, b) => (a.Value > b.Value) ? a : b).Index;
+                var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 600);
+                var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 600);
+                var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 600);
+                var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 600);
+                var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 600);
+                var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 600);
+                var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 600);
+                var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 600);
+                var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 600);
 
-            if (CSHits[i] == 0) return default(Vector3);
+                CS.Add(CS1);
+                CS.Add(CS2);
+                CS.Add(CS3);
+                CS.Add(CS4);
+                CS.Add(CS5);
+                CS.Add(CS6);
+                CS.Add(CS7);
+                CS.Add(CS8);
+                CS.Add(CS9);
 
-            return Vectors[i];
+                var CSHits = new List<byte>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                for (byte j = 0; j < 9; j++)
+                {
+                    foreach (AIHeroClient hero in EntityManager.Heroes.Enemies.Where(enemy => !enemy.IsDead && enemy.IsValidTarget(W.Range)))
+                    {
+                        if (CS.ElementAt(j).IsInside(hero)) CSHits[j]++;
+                        if (hero == Target) CSHits[j] += 10;
+                    }
+                }
+
+                byte i = (byte)CSHits.Select((value, index) => new { Value = value, Index = index }).Aggregate((a, b) => (a.Value > b.Value) ? a : b).Index;
+
+                if (CSHits[i] == 0) return default(Vector3);
+
+                return Vectors[i];
+            }
         }
 
         //------------------------SpellDamage(Obj_AI_Base target, SpellSlot slot)-------------------------------

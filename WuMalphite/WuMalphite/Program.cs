@@ -28,7 +28,7 @@ namespace WuMalphite
         static ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
         
-        static Item BOTRK, Randuin, Bilgewater, Tiamat, Hydra, Glory, FOTMountain, Mikael;
+        static Item BOTRK, Randuin, Bilgewater, Tiamat, Hydra, Glory, FOTMountain, Mikael, Talisma;
         static Menu Menu;
         static Vector2 Player2D = new Vector2();
         static Dictionary<Vector2, int> PosAndHits;
@@ -61,6 +61,7 @@ namespace WuMalphite
             Glory = new Item(3800);
             FOTMountain = new Item(3401);
             Mikael = new Item(3222, 750);
+            Talisma = new Item(ItemId.Talisman_of_Ascension);
 
             //-------------------------------------------------Smite--------------------------------------------------
 
@@ -251,21 +252,7 @@ namespace WuMalphite
         {
             if (Player.IsDead) return;
 
-            if (Player.CountEnemiesInRange(1000) > 0)
-            {
-                foreach (AIHeroClient enemy in EntityManager.Heroes.Enemies)
-                {
-                    foreach (AIHeroClient ally in EntityManager.Heroes.Allies)
-                    {
-                        if (ally.IsFacing(enemy) && ally.HealthPercent <= 30)
-                        {
-                            FOTMountain.Cast(ally);
-
-                            if ((ally.HasBuffOfType(BuffType.Charm) || ally.HasBuffOfType(BuffType.Fear) || ally.HasBuffOfType(BuffType.Poison) || ally.HasBuffOfType(BuffType.Polymorph) || ally.HasBuffOfType(BuffType.Silence) || ally.HasBuffOfType(BuffType.Sleep) || ally.HasBuffOfType(BuffType.Slow) || ally.HasBuffOfType(BuffType.Snare) || ally.HasBuffOfType(BuffType.Stun) || ally.HasBuffOfType(BuffType.Taunt)) && Mikael.IsInRange(ally)) Mikael.Cast(ally);
-                        }
-                    }
-                }
-            }
+            if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
             Target = TargetSelector.GetTarget(R.Range + E.Range, DamageType.Magical);
             Player2D = Player.ServerPosition.To2D();
@@ -298,37 +285,7 @@ namespace WuMalphite
 
             //----------------------------------------------------KS----------------------------------------------
 
-            if (Menu["KS"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(Q.Range) > 0)
-            {
-                AIHeroClient bye = null;
-
-                if (Q.IsReady())
-                {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health);
-					if (bye != null) Q.Cast(bye);
-                }
-
-                if (E.IsReady() && bye == null)
-                {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.E) >= it.Health);
-                    if (bye != null) E.Cast();
-                }
-
-                if (Q.IsReady() && E.IsReady() && bye == null)
-                {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.E) >= it.Health);
-                    if (bye != null) { E.Cast(); Core.DelayAction( () => Q.Cast(bye), E.CastDelay + Game.Ping ); }
-                }
-
-                else if (Smite != null && bye == null)
-                {
-                    if (Smite.Name.Contains("gank") && Smite.IsReady())
-                    {
-                        bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                        if (bye != null) Smite.Cast(bye);
-                    }
-                }
-            }
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(Q.Range) > 0) Modes.KS();
 
             //-----------------------------------------------Auto Ignite----------------------------------------
 
@@ -354,122 +311,211 @@ namespace WuMalphite
             {
                 if (Target.IsValidTarget())
                 {
-                    bool QRange = Q.IsInRange(Target);
-                    bool WRange = Target.IsValidTarget(Player.GetAutoAttackRange());
-                    bool ERange = Target.Distance(Player2D) <= E.Range - 20;
-                    bool RRange = R.IsInRange(Target);
+                    Modes.UpdateVariables();
 
-                    bool QIsReady = Q.IsReady();
-                    bool EIsReady = E.IsReady();
-                    
                     //-----------------------------------------------Ult On Target----------------------------------------
 
-                    if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue) R.Cast(Target);
+                    if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && R.IsInRange(Target))
+                    {
+                        if (EntityManager.Heroes.Allies.Where(ally => ally != Player && ally.Distance(Player) <= 700).Count() > 0)
+                        {
+                            if (Glory.IsReady()) Glory.Cast();
+                            if (Talisma.IsReady()) Talisma.Cast();
+                        }
+                        R.Cast(R.GetPrediction(Target).CastPosition);
+                    }
 
                     //---------------------------------------------------Combo--------------------------------------------
-                    
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-                    {
-                        if (RRange && R.IsReady())
-                        {
-                            PosAndHits = GetBestRPos(Target.ServerPosition.To2D());
 
-                            if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && PosAndHits.First().Value >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue)
-                            {
-                                if (EntityManager.Heroes.Allies.Where(ally => ally != Player && ally.Distance(Player) <= 700).Count() > 0 && Glory.IsReady()) Glory.Cast();
-                                R.Cast(PosAndHits.First().Key.To3D());
-                            }
-                        }
-
-                        if (Smite != null)
-                        {
-                            if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
-                            {
-                                if (Smite.Name.Contains("gank")) Smite.Cast(Target);
-                                else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
-                            }
-                        }
-
-                        if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && QIsReady && QRange) Q.Cast(Target);
-
-                        if (Menu["UseECombo"].Cast<CheckBox>().CurrentValue && EIsReady && ERange) E.Cast();
-
-                        if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && W.IsReady() && WRange) W.Cast();
-
-                        if (Randuin.IsReady() && Target.IsValidTarget(500)) Randuin.Cast();
-
-                        if (Bilgewater.IsReady() && Target.IsValidTarget(550)) Bilgewater.Cast(Target);
-
-                        if (BOTRK.IsReady() && Target.IsValidTarget(550)) BOTRK.Cast(Target);
-
-                        if (Tiamat.IsReady() && Target.IsValidTarget(400)) Tiamat.Cast();
-
-                        if (Hydra.IsReady() && Target.IsValidTarget(400)) Hydra.Cast();
-                    }
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
 
                     //---------------------------------------------------Mixed--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-                    {
-                        if (Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue)
-                        {
-                            if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && QIsReady && QRange) Q.Cast(Target);
-
-                            if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && EIsReady && ERange) E.Cast();
-
-                            if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && W.IsReady() && WRange) W.Cast();
-                        }
-                    }
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && Player.ManaPercent >= Menu["Harass, Mana %"].Cast<Slider>().CurrentValue) Modes.Harass();
                 }
                 else Target = null;
             }
 
             //---------------------------------------------------LaneClear--------------------------------------------
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-            {
-                if (Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue)
-                {
-                    IEnumerable<Obj_AI_Minion> ListMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, E.Range);
-
-                    if (ListMinions.Any() && E.IsReady())
-                    {
-                        if (Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue && ListMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
-                    }
-
-                    IEnumerable<Obj_AI_Minion> IEMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, Q.Range).Where(minion => minion.Health <= SpellDamage(minion, SpellSlot.Q)).OrderByDescending(minion => minion.Distance(Player2D));
-
-                    if (IEMinions.Any() && Q.IsReady())
-                    {
-                        if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
-                            Q.Cast(IEMinions.First());
-                    }
-                }
-
-                if (Tiamat != null)
-                {
-                    if (Tiamat.IsReady())
-                    {
-                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                        if (UseItem) Tiamat.Cast();
-                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                        if (UseItem) Tiamat.Cast();
-                    }
-                }
-
-                if (Hydra != null)
-                {
-                    if (Hydra.IsReady())
-                    {
-                        bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
-                        if (UseItem) Hydra.Cast();
-                        UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                        if (UseItem) Hydra.Cast();
-                    }
-                }
-            }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) Modes.LaneClear();
 
             return;
+        }
+
+        //-------------------------------------------class Modes-------------------------------------------------
+
+        class Modes
+        {
+            static bool QIsReady;
+            static bool WIsReady;
+            static bool EIsReady;
+
+            static bool QRange;
+            static bool WRange;
+            static bool ERange;
+
+            //-------------------------------------------UpdateVariables()----------------------------------------
+
+            public static void UpdateVariables()
+            {
+                QRange = Q.IsInRange(Target);
+                WRange = Player.IsInAutoAttackRange(Target);
+                ERange = Target.Distance(Player2D) <= E.Range - 30;
+
+                QIsReady = Q.IsReady();
+                EIsReady = E.IsReady();
+                WIsReady = W.IsReady();
+            }
+            
+            //---------------------------------------------Combo()------------------------------------------------
+
+            public static void Combo()
+            {
+                if (R.IsInRange(Target) && R.IsReady())
+                {
+                    PosAndHits = GetBestRPos(Target.ServerPosition.To2D());
+
+                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && PosAndHits.First().Value >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue)
+                    {
+                        if (EntityManager.Heroes.Allies.Where(ally => ally != Player && ally.Distance(Player) <= 700).Count() > 0)
+                        {
+                            if (Glory.IsReady()) Glory.Cast();
+                            if (Talisma.IsReady()) Talisma.Cast();
+                        }
+                        R.Cast(PosAndHits.First().Key.To3D());
+                    }
+                }
+
+                if (Smite != null)
+                {
+                    if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
+                    {
+                        if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                        else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                    }
+                }
+
+                if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && QIsReady && QRange) Q.Cast(Target);
+
+                if (Menu["UseECombo"].Cast<CheckBox>().CurrentValue && EIsReady && ERange) E.Cast();
+
+                if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && WIsReady && WRange) W.Cast();
+
+                if (Randuin.IsReady() && Target.IsValidTarget(500)) Randuin.Cast();
+
+                if (Bilgewater.IsReady() && Target.IsValidTarget(550)) Bilgewater.Cast(Target);
+
+                if (BOTRK.IsReady() && Target.IsValidTarget(550)) BOTRK.Cast(Target);
+
+                if (Tiamat.IsReady() && Target.IsValidTarget(400)) Tiamat.Cast();
+
+                if (Hydra.IsReady() && Target.IsValidTarget(400)) Hydra.Cast();
+
+                return;
+            }
+
+            //---------------------------------------------Harass()------------------------------------------------
+
+            public static void Harass()
+            {
+                if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && QIsReady && QRange) Q.Cast(Target);
+
+                if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && EIsReady && ERange) E.Cast();
+
+                if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && WIsReady && WRange) W.Cast();
+
+                return;
+            }
+
+            //-------------------------------------------LaneClear()-----------------------------------------------
+
+            public static void LaneClear()
+            {
+                IEnumerable<Obj_AI_Minion> ListMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, E.Range);
+
+                if (ListMinions.Any() && E.IsReady())
+                {
+                    if (Menu["UseELaneClear"].Cast<CheckBox>().CurrentValue && ListMinions.Count() >= Menu["Min Minions E"].Cast<Slider>().CurrentValue) E.Cast();
+                }
+
+                IEnumerable<Obj_AI_Minion> IEMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, Q.Range).Where(minion => minion.Health <= SpellDamage(minion, SpellSlot.Q)).OrderByDescending(minion => minion.Distance(Player2D));
+
+                if (IEMinions.Any() && Q.IsReady())
+                {
+                    if (Menu["UseQLaneClear"].Cast<CheckBox>().CurrentValue)
+                        Q.Cast(IEMinions.First());
+                }
+
+                if (Tiamat.IsReady())
+                {
+                    bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                    if (UseItem) Tiamat.Cast();
+                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                    if (UseItem) Tiamat.Cast();
+                }
+
+                if (Hydra.IsReady())
+                {
+                    bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
+                    if (UseItem) Hydra.Cast();
+                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                    if (UseItem) Hydra.Cast();
+                }
+
+                return;
+            }
+
+            //-------------------------------------------------KS--------------------------------------------------
+
+            public static void KS()
+            {
+                if (Q.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && SpellDamage(it, SpellSlot.Q) >= it.Health);
+                    if (bye != null) { Q.Cast(bye); return; }
+                }
+
+                if (E.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.E) >= it.Health);
+                    if (bye != null) { E.Cast(); return; }
+                }
+
+                if (Q.IsReady() && E.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(E.Range - 40) && SpellDamage(it, SpellSlot.Q) + SpellDamage(it, SpellSlot.E) >= it.Health);
+                    if (bye != null) { E.Cast(); Core.DelayAction(() => Q.Cast(bye), E.CastDelay + Game.Ping); return; }
+                }
+
+                else if (Smite != null)
+                {
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
+                    {
+                        var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                        if (bye != null) { Smite.Cast(bye); return; }
+                    }
+                }
+
+                return;
+            }
+
+            //----------------------------------------------SaveAlly-----------------------------------------------
+
+            public static void SaveAlly()
+            {
+                var Ally = EntityManager.Heroes.Allies.FirstOrDefault(ally => EntityManager.Heroes.Enemies.Any(enemy => ally.IsFacing(enemy)) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750);
+
+                if (Ally != null)
+                {
+                    if (FOTMountain.IsReady()) FOTMountain.Cast(Ally);
+
+                    if (Mikael.IsReady() && (Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                }
+
+                return;
+            }
+
         }
 
         //-----------------------------------------------CountRHits(Vector2 CastPosition)-------------------------------------------

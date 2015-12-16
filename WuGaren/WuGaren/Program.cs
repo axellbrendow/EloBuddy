@@ -189,7 +189,6 @@ namespace WuGaren
                 {
                     Q.Cast();
                     Orbwalker.ResetAutoAttack();
-                    if (Target != null) EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, Target);
                 }
             }
 
@@ -255,21 +254,7 @@ namespace WuGaren
         {
             if (Player.IsDead) return;
 
-            if (Player.CountEnemiesInRange(1000) > 0)
-            {
-                foreach (AIHeroClient enemy in EntityManager.Heroes.Enemies)
-                {
-                    foreach (AIHeroClient ally in EntityManager.Heroes.Allies)
-                    {
-                        if (ally.IsFacing(enemy) && ally.HealthPercent <= 30)
-                        {
-                            FOTMountain.Cast(ally);
-
-                            if ((ally.HasBuffOfType(BuffType.Charm) || ally.HasBuffOfType(BuffType.Fear) || ally.HasBuffOfType(BuffType.Poison) || ally.HasBuffOfType(BuffType.Polymorph) || ally.HasBuffOfType(BuffType.Silence) || ally.HasBuffOfType(BuffType.Sleep) || ally.HasBuffOfType(BuffType.Slow) || ally.HasBuffOfType(BuffType.Snare) || ally.HasBuffOfType(BuffType.Stun) || ally.HasBuffOfType(BuffType.Taunt)) && Mikael.IsInRange(ally)) Mikael.Cast(ally);
-                        }
-                    }
-                }
-            }
+            if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
             Target = TargetSelector.GetTarget(900, DamageType.Physical);
 
@@ -301,7 +286,7 @@ namespace WuGaren
 
             //-----------------------------------------------KS----------------------------------------
 
-            if (Menu["KS"].Cast<CheckBox>().CurrentValue) KS();
+            if (Menu["KS"].Cast<CheckBox>().CurrentValue && EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget(R.Range))) Modes.KS();
 
             //-----------------------------------------------Auto Ignite----------------------------------------
 
@@ -329,25 +314,11 @@ namespace WuGaren
                 {
                     //---------------------------------------------------Combo--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
 
                     //---------------------------------------------------Mixed--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-                    {
-                        if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Player.GetAutoAttackRange() + 300)) Q.Cast();
-
-                        if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && W.IsReady() && Target.IsAttackingPlayer && Target.IsValidTarget(Player.GetAutoAttackRange() + 200)) W.Cast();
-
-                        if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady() && Target.IsValidTarget(E.Range) && !Player.HasBuff("GarenE"))
-                        {
-                            if (Menu["JEBQ"].Cast<CheckBox>().CurrentValue)
-                            {
-                                if (Target.HasBuffOfType(BuffType.Silence)) E.Cast();
-                            }
-                            else E.Cast();
-                        }
-                    }
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) Modes.Harass();
                 }
 
                 else Target = null;
@@ -355,7 +326,90 @@ namespace WuGaren
 
             //---------------------------------------------------LaneClear--------------------------------------------
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear)) Modes.LaneClear();
+
+            return;
+        }
+
+        //-------------------------------------------class Modes-------------------------------------------------
+
+        class Modes
+        {
+            //---------------------------------------------Combo()------------------------------------------------
+
+            public static void Combo()
+            {
+                if ((Scimitar.IsReady() || QSS.IsReady()) && Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt)) { Scimitar.Cast(); QSS.Cast(); }
+
+                if (Smite != null)
+                {
+                    if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
+                    {
+                        if (Smite.Name.Contains("gank")) Smite.Cast(Target);
+                        else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                    }
+                }
+
+                if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Player.GetAutoAttackRange() + 300) && !Menu["QAfterAA"].Cast<CheckBox>().CurrentValue) Q.Cast();
+
+                if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && W.IsReady() && Player.IsFacing(Target) && Target.IsValidTarget(Player.GetAutoAttackRange() + 300)) W.Cast();
+
+                if (Menu["UseECombo"].Cast<CheckBox>().CurrentValue && E.IsReady() && Target.IsValidTarget(E.Range) && !Player.HasBuff("GarenE"))
+                {
+                    if (Menu["JEBQ"].Cast<CheckBox>().CurrentValue && Q.IsReady())
+                    {
+                        if (Target.HasBuffOfType(BuffType.Silence)) E.Cast();
+                    }
+                    else E.Cast();
+                }
+
+                if (R.IsReady())
+                {
+                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(R.Range) && SpellDamage(Target, SpellSlot.R) > Target.Health + 30)
+                    {
+                        if (Player.HasBuff("GarenE")) E.Cast();
+                        R.Cast(Target);
+                    }
+                }
+
+                if (Target.IsValidTarget(Player.GetAutoAttackRange() + 300) && GhostBlade.IsReady()) GhostBlade.Cast();
+
+                if (Target.IsValidTarget(550) && BOTRK.IsReady()) BOTRK.Cast(Target);
+
+                if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
+
+                if (Target.IsValidTarget(400) && Tiamat.IsReady()) Tiamat.Cast();
+
+                if (Target.IsValidTarget(400) && Hydra.IsReady()) Hydra.Cast();
+
+                if (Target.IsValidTarget(500) && Randuin.IsReady()) Randuin.Cast();
+
+                return;
+            }
+
+            //--------------------------------------------Harass()-------------------------------------------------
+
+            public static void Harass()
+            {
+                if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Player.GetAutoAttackRange() + 300)) Q.Cast();
+
+                if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && W.IsReady() && Target.IsAttackingPlayer && Target.IsValidTarget(Player.GetAutoAttackRange() + 200)) W.Cast();
+
+                if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady() && Target.IsValidTarget(E.Range) && !Player.HasBuff("GarenE"))
+                {
+                    if (Menu["JEBQ"].Cast<CheckBox>().CurrentValue)
+                    {
+                        if (Target.HasBuffOfType(BuffType.Silence)) E.Cast();
+                    }
+                    else E.Cast();
+                }
+
+                return;
+            }
+
+            //-------------------------------------------LaneClear()-----------------------------------------------
+
+            public static void LaneClear()
             {
                 if (E.IsReady())
                 {
@@ -384,96 +438,64 @@ namespace WuGaren
                         if (UseItem) Hydra.Cast();
                     }
                 }
+
+                return;
             }
 
-            return;
-        }
+            //----------------------------------------------SaveAlly------------------------------------------------
 
-        //------------------------------------------------Combo()----------------------------------------------
-
-        static void Combo()
-        {
-            if ((Scimitar.IsReady() || QSS.IsReady()) && Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt)) { Scimitar.Cast(); QSS.Cast(); }
-
-            if (Smite != null)
+            public static void SaveAlly()
             {
-                if (Target.IsValidTarget(Smite.Range) && Smite.IsReady())
+                var Ally = EntityManager.Heroes.Allies.FirstOrDefault(ally => EntityManager.Heroes.Enemies.Any(enemy => ally.IsFacing(enemy)) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750);
+
+                if (Ally != null)
                 {
-                    if (Smite.Name.Contains("gank")) Smite.Cast(Target);
-                    else if (Smite.Name.Contains("duel") && Player.IsInAutoAttackRange(Target)) Smite.Cast(Target);
+                    if (FOTMountain.IsReady()) FOTMountain.Cast(Ally);
+
+                    if (Mikael.IsReady() && (Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                }
+
+                return;
+            }
+
+            //-------------------------------------------------KS--------------------------------------------------
+
+            public static void KS()
+            {
+                if (R.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range));
+                    if (bye != default(AIHeroClient))
+                    {
+                        if (Player.HasBuff("GarenE")) E.Cast();
+                        R.Cast(bye);
+                        return;
+                    }
+                }
+
+                if (Q.IsReady())
+                {
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange()));
+                    if (bye != default(AIHeroClient))
+                    {
+                        if (Player.HasBuff("GarenE")) E.Cast();
+                        Q.Cast();
+                        EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, bye);
+                        return;
+                    }
+                }
+
+                if (Smite != null)
+                {
+                    if (Smite.Name.Contains("gank") && Smite.IsReady())
+                    {
+                        var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
+                        if (bye != null) { Smite.Cast(bye); return; }
+
+                    }
                 }
             }
 
-            if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Target.IsValidTarget(Player.GetAutoAttackRange() + 300) && !Menu["QAfterAA"].Cast<CheckBox>().CurrentValue) Q.Cast();
-
-            if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && W.IsReady() && Player.IsFacing(Target) && Target.IsValidTarget(Player.GetAutoAttackRange() + 300)) W.Cast();
-
-            if (Menu["UseECombo"].Cast<CheckBox>().CurrentValue && E.IsReady() && Target.IsValidTarget(E.Range) && !Player.HasBuff("GarenE"))
-            {
-                if (Menu["JEBQ"].Cast<CheckBox>().CurrentValue && Q.IsReady())
-                {
-                    if (Target.HasBuffOfType(BuffType.Silence)) E.Cast();
-                }
-                else E.Cast();
-            }
-
-            if (R.IsReady())
-            {
-                if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(R.Range) && SpellDamage(Target, SpellSlot.R) > Target.Health + 30)
-                {
-                    if (Player.HasBuff("GarenE")) E.Cast();
-                    R.Cast(Target);
-                }
-            }
-
-            if (Target.IsValidTarget(Player.GetAutoAttackRange() + 300) && GhostBlade.IsReady()) GhostBlade.Cast();
-
-            if (Target.IsValidTarget(550) && BOTRK.IsReady()) BOTRK.Cast(Target);
-
-            if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
-
-            if (Target.IsValidTarget(400) && Tiamat.IsReady()) Tiamat.Cast();
-
-            if (Target.IsValidTarget(400) && Hydra.IsReady()) Hydra.Cast();
-
-            if (Target.IsValidTarget(500) && Randuin.IsReady()) Randuin.Cast();
-        }
-
-        //-----------------------------------------------KS()--------------------------------------------------
-
-        static void KS()
-        {
-            AIHeroClient bye = null;
-
-            if (R.IsReady())
-            {
-                bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range));
-                if (bye != default(AIHeroClient))
-                {
-                    if (Player.HasBuff("GarenE")) E.Cast();
-                    R.Cast(bye);
-                }
-            }
-
-            if (Q.IsReady() && bye == null)
-            {
-                bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange()));
-                if (bye != default(AIHeroClient))
-                {
-                    if (Player.HasBuff("GarenE")) E.Cast();
-                    Q.Cast();
-                    EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, bye);
-                }
-            }
-
-            if (Smite != null && bye == null)
-            {
-                if (Smite.Name.Contains("gank") && Smite.IsReady())
-                {
-                    bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Smite.Range) && DamageLibrary.GetSummonerSpellDamage(Player, enemy, DamageLibrary.SummonerSpells.Smite) >= enemy.Health);
-                    if (bye != null) Smite.Cast(bye);
-                }
-            }
         }
 
         //-------------------------------------------GetComboDamage()------------------------------------------
