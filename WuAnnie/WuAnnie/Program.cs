@@ -86,8 +86,8 @@ namespace WuAnnie
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
-                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
-                Menu.Add("Auto Attack?", new CheckBox("Auto Attack?", false));
+                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?", false));
+                Menu.Add("Auto Attack?", new CheckBox("Auto Attack?"));
             }
             Menu.AddSeparator();
 
