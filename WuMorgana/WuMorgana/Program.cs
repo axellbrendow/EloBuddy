@@ -483,7 +483,11 @@ namespace WuMorgana
                     W.Cast(WPos);
                 }
 
-                if (R.IsReady() && Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(600) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue) R.Cast();
+                if (R.IsReady() && Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(600) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue)
+                {
+                    if (Glory.IsReady() && EntityManager.Heroes.Allies.Where(it => !it.IsMe && !it.IsDead && it.Distance(Player) <= 650).Any()) Glory.Cast();
+                    R.Cast();
+                }
 
                 return;
             }
