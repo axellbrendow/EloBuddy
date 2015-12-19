@@ -22,8 +22,9 @@ namespace WuMorgana
     {
         static Version AssVersion;//Kappa
         static readonly String CN = "Morgana";
+        //static Spell.Active Heal, Exhaust;
         static Spell.Targeted Ignite = null;
-        static Item Mikael, Glory, FOTMountain;
+        static Item Mikael, Glory, FOTMountain, Zhonya;
         static AIHeroClient Player = EloBuddy.Player.Instance;
         static readonly ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static readonly ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
@@ -155,7 +156,7 @@ namespace WuMorgana
                     {
                         if (ESpells.Any(el => el == spell.SData.Name || el == spell.SData.AlternateName))
                         {
-                            EMenu.Add(spell.Name, new CheckBox(spell.Slot.ToString() + " : " + spell.Name));
+                            EMenu.Add(spell.Name, new CheckBox(hero.BaseSkinName + " : " + spell.Slot.ToString() + " : " + spell.Name));
                             MenuSpells.Add(spell.Name);
                         }
                     }
@@ -173,7 +174,7 @@ namespace WuMorgana
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
         }
-        
+
         //--------------------------------------------Dash_OnDash-------------------------------------------------
 
         static void Dash_OnDash(Obj_AI_Base sender, Dash.DashEventArgs e)
