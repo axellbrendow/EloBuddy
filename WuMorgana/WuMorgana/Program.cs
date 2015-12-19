@@ -22,9 +22,9 @@ namespace WuMorgana
     {
         static Version AssVersion;//Kappa
         static readonly String CN = "Morgana";
-        //static Spell.Active Heal, Exhaust;
-        static Spell.Targeted Ignite = null;
-        static Item Mikael, Glory, FOTMountain, Zhonya;
+        static Spell.Active Heal;
+        static Spell.Targeted Ignite, Exhaust;
+        static Item Mikael, Glory, FOTMountain, Zhonya, Talisma;
         static AIHeroClient Player = EloBuddy.Player.Instance;
         static readonly ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static readonly ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
@@ -55,6 +55,8 @@ namespace WuMorgana
             Glory = new Item(3800);
             Mikael = new Item(3222, 750);
             FOTMountain = new Item(3401);
+            Talisma = new Item(ItemId.Talisman_of_Ascension);//
+            Zhonya = new Item(ItemId.Zhonyas_Hourglass);//
 
             Q.MinimumHitChance = HitChance.Medium;
 
@@ -64,6 +66,22 @@ namespace WuMorgana
             if (dot != null)
             {
                 Ignite = new Spell.Targeted(dot.Slot, 600);
+            }
+
+            //-------------------------------------------------Heal--------------------------------------------------
+
+            SpellDataInst heal = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).First() : null;
+            if (heal != null)
+            {
+                Heal = new Spell.Active(heal.Slot, 850);//
+            }
+
+            //-------------------------------------------------Exhaust--------------------------------------------------
+
+            SpellDataInst exhaust = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).First() : null;
+            if (exhaust != null)
+            {
+                Exhaust = new Spell.Targeted(exhaust.Slot, 650);//
             }
 
             //---------------------------||   Menu   ||----------------------------
@@ -79,6 +97,7 @@ namespace WuMorgana
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
+                Menu.Add("UseExhaust?", new CheckBox("Use Exhaust?"));
             }
             Menu.AddSeparator();
 
@@ -120,12 +139,20 @@ namespace WuMorgana
             Menu.AddGroupLabel("Other things");
 
             Menu.Add("KS", new CheckBox("KS", false));
+            Menu.Add("AAMinions?", new CheckBox("AA minions when ally near?", false));
             Menu.Add("Gapcloser", new CheckBox("Gapcloser"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
             Menu.Add("AutoQFlash", new CheckBox("Auto Q on flash"));
             Menu.Add("AutoQDash", new CheckBox("Auto Q on dashing"));
             Menu.Add("AutoQImmobile", new CheckBox("Auto Q on immobile"));
             Menu.Add("AutoWImmobile", new CheckBox("Auto W on immobile"));
+            Menu.AddSeparator();
+            Menu.Add("UseHeal?", new CheckBox("Use Heal?"));
+            Menu.Add("HealHealth", new Slider("Auto Heal when Health% is at:", 20, 1, 100));
+            Menu.AddSeparator();
+            Menu.Add("UseZhonya?", new CheckBox("Use Zhonya?"));
+            Menu.Add("ZhonyaUlt", new CheckBox("Just Zhonya when casting ultimate"));
+            Menu.Add("ZhonyaHealth", new Slider("Auto Zhonya when Health% is at:", 15, 1, 100));
             
             Menu.AddSeparator();
 
@@ -169,10 +196,21 @@ namespace WuMorgana
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnEndScene += Drawing_OnEndScene;
+            Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
+        }
+
+        static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
+        {
+            if (!Menu["AAMinions?"].Cast<CheckBox>().CurrentValue)
+            {
+                if ((Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) && CountAlliesInRange(2000) > 0) args.Process = false;
+            }
+
+            return;
         }
 
         //--------------------------------------------Dash_OnDash-------------------------------------------------
@@ -387,17 +425,13 @@ namespace WuMorgana
             
             if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
-            if (Q.IsReady() && Menu["AutoQImmobile"].Cast<CheckBox>().CurrentValue)
+            if (Zhonya.IsReady() && Menu["UseZhonya?"].Cast<CheckBox>().CurrentValue && Player.HealthPercent <= Menu["ZhonyaHealth"].Cast<Slider>().CurrentValue && EntityManager.Heroes.Enemies.Any(it => it.Distance(Player) <= it.GetAutoAttackRange() && it.IsValidTarget()))
             {
-                var QImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && !CanMove(it));
-                if (QImmobile != null) Q.HitChanceCast(QImmobile, 50);
+                if (!Menu["ZhonyaUlt"].Cast<CheckBox>().CurrentValue) Zhonya.Cast();
+                else if (!R.IsReady()) Zhonya.Cast();
             }
 
-            if (W.IsReady() && Menu["AutoWImmobile"].Cast<CheckBox>().CurrentValue)
-            {
-                var WImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(W.Range) && !CanMove(it));
-                if (WImmobile != null) W.HitChanceCast(WImmobile, 50);
-            }
+            if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget() && !CanMove(it))) Modes.Immobile();
 
             Target = TargetSelector.GetTarget(1100, DamageType.Magical);
 
@@ -486,9 +520,13 @@ namespace WuMorgana
 
                 if (R.IsReady() && Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Player.CountEnemiesInRange(600) >= Menu["Min Enemies R"].Cast<Slider>().CurrentValue)
                 {
-                    if (Glory.IsReady() && EntityManager.Heroes.Allies.Where(it => !it.IsMe && !it.IsDead && it.Distance(Player) <= 650).Any()) Glory.Cast();
+                    if (Glory.IsReady() && CountAlliesInRange(650) > 0) Glory.Cast();
+                    if (Talisma.IsReady() && CountAlliesInRange(650) > 0) Talisma.Cast();
+
                     R.Cast();
                 }
+
+                if (Exhaust != null && Menu["UseExhaust?"].Cast<CheckBox>().CurrentValue && TargetSelector.GetPriority(Target) > 3 && Target.IsValidTarget(Exhaust.Range)) Exhaust.Cast(Target);
 
                 return;
             }
@@ -523,7 +561,7 @@ namespace WuMorgana
                 return;
             }
 
-            //-------------------------------------------------KS--------------------------------------------------
+            //------------------------------------------------KS()--------------------------------------------------
 
             public static void KS()
             {
@@ -542,6 +580,25 @@ namespace WuMorgana
                 return;
             }
 
+            //---------------------------------------------Immobile()-----------------------------------------------
+
+            public static void Immobile()
+            {
+                if (Q.IsReady() && Menu["AutoQImmobile"].Cast<CheckBox>().CurrentValue)
+                {
+                    var QImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && !CanMove(it));
+                    if (QImmobile != null) { Q.HitChanceCast(QImmobile, 50); return; }
+                }
+
+                if (W.IsReady() && Menu["AutoWImmobile"].Cast<CheckBox>().CurrentValue)
+                {
+                    var WImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(W.Range) && !CanMove(it));
+                    if (WImmobile != null) { W.HitChanceCast(WImmobile, 50); return; }
+                }
+
+                return;
+            }
+
             //----------------------------------------------SaveAlly-----------------------------------------------
 
             public static void SaveAlly()
@@ -553,6 +610,16 @@ namespace WuMorgana
                     if (FOTMountain.IsReady()) FOTMountain.Cast(Ally);
 
                     if (Mikael.IsReady() && (Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                }
+
+                if (Heal != null && Menu["UseHeal?"].Cast<CheckBox>().CurrentValue)
+                {
+                    var healtarget = EntityManager.Heroes.Allies.FirstOrDefault(it => !it.IsDead && it.IsValidTarget(Heal.Range) && it.HealthPercent <= Menu["HealHealth"].Cast<Slider>().CurrentValue);
+
+                    if (healtarget != null)
+                    {
+                        if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget() && it.Distance(healtarget) <= it.GetAutoAttackRange())) Heal.Cast(healtarget);
+                    }
                 }
 
                 return;
@@ -580,6 +647,13 @@ namespace WuMorgana
                 target.HasBuffOfType(BuffType.Stun) || target.HasBuffOfType(BuffType.Suppression) || target.HasBuffOfType(BuffType.Taunt)) return false;
 
             return true;
+        }
+
+        //--------------------------------------CountAlliesInRange(int range)--------------------------------------
+
+        static int CountAlliesInRange(int range)
+        {
+            return EntityManager.Heroes.Allies.Where(it => !it.IsMe && !it.IsDead && it.Distance(Player) <= range).Count();
         }
 
         //----------------------------SpellDamage(Obj_AI_Base target, SpellSlot slot)------------------------------
