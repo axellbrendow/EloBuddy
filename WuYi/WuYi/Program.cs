@@ -276,21 +276,23 @@ namespace WuYi
         {
             if (sender.IsValidTarget() && sender.IsEnemy && MenuSpells.Any(el => el == args.SData.Name) && Player.Distance(sender) <= args.SData.CastRange)
             {
-                if (Q.IsReady() && (EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 3 || EOMenu[args.SData.AlternateName].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.AlternateName].Cast<Slider>().CurrentValue == 3))
+                if (Q.IsReady() && (EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 3))
                 {
                     if (args.SData.Name == "JaxCounterStrike") { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
 
                     if (args.SData.Name == "KarthusFallenOne") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
 
-                    else if (args.SData.Name == "ZedR" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 750 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "ZedR" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 750 - Game.Ping - 100); return; }
 
-                    else if (args.SData.Name == "SoulShackles") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "SoulShackles") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
 
-                    else if (args.SData.Name == "AbsoluteZero") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "AbsoluteZero") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
 
-                    else if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
 
-                    else { Core.DelayAction(() => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 100); return; }
+                    Core.DelayAction(() => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 100);
+
+                    return;
                 }
                 
                 else if (W.IsReady() && Player.IsFacing(sender) && EOMenu[args.SData.Name].Cast<Slider>().CurrentValue > 1 && ( args.Target.IsMe || new Geometry.Polygon.Rectangle(args.Start, args.End, args.SData.LineWidth).IsInside(Player) || new Geometry.Polygon.Circle(args.End, args.SData.CastRadius).IsInside(Player)) )
