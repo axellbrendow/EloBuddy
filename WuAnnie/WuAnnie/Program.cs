@@ -725,15 +725,15 @@ namespace WuAnnie
 
                 var Vectors = new List<Vector3>() { new Vector3(Minion.ServerPosition.X + 550, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X - 550, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y + 550, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y - 550, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X + 230, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X - 230, Minion.ServerPosition.Y, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y + 230, Minion.ServerPosition.Z), new Vector3(Minion.ServerPosition.X, Minion.ServerPosition.Y - 230, Minion.ServerPosition.Z), Minion.ServerPosition };
 
-                var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 600);
-                var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 600);
-                var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 600);
-                var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 600);
-                var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 600);
-                var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 600);
-                var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 600);
-                var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 600);
-                var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 600);
+                var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 585);
+                var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 585);
+                var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 585);
+                var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 585);
+                var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 585);
+                var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 585);
+                var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 585);
+                var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 585);
+                var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 585);
 
                 CS.Add(CS1);
                 CS.Add(CS2);
@@ -766,15 +766,15 @@ namespace WuAnnie
                 var CS = new List<Geometry.Polygon.Sector>();
                 var Vectors = new List<Vector3>() { new Vector3(Target.ServerPosition.X + 550, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X - 550, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y + 550, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y - 550, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X + 230, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X - 230, Target.ServerPosition.Y, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y + 230, Target.ServerPosition.Z), new Vector3(Target.ServerPosition.X, Target.ServerPosition.Y - 230, Target.ServerPosition.Z), Target.ServerPosition };
 
-                var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 600);
-                var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 600);
-                var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 600);
-                var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 600);
-                var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 600);
-                var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 600);
-                var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 600);
-                var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 600);
-                var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 600);
+                var CS1 = new Geometry.Polygon.Sector(Player.Position, Vectors[0], Angle, 585);
+                var CS2 = new Geometry.Polygon.Sector(Player.Position, Vectors[1], Angle, 585);
+                var CS3 = new Geometry.Polygon.Sector(Player.Position, Vectors[2], Angle, 585);
+                var CS4 = new Geometry.Polygon.Sector(Player.Position, Vectors[3], Angle, 585);
+                var CS5 = new Geometry.Polygon.Sector(Player.Position, Vectors[4], Angle, 585);
+                var CS6 = new Geometry.Polygon.Sector(Player.Position, Vectors[5], Angle, 585);
+                var CS7 = new Geometry.Polygon.Sector(Player.Position, Vectors[6], Angle, 585);
+                var CS8 = new Geometry.Polygon.Sector(Player.Position, Vectors[7], Angle, 585);
+                var CS9 = new Geometry.Polygon.Sector(Player.Position, Vectors[8], Angle, 585);
 
                 CS.Add(CS1);
                 CS.Add(CS2);
