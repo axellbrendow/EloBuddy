@@ -273,6 +273,8 @@ namespace WuMorgana
                     
                     foreach (var ally in EntityManager.Heroes.Allies)
                     {
+                        if (rectangle.IsInside(ally)) { Allies.Add(ally); continue; }
+
                         foreach (var point in rectangle.Points)
                         {
                             if (ally.Distance(point) <= 70)
@@ -296,6 +298,8 @@ namespace WuMorgana
 
                     foreach (var ally in EntityManager.Heroes.Allies)
                     {
+                        if (circle.IsInside(ally)) { Allies.Add(ally); continue; }
+
                         foreach (var point in circle.Points)
                         {
                             if (ally.Distance(point) <= 70)
