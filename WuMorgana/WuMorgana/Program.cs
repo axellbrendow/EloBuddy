@@ -243,7 +243,7 @@ namespace WuMorgana
                     return;
                 }
 
-                if (E.IsReady() && EMenu["UseShield?"].Cast<CheckBox>().CurrentValue && MenuSpells.Any(it => it == args.SData.Name))
+                if (E.IsReady() && EMenu["UseShield?"].Cast<CheckBox>().CurrentValue && MenuSpells.Any(it => it == args.SData.Name) && EMenu[args.SData.Name].Cast<CheckBox>().CurrentValue)
                 {
                     List<AIHeroClient> Allies = new List<AIHeroClient>();
 
