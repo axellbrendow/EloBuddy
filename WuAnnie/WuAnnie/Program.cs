@@ -22,12 +22,12 @@ namespace WuAnnie
     {
         static Version AssVersion;//Kappa
         static readonly String CN = "Annie";
-        static Spell.Targeted Smite = null;
-        static Spell.Targeted Ignite = null;
-        static Item Mikael;
+        static Spell.Active Heal;
+        static Spell.Targeted Smite, Ignite, Exhaust;
+        static Item Mikael, Zhonya, Talisma;
         const float Angle = 5 * (float)Math.PI / 18;
-        static ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
-        static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
+        static readonly ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
+        static readonly ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
         static Vector2 Player2D = new Vector2();
         static Dictionary<Vector2, int> PosAndHits;
@@ -37,7 +37,7 @@ namespace WuAnnie
         static Spell.Skillshot W = new Spell.Skillshot(SpellSlot.W, 625, SkillShotType.Cone, 250, int.MaxValue, 210);
         static Spell.Active E = new Spell.Active(SpellSlot.E);
         static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 600, SkillShotType.Circular, 20, int.MaxValue, 250);
-        static AIHeroClient Player { get { return ObjectManager.Player; } }
+        static AIHeroClient Player = EloBuddy.Player.Instance;
 
         static void Main(string[] args) { Loading.OnLoadingComplete += OnLoadingComplete; }
 
@@ -53,6 +53,8 @@ namespace WuAnnie
             //-------------------------------------------------Itens--------------------------------------------------
 
             Mikael = new Item(3222, 700);
+            Zhonya = new Item(ItemId.Zhonyas_Hourglass);
+            Talisma = new Item(ItemId.Talisman_of_Ascension);
 
             R.MinimumHitChance = HitChance.High;
             W.MinimumHitChance = HitChance.Medium;
@@ -74,6 +76,22 @@ namespace WuAnnie
                 Ignite = new Spell.Targeted(dot.Slot, 600);
             }
 
+            //-------------------------------------------------Heal--------------------------------------------------
+
+            SpellDataInst heal = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).First() : null;
+            if (heal != null)
+            {
+                Heal = new Spell.Active(heal.Slot, 850);//
+            }
+
+            //-------------------------------------------------Exhaust--------------------------------------------------
+
+            SpellDataInst exhaust = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).First() : null;
+            if (exhaust != null)
+            {
+                Exhaust = new Spell.Targeted(exhaust.Slot, 650);//
+            }
+
             //---------------------------||   Menus   ||----------------------------
 
             Menu = MainMenu.AddMenu("Wu" + CN, "Wu" + CN);
@@ -86,8 +104,7 @@ namespace WuAnnie
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
-                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?", false));
-                Menu.Add("Auto Attack?", new CheckBox("Auto Attack?"));
+                Menu.Add("UseExhaust?", new CheckBox("Use Exhaust?"));
             }
             Menu.AddSeparator();
 
@@ -151,8 +168,15 @@ namespace WuAnnie
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("StackStun", new CheckBox("StackStun"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
+            Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
             Menu.Add("RWithStun", new CheckBox("Just R if stun is up", false));
             Menu.Add("Ult on Target", new KeyBind("Ult on Target", false, KeyBind.BindTypes.HoldActive, 'T'));
+            Menu.AddSeparator();
+            Menu.Add("UseHeal?", new CheckBox("Use Heal?"));
+            Menu.Add("HealHealth", new Slider("Auto Heal when Health% is at:", 20, 1, 100));
+            Menu.AddSeparator();
+            Menu.Add("UseZhonya?", new CheckBox("Use Zhonya?"));
+            Menu.Add("ZhonyaHealth", new Slider("Auto Zhonya when Health% is at:", 15, 1, 100));
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -169,7 +193,7 @@ namespace WuAnnie
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 if (!Menu["AAMaxRange?"].Cast<CheckBox>().CurrentValue && target.Distance(Player) >= Q.Range - 30) args.Process = false;
-                if (!Menu["Auto Attack?"].Cast<CheckBox>().CurrentValue) args.Process = false;
+                if (!Menu["Auto Attack ?"].Cast<CheckBox>().CurrentValue) args.Process = false;
             }
         }
 
@@ -246,6 +270,8 @@ namespace WuAnnie
         {
             if (Player.IsDead) return;
 
+            if (Zhonya.IsReady() && Menu["UseZhonya?"].Cast<CheckBox>().CurrentValue && Player.HealthPercent <= Menu["ZhonyaHealth"].Cast<Slider>().CurrentValue && EntityManager.Heroes.Enemies.Any(it => it.Distance(Player) <= it.GetAutoAttackRange() && it.IsValidTarget())) Zhonya.Cast();
+
             if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
             Target = TargetSelector.GetTarget(1300, DamageType.Magical);
@@ -279,10 +305,10 @@ namespace WuAnnie
 
             //--------------------------------------------Stack Stun-------------------------------------------
 
-            if (Menu["StackStun"].Cast<CheckBox>().CurrentValue)
+            if (Menu["StackStun"].Cast<CheckBox>().CurrentValue && !Player.HasBuff("recall") && !Player.HasBuff("pyromania_particle"))
             {
-                if (!Player.HasBuff("pyromania_particle") && !(Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)) && !Player.HasBuff("recall") && E.IsReady()) { E.Cast(); }
-                if (!Player.HasBuff("pyromania_particle") && Player.IsInShopRange() && W.IsReady()) { W.Cast(Player.Position); }
+                if (!(Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)) && E.IsReady()) E.Cast();
+                if (Player.IsInShopRange() && W.IsReady()) W.Cast(Player.Position);
             }
 
             //-----------------------------------------------Auto Ignite----------------------------------------
@@ -401,6 +427,10 @@ namespace WuAnnie
                     }
                 }
 
+                if (Talisma.IsReady() && CountAlliesInRange(650) > 0) Talisma.Cast();
+
+                if (Exhaust != null && Menu["UseExhaust?"].Cast<CheckBox>().CurrentValue && TargetSelector.GetPriority(Target) > 3 && Target.IsValidTarget(Exhaust.Range)) Exhaust.Cast(Target);
+
                 return;
             }
 
@@ -513,18 +543,36 @@ namespace WuAnnie
 
             public static void SaveAlly()
             {
-                if (!Mikael.IsReady()) return;
-                
-                var Ally = EntityManager.Heroes.Allies.FirstOrDefault(ally => EntityManager.Heroes.Enemies.Any(enemy => ally.IsFacing(enemy)) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750);
-
-                if (Ally != null)
+                if (Mikael.IsReady())
                 {
-                    if ((Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                    var Ally = EntityManager.Heroes.Allies.FirstOrDefault(ally => EntityManager.Heroes.Enemies.Any(enemy => ally.IsFacing(enemy)) && ally.HealthPercent <= 30 && Player.Distance(ally) <= 750);
+
+                    if (Ally != null)
+                    {
+                        if ((Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
+                    }
+                }
+
+                if (Heal != null && Menu["UseHeal?"].Cast<CheckBox>().CurrentValue)
+                {
+                    var healtarget = EntityManager.Heroes.Allies.FirstOrDefault(it => it.IsValidTarget(Heal.Range) && it.HealthPercent <= Menu["HealHealth"].Cast<Slider>().CurrentValue);
+
+                    if (healtarget != null)
+                    {
+                        if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget() && it.Distance(healtarget) <= it.GetAutoAttackRange())) Heal.Cast();
+                    }
                 }
 
                 return;
             }
 
+        }
+
+        //--------------------------------------CountAlliesInRange(int range)--------------------------------------
+
+        static int CountAlliesInRange(int range)
+        {
+            return EntityManager.Heroes.Allies.Where(it => !it.IsMe && !it.IsDead && it.Distance(Player) <= range).Count();
         }
 
         //-----------------------------------------------CountRHits(Vector2 CastPosition)-------------------------------------------

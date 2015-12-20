@@ -614,11 +614,11 @@ namespace WuMorgana
 
                 if (Heal != null && Menu["UseHeal?"].Cast<CheckBox>().CurrentValue)
                 {
-                    var healtarget = EntityManager.Heroes.Allies.FirstOrDefault(it => !it.IsDead && it.IsValidTarget(Heal.Range) && it.HealthPercent <= Menu["HealHealth"].Cast<Slider>().CurrentValue);
+                    var healtarget = EntityManager.Heroes.Allies.FirstOrDefault(it => it.IsValidTarget(Heal.Range) && it.HealthPercent <= Menu["HealHealth"].Cast<Slider>().CurrentValue);
 
                     if (healtarget != null)
                     {
-                        if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget() && it.Distance(healtarget) <= it.GetAutoAttackRange())) Heal.Cast(healtarget);
+                        if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget() && it.Distance(healtarget) <= it.GetAutoAttackRange())) Heal.Cast();
                     }
                 }
 
