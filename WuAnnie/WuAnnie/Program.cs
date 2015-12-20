@@ -24,6 +24,7 @@ namespace WuAnnie
         static readonly String CN = "Annie";
         static Spell.Active Heal;
         static Spell.Targeted Smite, Ignite, Exhaust;
+        static Spell.Skillshot Flash;
         static Item Mikael, Zhonya, Talisma;
         const float Angle = 5 * (float)Math.PI / 18;
         static readonly ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
@@ -36,12 +37,12 @@ namespace WuAnnie
         static Spell.Targeted Q = new Spell.Targeted(SpellSlot.Q, 625);
         static Spell.Skillshot W = new Spell.Skillshot(SpellSlot.W, 625, SkillShotType.Cone, 250, int.MaxValue, 210);
         static Spell.Active E = new Spell.Active(SpellSlot.E);
-        static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 600, SkillShotType.Circular, 20, int.MaxValue, 250);
+        static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 600, SkillShotType.Circular, 50, int.MaxValue, 250);
         static AIHeroClient Player = EloBuddy.Player.Instance;
 
         static void Main(string[] args) { Loading.OnLoadingComplete += OnLoadingComplete; }
 
-        //---------------------------------------------Game_OnGameLoad----------------------------------------
+        //---------------------------------------OnLoadingComplete--------------------------------------------
 
         static void OnLoadingComplete(EventArgs args)
         {
@@ -81,7 +82,7 @@ namespace WuAnnie
             SpellDataInst heal = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).First() : null;
             if (heal != null)
             {
-                Heal = new Spell.Active(heal.Slot, 850);//
+                Heal = new Spell.Active(heal.Slot, 850);
             }
 
             //-------------------------------------------------Exhaust--------------------------------------------------
@@ -89,7 +90,15 @@ namespace WuAnnie
             SpellDataInst exhaust = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).First() : null;
             if (exhaust != null)
             {
-                Exhaust = new Spell.Targeted(exhaust.Slot, 650);//
+                Exhaust = new Spell.Targeted(exhaust.Slot, 650);
+            }
+
+            //--------------------------------------------------Flash---------------------------------------------------
+
+            SpellDataInst flash = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("flash")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("flash")).First() : null;
+            if (flash != null)
+            {
+                Flash = new Spell.Skillshot(flash.Slot, 425, SkillShotType.Linear);
             }
 
             //---------------------------||   Menus   ||----------------------------
@@ -105,6 +114,8 @@ namespace WuAnnie
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
                 Menu.Add("UseExhaust?", new CheckBox("Use Exhaust?"));
+                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
+                Menu.Add("AA?", new CheckBox("Auto Attack?"));
             }
             Menu.AddSeparator();
 
@@ -168,9 +179,9 @@ namespace WuAnnie
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("StackStun", new CheckBox("StackStun"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
-            Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
-            Menu.Add("RWithStun", new CheckBox("Just R if stun is up", false));
+            Menu.Add("RWithStun", new CheckBox("Just ult if stun is up", false));
             Menu.Add("Ult on Target", new KeyBind("Ult on Target", false, KeyBind.BindTypes.HoldActive, 'T'));
+            Menu.Add("Flash+R", new KeyBind("Flash + R", false, KeyBind.BindTypes.HoldActive, 'T'));
             Menu.AddSeparator();
             Menu.Add("UseHeal?", new CheckBox("Use Heal?"));
             Menu.Add("HealHealth", new Slider("Auto Heal when Health% is at:", 20, 1, 100));
@@ -182,22 +193,37 @@ namespace WuAnnie
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnEndScene += Drawing_OnEndScene;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
+            Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
         }
 
-        //------------------------------------------Orbwalker_OnPreAttack----------------------------------------
+        //-----------------------------------Interrupter_OnInterruptableSpell---------------------------------
+
+        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
+        {
+            if (e.DangerLevel == DangerLevel.High && sender.IsValidTarget(R.Range))
+            {
+                if (W.IsReady()) { W.Cast(sender); return; }
+                if (Q.IsReady() && sender.Distance(Player) <= 200) { Q.Cast(sender); return; }
+                if (R.IsReady()) { R.Cast(sender); return; }
+            }
+
+            return;
+        }
+
+        //---------------------------------------Orbwalker_OnPreAttack----------------------------------------
 
         static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 if (!Menu["AAMaxRange?"].Cast<CheckBox>().CurrentValue && target.Distance(Player) >= Q.Range - 30) args.Process = false;
-                if (!Menu["Auto Attack ?"].Cast<CheckBox>().CurrentValue) args.Process = false;
+                if (!Menu["AA?"].Cast<CheckBox>().CurrentValue) args.Process = false;
             }
         }
 
-        //----------------------------------------------Drawing_OnEndScene----------------------------------------
+        //-----------------------------------------Drawing_OnEndScene-----------------------------------------
 
         static void Drawing_OnEndScene(EventArgs args)
         {
@@ -343,9 +369,23 @@ namespace WuAnnie
 
                     if (Player.HasBuff("infernalguardiantime")) { EloBuddy.Player.IssueOrder(GameObjectOrder.MovePet, Target); EloBuddy.Player.IssueOrder(GameObjectOrder.AutoAttackPet, Target); }
 
-                    //-----------------------------------------------Ult On Target----------------------------------------
+                    //---------------------------------------------Flee Key-----------------------------------------------
 
-                    if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range) && R.IsReady()) R.Cast(R.GetPrediction(Target).CastPosition);
+                    if (R.IsReady())
+                    {
+                        if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range)) R.Cast(R.GetPrediction(Target).CastPosition);
+
+                        else if (Menu["Flash+R"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range + Flash.Range - 50) && Flash.IsReady())
+                        {
+                            var RPos = GetBestRPos(Target.ServerPosition.To2D());
+                            if (RPos.First().Value > 0)
+                            {
+                                var FlashPos = Player.Position.Extend(RPos.First().Key, Flash.Range).To3D();
+                                Flash.Cast(FlashPos);
+                                Core.DelayAction(() => R.Cast(RPos.First().Key.To3D()), Game.Ping + 20);
+                            }
+                        }
+                    }
 
                     //---------------------------------------------------Combo--------------------------------------------
 
