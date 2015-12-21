@@ -171,6 +171,8 @@ namespace WuMorgana
 
             EMenu.Add("UseShield?", new CheckBox("Use Shield?"));
 
+            EMenu.AddSeparator();
+
             EMenu.AddGroupLabel("Use shield for:");
 
             EMenu.AddSeparator();
@@ -181,7 +183,7 @@ namespace WuMorgana
                 {
                     foreach (SpellDataInst spell in hero.Spellbook.Spells)
                     {
-                        if (ESpells.Any(el => el == spell.SData.Name || el == spell.SData.AlternateName))
+                        if (ESpells.Any(el => el == spell.SData.Name))
                         {
                             EMenu.Add(spell.Name, new CheckBox(hero.BaseSkinName + " : " + spell.Slot.ToString() + " : " + spell.Name));
                             MenuSpells.Add(spell.Name);
@@ -247,78 +249,81 @@ namespace WuMorgana
                     return;
                 }
 
-                if (E.IsReady() && EMenu["UseShield?"].Cast<CheckBox>().CurrentValue && MenuSpells.Any(it => it == args.SData.Name) && EMenu[args.SData.Name].Cast<CheckBox>().CurrentValue)
+                if (E.IsReady() && EMenu["UseShield?"].Cast<CheckBox>().CurrentValue && MenuSpells.Any(it => it == args.SData.Name))
                 {
-                    List<AIHeroClient> Allies = new List<AIHeroClient>();
-
-                    //Division
-                    if (args.Target != null)
+                    if (EMenu[args.SData.Name].Cast<CheckBox>().CurrentValue)
                     {
-                        if (args.Target.IsAlly || args.Target.IsMe)
+                        List<AIHeroClient> Allies = new List<AIHeroClient>();
+
+                        //Division
+                        if (args.Target != null)
                         {
-                            var target = EntityManager.Heroes.Allies.FirstOrDefault(it => it.NetworkId == args.Target.NetworkId);
-
-                            //Chat.Print(args.Target.Name);
-
-                            if (target != null)
+                            if (args.Target.IsAlly || args.Target.IsMe)
                             {
-                                int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 150 - Game.Ping);
+                                var target = EntityManager.Heroes.Allies.FirstOrDefault(it => it.NetworkId == args.Target.NetworkId);
 
-                                Core.DelayAction(() => E.Cast(target), delay);
-                                //Chat.Print("Targetted detection");
+                                //Chat.Print(args.Target.Name);
+
+                                if (target != null)
+                                {
+                                    int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 150 - Game.Ping);
+
+                                    Core.DelayAction(() => E.Cast(target), delay);
+                                    //Chat.Print("Targetted detection");
+                                }
+                                return;
                             }
+                        }
+
+                        //Division
+
+                        var rectangle = new Geometry.Polygon.Rectangle(args.Start, args.End, args.SData.LineWidth);
+
+                        foreach (var ally in EntityManager.Heroes.Allies)
+                        {
+                            if (rectangle.IsInside(ally)) { Allies.Add(ally); continue; }
+
+                            foreach (var point in rectangle.Points)
+                            {
+                                if (ally.Distance(point) <= 90)
+                                {
+                                    Allies.Add(ally);
+                                }
+                            }
+                        }
+
+                        if (Allies.Any())
+                        {
+                            //Chat.Print("Rectangle Detection");
+
+                            PriorityCast(sender, args, Allies);
                             return;
                         }
-                    }
 
-                    //Division
+                        //Division
 
-                    var rectangle = new Geometry.Polygon.Rectangle(args.Start, args.End, args.SData.LineWidth);
-                    
-                    foreach (var ally in EntityManager.Heroes.Allies)
-                    {
-                        if (rectangle.IsInside(ally)) { Allies.Add(ally); continue; }
+                        var circle = new Geometry.Polygon.Circle(args.End, args.SData.CastRadius);
 
-                        foreach (var point in rectangle.Points)
+                        foreach (var ally in EntityManager.Heroes.Allies)
                         {
-                            if (ally.Distance(point) <= 90)
+                            if (circle.IsInside(ally)) { Allies.Add(ally); continue; }
+
+                            foreach (var point in circle.Points)
                             {
-                                Allies.Add(ally);
+                                if (ally.Distance(point) <= 90)
+                                {
+                                    Allies.Add(ally);
+                                }
                             }
                         }
-                    }
-                    
-                    if (Allies.Any())
-                    {
-                        //Chat.Print("Rectangle Detection");
 
-                        PriorityCast(sender, args, Allies);
-                        return;
-                    }
-
-                    //Division
-
-                    var circle = new Geometry.Polygon.Circle(args.End, args.SData.CastRadius);
-
-                    foreach (var ally in EntityManager.Heroes.Allies)
-                    {
-                        if (circle.IsInside(ally)) { Allies.Add(ally); continue; }
-
-                        foreach (var point in circle.Points)
+                        if (Allies.Any())
                         {
-                            if (ally.Distance(point) <= 90)
-                            {
-                                Allies.Add(ally);
-                            }
+                            //Chat.Print("Circle Detection");
+
+                            PriorityCast(sender, args, Allies);
+                            return;
                         }
-                    }
-
-                    if (Allies.Any())
-                    {
-                        //Chat.Print("Circle Detection");
-
-                        PriorityCast(sender, args, Allies);
-                        return;
                     }
                 }
             }
