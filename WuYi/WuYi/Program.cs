@@ -184,7 +184,7 @@ namespace WuYi
             Chat.Print("WuYi Loaded, [By WujuSan] , Version: " + AssVersion);
         }
 
-        //--------------------------------------Orbwalker_OnPostAttack()------------------------------------------
+        //------------------------------------Orbwalker_OnPostAttack()----------------------------------------
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
@@ -213,7 +213,7 @@ namespace WuYi
             return;
         }
 
-        //----------------------------------------------Drawing_OnEndScene----------------------------------------
+        //---------------------------------------Drawing_OnEndScene-------------------------------------------
 
         static void Drawing_OnEndScene(EventArgs args)
         {
@@ -246,7 +246,7 @@ namespace WuYi
             return;
         }
 
-        //----------------------------------------------WaitAndBleed()----------------------------------------
+        //------------------------------------------WaitAndBleed()--------------------------------------------
 
         static void WaitAndBleed()
         {
@@ -254,6 +254,8 @@ namespace WuYi
             if (minion != default(Obj_AI_Minion)) { Q.Cast(minion); }
             return;
         }
+
+        //----------------------------------------------Dodge()-----------------------------------------------
 
         static void Dodge()
         {
@@ -270,7 +272,7 @@ namespace WuYi
             return;
         }
 
-        //-------------------------------------AIHeroClient_OnProcessSpellCast--------------------------------------
+        //---------------------------------AIHeroClient_OnProcessSpellCast------------------------------------
 
         static void AIHeroClient_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
@@ -290,7 +292,7 @@ namespace WuYi
 
                     if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
 
-                    Core.DelayAction(() => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 100);
+                    Core.DelayAction(() => Dodge(), (int)args.SData.SpellCastTime - Game.Ping - 100);
 
                     return;
                 }
@@ -310,7 +312,7 @@ namespace WuYi
             return;
         }
 
-        //----------------------------------------------Gapcloser_OnGapcloser----------------------------------------
+        //---------------------------------------Gapcloser_OnGapcloser----------------------------------------
 
         static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
         {
@@ -421,7 +423,7 @@ namespace WuYi
             return;
         }
 
-        //---------------------------------------------class Modes-------------------------------------------------
+        //-------------------------------------------class Modes------------------------------------------------
 
         class Modes
         {
