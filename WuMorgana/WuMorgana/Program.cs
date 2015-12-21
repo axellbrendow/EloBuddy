@@ -286,7 +286,7 @@ namespace WuMorgana
 
                             foreach (var point in rectangle.Points)
                             {
-                                if (ally.Distance(point) <= 90)
+                                if (ally.Distance(point) <= 50)
                                 {
                                     Allies.Add(ally);
                                 }
@@ -311,7 +311,7 @@ namespace WuMorgana
 
                             foreach (var point in circle.Points)
                             {
-                                if (ally.Distance(point) <= 90)
+                                if (ally.Distance(point) <= 50)
                                 {
                                     Allies.Add(ally);
                                 }
