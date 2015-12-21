@@ -138,6 +138,7 @@ namespace WuMorgana
 
             Menu.AddGroupLabel("Other things");
 
+            Menu.Add("JustWOnImmobile", new CheckBox("Just use W on immobile enemies"));
             Menu.Add("KS", new CheckBox("KS", false));
             Menu.Add("AAMinions?", new CheckBox("AA minions when ally near?", false));
             Menu.Add("Gapcloser", new CheckBox("Gapcloser"));
@@ -525,7 +526,7 @@ namespace WuMorgana
             {
                 if (Menu["UseQCombo"].Cast<CheckBox>().CurrentValue && QRange && QIsReady) Q.HitChanceCast(Target, Menu["QHitChanceCombo"].Cast<Slider>().CurrentValue);
 
-                if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && WRange && WIsReady)
+                if (Menu["UseWCombo"].Cast<CheckBox>().CurrentValue && WRange && WIsReady && !Menu["JustWOnImmobile"].Cast<CheckBox>().CurrentValue)
                 {
                     var WPos = Prediction.Position.PredictUnitPosition(Target, 500).To3D();
                     W.Cast(WPos);
@@ -550,7 +551,7 @@ namespace WuMorgana
             {
                 if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && QIsReady && QRange) Q.HitChanceCast(Target, Menu["QHitChanceHarass"].Cast<Slider>().CurrentValue);
 
-                if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && WIsReady && WRange)
+                if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && WIsReady && WRange && !Menu["JustWOnImmobile"].Cast<CheckBox>().CurrentValue)
                 {
                     var WPos = Prediction.Position.PredictUnitPosition(Target, 500).To3D();
                     W.Cast(WPos);
