@@ -259,7 +259,14 @@ namespace WuYi
 
         static void Dodge()
         {
-            if (Target != null && Q.IsInRange(Target)) { Q.Cast(Target); return; }
+            if (Target != null)
+            {
+                if (Q.IsInRange(Target))
+                {
+                    Q.Cast(Target);
+                    return;
+                }
+            }
 
             var champ = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range));
 
