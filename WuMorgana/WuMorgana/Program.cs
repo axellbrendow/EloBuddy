@@ -221,7 +221,10 @@ namespace WuMorgana
 
             if (Menu["AutoQDash"].Cast<CheckBox>().CurrentValue && Q.IsReady() && sender.IsEnemy && e.EndPos.Distance(Player) <= Q.Range)
             {
-                if (sender.BaseSkinName == "Yasuo" && Player.Distance(e.EndPos) <= 200) Q.HitChanceCast(sender, 70);
+                if (sender.BaseSkinName == "Yasuo")
+                {
+                    if (Player.Distance(e.EndPos) <= 200) Q.HitChanceCast(sender, 70);
+                }
                 //Chat.Print("Why you didn't Q");
                 else Q.HitChanceCast(sender, 70);
             }
@@ -658,7 +661,8 @@ namespace WuMorgana
 
         static int CountAlliesInRange(int range)
         {
-            return EntityManager.Heroes.Allies.Where(it => !it.IsMe && !it.IsDead && it.Distance(Player) <= range).Count();
+            int allies = EntityManager.Heroes.Allies.Where(it => !it.IsMe && !it.IsDead && it.Distance(Player) <= range).Count();
+            return allies;
         }
 
         //----------------------------SpellDamage(Obj_AI_Base target, SpellSlot slot)------------------------------
