@@ -151,7 +151,7 @@ namespace WuMorgana
             Menu.Add("HealHealth", new Slider("Auto Heal when Health% is at:", 20, 1, 100));
             Menu.AddSeparator();
             Menu.Add("UseZhonya?", new CheckBox("Use Zhonya?"));
-            Menu.Add("ZhonyaUlt", new CheckBox("Just Zhonya when casting ultimate"));
+            Menu.Add("ZhonyaUlt", new CheckBox("Just Zhonya when casting ultimate", false));
             Menu.Add("ZhonyaHealth", new Slider("Auto Zhonya when Health% is at:", 15, 1, 100));
             
             Menu.AddSeparator();
@@ -221,8 +221,9 @@ namespace WuMorgana
 
             if (Menu["AutoQDash"].Cast<CheckBox>().CurrentValue && Q.IsReady() && sender.IsEnemy && e.EndPos.Distance(Player) <= Q.Range)
             {
+                if (sender.BaseSkinName == "Yasuo" && Player.Distance(e.EndPos) <= 200) Q.HitChanceCast(sender, 70);
                 //Chat.Print("Why you didn't Q");
-                Q.HitChanceCast(sender as AIHeroClient, 70);
+                else Q.HitChanceCast(sender, 70);
             }
 
             return;
@@ -633,7 +634,7 @@ namespace WuMorgana
 
         //-----------HitChanceCast(this Spell.Skillshot spell, AIHeroClient target, float hitchance)--------------
 
-        static void HitChanceCast(this Spell.Skillshot spell, AIHeroClient target, float hitchance)
+        static void HitChanceCast(this Spell.Skillshot spell, Obj_AI_Base target, float hitchance)
         {
             var Pred = spell.GetPrediction(target);
 
