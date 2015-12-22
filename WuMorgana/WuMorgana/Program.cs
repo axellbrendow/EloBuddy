@@ -366,10 +366,8 @@ namespace WuMorgana
                     {
                         foreach (var Ally in Allies)
                         {
-                            if (polygon.IsInside(Ally)) E.Cast();
+                            if (polygon.IsInside(Ally)) { E.Cast(); return; }
                         }
-
-                        return;
                     }, delay);
 
                     return;
