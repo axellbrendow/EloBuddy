@@ -33,6 +33,7 @@ namespace WuMorgana
         static Menu EMenu;
         static AIHeroClient Target = null;
         static List<string> MenuSpells = new List<string>();
+        static List<string> CollisionSpells = new List<string>() { "TahmKenchQ", "JinxW", "IllaoiE", "HeimerdingerUltWDummySpell", "HeimerdingerW", "EliseHumanE", "InfectedMissileCleaverCast", "MissileBarrage", "BraumQ", "BardQ", "AhriSeduce", "EnchantedCrystalArrow", "EzrealEssenceFlux", "FizzMarinerDoom", "GnarBigQMissile", "GragasE", "LuxLightBinding", "VarusR", "ThreshQ", "SejuaniGlacialPrisonCast", "JavelinToss", "NautilusAnchorDrag", "DarkBindingMissile", "RocketGrab", "RocketGrabMissile", "LissandraQ" };
         static List<string> ESpells = new List<string>() { "SorakaQ", "SorakaE", "TahmKenchW", "TahmKenchQ", "Bushwhack", "ForcePulse", "KarthusFallenOne", "KarthusWallOfPain", "KarthusLayWasteA1", "KarmaWMantra", "KarmaQMissileMantra", "KarmaSpiritBind", "KarmaQ", "JinxW", "JinxE", "JarvanIVGoldenAegis", "HowlingGaleSpell", "SowTheWind", "ReapTheWhirlwind", "IllaoiE", "HeimerdingerUltWDummySpell", "HeimerdingerUltEDummySpell", "HeimerdingerW", "HeimerdingerE", "HecarimUlt", "HecarimRampAttack", "GravesQLineSpell", "GravesQLineMis", "GravesClusterShot", "GravesSmokeGrenade", "GangplankR", "GalioIdolOfDurand", "GalioResoluteSmite", "FioraE", "EvelynnR", "EliseHumanE", "EkkoR", "EkkoW", "EkkoQ", "DravenDoubleShot", "InfectedCleaverMissileCast", "DariusExecute", "DariusAxeGrabCone", "DariusNoxianTacticsONH", "DariusCleave", "PhosphorusBomb", "MissileBarrage", "BraumQ", "BrandFissure", "BardR", "BardQ", "AatroxQ", "AatroxE", "AzirE", "AzirEWrapper", "AzirQWrapper", "AzirQ", "AzirR", "Pulverize", "AhriSeduce", "CurseoftheSadMummy", "InfernalGuardian", "Incinerate", "Volley", "EnchantedCrystalArrow", "BraumRWrapper", "CassiopeiaPetrifyingGaze", "FeralScream", "Rupture", "EzrealEssenceFlux", "EzrealMysticShot", "EzrealTrueshotBarrage", "FizzMarinerDoom", "GnarW", "GnarBigQMissile", "GnarQ", "GnarR", "GragasQ", "GragasE", "GragasR", "RiftWalk", "LeblancSlideM", "LeblancSlide", "LeonaSolarFlare", "UFSlash", "LuxMaliceCannon", "LuxLightStrikeKugel", "LuxLightBinding", "yasuoq3w", "VelkozE", "VeigarEventHorizon", "VeigarDarkMatter", "VarusR", "ThreshQ", "ThreshE", "ThreshRPenta", "SonaQ", "SonaR", "ShenShadowDash", "SejuaniGlacialPrisonCast", "RivenMartyr", "JavelinToss", "NautilusSplashZone", "NautilusAnchorDrag", "NamiR", "NamiQ", "DarkBindingMissile", "StaticField", "RocketGrab", "RocketGrabMissile", "timebombenemybuff", "karthusfallenonetarget", "NocturneUnspeakableHorror", "SyndraQ", "SyndraE", "SyndraR", "VayneCondemn", "Dazzle", "Overload", "AbsoluteZero", "IceBlast", "LeblancChaosOrb", "JudicatorReckoning", "KatarinaQ", "NullLance", "Crowstorm", "FiddlesticksDarkWind", "BrandWildfire", "Disintegrate", "FlashFrost", "Frostbite", "AkaliMota", "InfiniteDuress", "PantheonW", "blindingdart", "JayceToTheSkies", "IreliaEquilibriumStrike", "maokaiunstablegrowth", "nautilusgandline", "runeprison", "WildCards", "BlueCardAttack", "RedCardAttack", "GoldCardAttack", "AkaliShadowDance", "Headbutt", "PowerFist", "BrandConflagration", "CaitlynYordleTrap", "CaitlynAceintheHole", "CassiopeiaNoxiousBlast", "CassiopeiaMiasma", "CassiopeiaTwinFang", "Feast", "DianaArc", "DianaTeleport", "EliseHumanQ", "EvelynnE", "Terrify", "FizzPiercingStrike", "Parley", "GarenQAttack", "GarenR", "IreliaGatotsu", "IreliaEquilibriumStrike", "SowTheWind", "JarvanIVCataclysm", "JaxLeapStrike", "JaxEmpowerTwo", "JaxCounterStrike", "JayceThunderingBlow", "KarmaSpiritBind", "NetherBlade", "KatarinaR", "JudicatorRighteousFury", "KennenBringTheLight", "LeblancChaosOrbM", "BlindMonkRKick", "LeonaZenithBlade", "LeonaShieldOfDaybreak", "LissandraW", "LissandraQ", "LissandraR", "LuluQ", "LuluW", "LuluE", "LuluR", "SeismicShard", "AlZaharMaleficVisions", "AlZaharNetherGrasp", "MaokaiUnstableGrowth", "MordekaiserMaceOfSpades", "MordekaiserChildrenOfTheGrave", "SoulShackles", "NamiW", "NasusW", "NautilusGrandLine", "Takedown", "NocturneParanoia", "PoppyDevastatingBlow", "PoppyHeroicCharge", "QuinnE", "PuncturingTaunt", "RenektonPreExecute", "SpellFlux", "SejuaniWintersClaw", "TwoShivPoisen", "Fling", "SkarnerImpale", "SonaHymnofValor", "SwainTorment", "SwainDecrepify", "BlindingDart", "OrianaIzunaCommand", "OrianaDetonateCommand", "DetonatingShot", "BusterShot", "TrundleTrollSmash", "TrundlePain", "MockingShout", "Expunge", "UdyrBearStance", "UrgotHeatseekingLineMissile", "UrgotSwap2", "VeigarBalefulStrike", "VeigarPrimordialBurst", "ViR", "ViktorPowerTransfer", "VladimirTransfusion", "VolibearQ", "HungeringStrike", "XenZhaoComboTarget", "XenZhaoSweep", "YasuoQ3W", "YasuoQ3Mis", "YasuoQ3", "YasuoRKnockUpComboW" };
         static readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 1100, SkillShotType.Linear, 250, 1200, 70);
         static readonly Spell.Skillshot W = new Spell.Skillshot(SpellSlot.W, 900, SkillShotType.Circular, 250, 2200, 280);
@@ -297,7 +298,7 @@ namespace WuMorgana
                         {
                             //Chat.Print("Rectangle Detection");
 
-                            PriorityCast(sender, args, Allies);
+                            PriorityCast(sender, args, Allies, rectangle);
                             return;
                         }
 
@@ -322,7 +323,7 @@ namespace WuMorgana
                         {
                             //Chat.Print("Circle Detection");
 
-                            PriorityCast(sender, args, Allies);
+                            PriorityCast(sender, args, Allies, circle);
                             return;
                         }
                     }
@@ -334,30 +335,59 @@ namespace WuMorgana
 
         //-----------------------------------------------PriorityCast---------------------------------------------
 
-        static void PriorityCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args, List<AIHeroClient> Allies)
+        static void PriorityCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args, List<AIHeroClient> Allies, Geometry.Polygon polygon)
         {
             int delay = new int();
+
+            Allies.OrderBy(it => it.Distance(args.Start));
+
             var ally = Allies.First();
 
             if (Allies.Count == 1)
             {
-                delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 150 - Game.Ping);
-                Core.DelayAction(() => E.Cast(ally), delay);
+                delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+                Core.DelayAction( () => E.Cast(ally), delay);
                 //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
                 return;
             }
             else
             {
-                for (byte i = 0; i < Allies.Count; i++)
+                if (CollisionSpells.Any(it => it == args.SData.Name))
                 {
-                    if (i == 0) continue;
-                    else if (EMenu[Allies[i].BaseSkinName].Cast<Slider>().CurrentValue > EMenu[ally.BaseSkinName].Cast<Slider>().CurrentValue) ally = Allies[i];
+                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+
+                    Core.DelayAction(delegate
+                    {
+                        foreach (var Ally in Allies)
+                        {
+                            if (polygon.IsInside(Ally)) E.Cast();
+                        }
+
+                        return;
+                    }, delay);
+
+                    return;
                 }
 
-                delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 150 - Game.Ping);
-                Core.DelayAction(() => E.Cast(ally), delay);
-                //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
-                return;
+                else
+                {
+                    for (byte i = 0; i < Allies.Count; i++)
+                    {
+                        if (i == 0) continue;
+                        else if (EMenu[Allies[i].BaseSkinName].Cast<Slider>().CurrentValue > EMenu[ally.BaseSkinName].Cast<Slider>().CurrentValue) ally = Allies[i];
+                    }
+
+                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+
+                    Core.DelayAction(delegate
+                    {
+                        if (polygon.IsInside(ally)) E.Cast(ally);
+                        return;
+                    }, delay);
+
+                    //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
+                    return;
+                }
             }
         }
 
