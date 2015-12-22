@@ -287,7 +287,7 @@ namespace WuMorgana
 
                             foreach (var point in rectangle.Points)
                             {
-                                if (ally.Distance(point) <= 50)
+                                if (ally.Distance(point) <= 90)
                                 {
                                     Allies.Add(ally);
                                 }
@@ -312,7 +312,7 @@ namespace WuMorgana
 
                             foreach (var point in circle.Points)
                             {
-                                if (ally.Distance(point) <= 50)
+                                if (ally.Distance(point) <= 90)
                                 {
                                     Allies.Add(ally);
                                 }
@@ -338,7 +338,7 @@ namespace WuMorgana
         static void PriorityCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args, List<AIHeroClient> Allies, Geometry.Polygon polygon)
         {
             int delay = new int();
-
+            
             Allies.OrderBy(it => it.Distance(args.Start));
 
             var ally = Allies.First();
@@ -346,7 +346,13 @@ namespace WuMorgana
             if (Allies.Count == 1)
             {
                 delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
-                Core.DelayAction( () => E.Cast(ally), delay);
+
+                Core.DelayAction(delegate
+                {
+                    if (polygon.IsInside(ally)) E.Cast(ally);
+                    return;
+                }, delay);
+                
                 //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
                 return;
             }
@@ -371,18 +377,16 @@ namespace WuMorgana
 
                 else
                 {
-                    for (byte i = 0; i < Allies.Count; i++)
-                    {
-                        if (i == 0) continue;
-                        else if (EMenu[Allies[i].BaseSkinName].Cast<Slider>().CurrentValue > EMenu[ally.BaseSkinName].Cast<Slider>().CurrentValue) ally = Allies[i];
-                    }
-
+                    IEnumerable<AIHeroClient> priorities = from aliado in EntityManager.Heroes.Allies orderby EMenu[aliado.BaseSkinName].Cast<Slider>().CurrentValue descending select aliado;
+                    
                     delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
 
                     Core.DelayAction(delegate
                     {
-                        if (polygon.IsInside(ally)) E.Cast(ally);
-                        return;
+                        foreach (var Ally in priorities)
+                        {
+                            if (polygon.IsInside(Ally)) { E.Cast(ally); return; }
+                        }
                     }, delay);
 
                     //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
