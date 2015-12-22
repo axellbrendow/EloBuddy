@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Reflection;
@@ -296,7 +296,10 @@ namespace WuAlistar
 
         static void WQ()
         {
-            int delay = (int)(Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
+            //int delay = (int)(Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
+            
+            int delay = (int)Convert.ToDouble(Math.Max(0, Player.Distance(Target) - 365) / 1.2 - 25);
+
 
             if (EntityManager.Heroes.Allies.Where(ally => !ally.IsMe && ally.Distance(Player) <= 600).Count() > 0)
             {
@@ -369,6 +372,7 @@ namespace WuAlistar
 
         static void SearchVersion()
         {
+            
             Task.Factory.StartNew(() =>
             {
                 try
