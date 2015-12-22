@@ -625,6 +625,7 @@ namespace WuJax
             if (Item.CanUseItem(3340)) return Inventory.First(it => it.Id == ItemId.Warding_Totem_Trinket);
             if (Item.CanUseItem(2049)) return Inventory.First(it => it.Id == ItemId.Sightstone);
             if (Item.CanUseItem(2045)) return Inventory.First(it => it.Id == ItemId.Ruby_Sightstone);
+            if (Item.CanUseItem(3711)) return Inventory.First(it => (int)it.Id == 3711);
             if (Item.CanUseItem(2301)) return Inventory.First(it => (int)it.Id == 2301);
             if (Item.CanUseItem(2302)) return Inventory.First(it => (int)it.Id == 2302);
             if (Item.CanUseItem(2303)) return Inventory.First(it => (int)it.Id == 2303);
