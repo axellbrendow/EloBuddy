@@ -635,13 +635,13 @@ namespace WuMorgana
             {
                 if (Q.IsReady() && Menu["AutoQImmobile"].Cast<CheckBox>().CurrentValue)
                 {
-                    var QImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(Q.Range) && !CanMove(it));
+                    var QImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => Q.IsInRange(it) && !CanMove(it));
                     if (QImmobile != null) { Q.HitChanceCast(QImmobile, 50); return; }
                 }
 
                 if (W.IsReady() && Menu["AutoWImmobile"].Cast<CheckBox>().CurrentValue)
                 {
-                    var WImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(W.Range) && !CanMove(it));
+                    var WImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => W.IsInRange(it) && !CanMove(it));
                     if (WImmobile != null) { W.HitChanceCast(WImmobile, 50); return; }
                 }
 
