@@ -205,6 +205,7 @@ namespace WuMorgana
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
+            Chat.Print("\n Remember to go to the Prediction Menu, increase the HitChance Slider in two points and then put the HitBox radius as 10");
         }
 
         static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
@@ -268,7 +269,7 @@ namespace WuMorgana
 
                                 if (target != null)
                                 {
-                                    int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 150 - Game.Ping);
+                                    int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
 
                                     Core.DelayAction(() => E.Cast(target), delay);
                                     //Chat.Print("Targetted detection");
