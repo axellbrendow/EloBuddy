@@ -265,14 +265,14 @@ namespace WuMorgana
                             {
                                 var target = EntityManager.Heroes.Allies.FirstOrDefault(it => it.NetworkId == args.Target.NetworkId);
 
-                                //Chat.Print(args.Target.Name);
+                                Chat.Print(args.Target.Name);
 
                                 if (target != null)
                                 {
                                     int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
 
                                     Core.DelayAction(() => E.Cast(target), delay);
-                                    //Chat.Print("Targetted detection");
+                                    Chat.Print("Targetted detection");
                                 }
                                 return;
                             }
@@ -346,30 +346,32 @@ namespace WuMorgana
 
             if (Allies.Count == 1)
             {
-                delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+                delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
 
                 Core.DelayAction(delegate
                 {
-                    if (polygon.IsInside(ally)) E.Cast(ally);
+                    if (polygon.IsInside(ally) && E.IsInRange(ally)) E.Cast(ally);
                     return;
                 }, delay);
                 
-                //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
+                Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
                 return;
             }
             else
             {
                 if (CollisionSpells.Any(it => it == args.SData.Name))
                 {
-                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
 
                     Core.DelayAction(delegate
                     {
                         foreach (var Ally in Allies)
                         {
-                            if (polygon.IsInside(Ally)) { E.Cast(); return; }
+                            if (polygon.IsInside(Ally) && E.IsInRange(Ally)) { E.Cast(Ally); return; }
                         }
                     }, delay);
+
+                    Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
 
                     return;
                 }
@@ -378,17 +380,17 @@ namespace WuMorgana
                 {
                     IEnumerable<AIHeroClient> priorities = from aliado in EntityManager.Heroes.Allies orderby EMenu[aliado.BaseSkinName].Cast<Slider>().CurrentValue descending select aliado;
                     
-                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
 
                     Core.DelayAction(delegate
                     {
                         foreach (var Ally in priorities)
                         {
-                            if (polygon.IsInside(Ally)) { E.Cast(ally); return; }
+                            if (polygon.IsInside(Ally) && E.IsInRange(Ally)) { E.Cast(Ally); return; }
                         }
                     }, delay);
 
-                    //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
+                    Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
                     return;
                 }
             }
