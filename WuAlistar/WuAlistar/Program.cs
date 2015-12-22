@@ -296,7 +296,10 @@ namespace WuAlistar
 
         static void WQ()
         {
-            int delay = (int)(Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
+            //int delay = (int)(Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
+            
+            int delay = Math.Max(0, Player.Distance(target) - 365) / 1.2f - 25;
+
 
             if (EntityManager.Heroes.Allies.Where(ally => !ally.IsMe && ally.Distance(Player) <= 600).Count() > 0)
             {
