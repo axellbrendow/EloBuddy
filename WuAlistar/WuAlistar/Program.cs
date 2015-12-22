@@ -372,6 +372,8 @@ namespace WuAlistar
 
         static void SearchVersion()
         {
+            return;
+            
             Task.Factory.StartNew(() =>
             {
                 try
