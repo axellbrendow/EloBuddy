@@ -302,7 +302,7 @@ namespace WuAlistar
                 if (Talisma.IsReady()) Talisma.Cast();
             }
 
-            int delay = (int)( ( (Player.Distance(Target) - 185) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + W.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
+            int delay = (int)( ( (Player.Distance(Target) - 185) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
 
             W.Cast(Target);
 
