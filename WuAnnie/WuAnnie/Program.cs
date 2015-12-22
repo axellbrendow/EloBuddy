@@ -114,7 +114,7 @@ namespace WuAnnie
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
                 Menu.Add("UseExhaust?", new CheckBox("Use Exhaust?"));
-                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?"));
+                Menu.Add("AAMaxRange?", new CheckBox("AA when max range?", false));
                 Menu.Add("AA?", new CheckBox("Auto Attack?"));
             }
             Menu.AddSeparator();
@@ -373,7 +373,7 @@ namespace WuAnnie
 
                     if (R.IsReady())
                     {
-                        if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range)) R.Cast(R.GetPrediction(Target).CastPosition);
+                        if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range - 50)) R.Cast(R.GetPrediction(Target).CastPosition);
 
                         else if (Menu["Flash+R"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range + Flash.Range - 50) && Flash.IsReady())
                         {
