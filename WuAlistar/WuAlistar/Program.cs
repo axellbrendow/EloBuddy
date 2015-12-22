@@ -296,16 +296,17 @@ namespace WuAlistar
 
         static void WQ()
         {
-            int delay = (int)(Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
-
             if (EntityManager.Heroes.Allies.Where(ally => !ally.IsMe && ally.Distance(Player) <= 600).Count() > 0)
             {
                 if (Glory.IsReady()) Glory.Cast();
                 if (Talisma.IsReady()) Talisma.Cast();
             }
-            
-            Core.DelayAction(() => Q.Cast(), delay);
+
+            int delay = (int)( ( (Player.Distance(Target) - 185) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + W.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
+
             W.Cast(Target);
+
+            Core.DelayAction(() => Q.Cast(), delay);
 
             return;
         }
