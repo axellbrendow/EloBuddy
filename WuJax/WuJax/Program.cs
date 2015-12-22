@@ -27,6 +27,7 @@ namespace WuJax
         static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
         static int WardTick = new int();
+        static int ETick = new int();
         static Item BOTRK, Hextech, GhostBlade, Tiamat, Hydra, Bilgewater, Randuin, Scimitar, QSS;
         static Menu Menu;
         static AIHeroClient Target = null;
@@ -84,6 +85,7 @@ namespace WuJax
             {
                 Menu.Add("UseQCombo", new CheckBox("Use Q Combo"));
                 Menu.Add("QOnDash", new CheckBox("Enemy AA range ? just Q on dash!"));
+                Menu.Add("QDelayCombo", new Slider("Use E and then jump after some milliseconds (1000 milliseconds = 1 second, Jax E duration is 2 seconds):", 1500, 0, 1900));
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseWAARCombo", new CheckBox("W AA Reset"));
                 Menu.Add("UseECombo", new CheckBox("Use E Combo"));
@@ -98,6 +100,7 @@ namespace WuJax
             Menu.AddGroupLabel("Harass");
             {
                 Menu.Add("UseQHarass", new CheckBox("Use Q Harass"));
+                Menu.Add("QDelayHarass", new Slider("Use E and then jump after some milliseconds (1000 milliseconds = 1 second, Jax E duration is 2 seconds):", 1500, 0, 1900));
                 Menu.Add("UseWHarass", new CheckBox("Use W Harass"));
                 Menu.Add("UseWAARHarass", new CheckBox("W AA Reset"));
                 Menu.Add("UseEHarass", new CheckBox("Use E Harass"));
@@ -400,8 +403,11 @@ namespace WuJax
 
                 if (E.IsReady() && !Player.HasBuff("JaxCounterStrike") && Menu["UseECombo"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (Target.IsValidTarget(745) && (Player.MoveSpeed - Target.MoveSpeed) >= 25) E.Cast();
-                    if (Target.IsValidTarget(Q.Range)) E.Cast();
+                    if (Target.IsValidTarget(Q.Range))
+                    {
+                        E.Cast();
+                        ETick = Environment.TickCount;
+                    }
                 }
 
                 if (R.IsReady() && Menu["UseRCombo"].Cast<CheckBox>().CurrentValue)
@@ -416,7 +422,7 @@ namespace WuJax
                     {
                         if (Target.IsDashing()) Q.Cast(Target);
                     }
-                    else Q.Cast(Target);
+                    else if (Environment.TickCount - ETick >= Menu["QDelayCombo"].Cast<Slider>().CurrentValue) Q.Cast(Target);
                 }
 
                 if (Smite != null)
@@ -449,12 +455,10 @@ namespace WuJax
 
             public static void Harass()
             {
-                if (E.IsReady() && !Player.HasBuff("JaxCounterStrike") && Target.IsValidTarget(745) && (Player.MoveSpeed - Target.MoveSpeed) >= 25) E.Cast();
-
                 if (Q.IsInRange(Target))
                 {
-                    if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady() && !Player.HasBuff("JaxCounterStrike")) E.Cast();
-                    if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady()) Q.Cast(Target);
+                    if (Menu["UseEHarass"].Cast<CheckBox>().CurrentValue && E.IsReady() && !Player.HasBuff("JaxCounterStrike")) { E.Cast(); ETick = Environment.TickCount; }
+                    if (Menu["UseQHarass"].Cast<CheckBox>().CurrentValue && Q.IsReady() && Environment.TickCount - ETick >= Menu["QDelayHarass"].Cast<Slider>().CurrentValue) Q.Cast(Target);
                     if (Menu["UseWHarass"].Cast<CheckBox>().CurrentValue && W.IsReady() && !Menu["UseWAARHarass"].Cast<CheckBox>().CurrentValue) W.Cast();
                 }
 
