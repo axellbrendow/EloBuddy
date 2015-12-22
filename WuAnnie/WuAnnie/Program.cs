@@ -373,9 +373,9 @@ namespace WuAnnie
 
                     if (R.IsReady())
                     {
-                        if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range - 90)) R.Cast(R.GetPrediction(Target).CastPosition);
+                        if (Menu["Ult on Target"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range - 50)) R.Cast(R.GetPrediction(Target).CastPosition);
 
-                        else if (Menu["Flash+R"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range + Flash.Range - 90) && Flash.IsReady())
+                        else if (Menu["Flash+R"].Cast<KeyBind>().CurrentValue && Target.IsValidTarget(R.Range + Flash.Range - 80) && Flash.IsReady())
                         {
                             var RPos = GetBestRPos(Target.ServerPosition.To2D());
                             if (RPos.First().Value > 0)
