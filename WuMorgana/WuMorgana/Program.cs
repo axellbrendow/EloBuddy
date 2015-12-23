@@ -205,7 +205,7 @@ namespace WuMorgana
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
-            Chat.Print("\n Remember to go to the Prediction Menu, increase the HitChance Slider in two points and then put the HitBox radius as 10");
+            Chat.Print("Remember to go to the Prediction Menu, increase the HitChance Slider in two points and then put the HitBox radius as 10");
         }
 
         static void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args)
@@ -229,6 +229,10 @@ namespace WuMorgana
                 if (sender.BaseSkinName == "Yasuo")
                 {
                     if (Player.Distance(e.EndPos) <= 200) Q.HitChanceCast(sender, 70);
+                }
+                else if (sender.BaseSkinName == "Pantheon")
+                {
+                    Core.DelayAction(() => Q.Cast(e.EndPos), e.Duration - 50 - Game.Ping - Q.CastDelay);
                 }
                 //Chat.Print("Why you didn't Q");
                 else Q.HitChanceCast(sender, 70);
@@ -346,7 +350,7 @@ namespace WuMorgana
 
             if (Allies.Count == 1)
             {
-                delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 200 - Game.Ping);
+                delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 300 - Game.Ping);
 
                 Core.DelayAction(delegate
                 {
@@ -361,7 +365,7 @@ namespace WuMorgana
             {
                 if (CollisionSpells.Any(it => it == args.SData.Name))
                 {
-                    delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 200 - Game.Ping);
+                    delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 300 - Game.Ping);
 
                     Core.DelayAction(delegate
                     {
@@ -369,6 +373,7 @@ namespace WuMorgana
                         {
                             if (polygon.IsInside(Ally) && E.IsInRange(Ally)) { E.Cast(Ally); return; }
                         }
+                        return;
                     }, delay);
 
                     //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
@@ -388,6 +393,7 @@ namespace WuMorgana
                         {
                             if (polygon.IsInside(Ally) && E.IsInRange(Ally)) { E.Cast(Ally); return; }
                         }
+                        return;
                     }, delay);
 
                     //Chat.Print("Shield for {0} : {1}", sender.BaseSkinName, args.Slot.ToString());
@@ -636,13 +642,13 @@ namespace WuMorgana
                 if (Q.IsReady() && Menu["AutoQImmobile"].Cast<CheckBox>().CurrentValue)
                 {
                     var QImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => Q.IsInRange(it) && !CanMove(it));
-                    if (QImmobile != null) { Q.HitChanceCast(QImmobile, 50); return; }
+                    if (QImmobile != null) { Q.HitChanceCast(QImmobile, 30); return; }
                 }
 
                 if (W.IsReady() && Menu["AutoWImmobile"].Cast<CheckBox>().CurrentValue)
                 {
                     var WImmobile = EntityManager.Heroes.Enemies.FirstOrDefault(it => W.IsInRange(it) && !CanMove(it));
-                    if (WImmobile != null) { W.HitChanceCast(WImmobile, 50); return; }
+                    if (WImmobile != null) { W.HitChanceCast(WImmobile, 30); return; }
                 }
 
                 return;
