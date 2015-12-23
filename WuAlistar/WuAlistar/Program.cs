@@ -368,8 +368,7 @@ namespace WuAlistar
 
         static void CheckWDistance()
         {
-            if (Player.Distance(WalkPos) <= 70) { Chat.Print("Yes Cast"); W.Cast(Target); }
-            else Chat.Print("No Distance");
+            if (Player.Distance(WalkPos) <= 70) W.Cast(Target);
             return;
         }
 
