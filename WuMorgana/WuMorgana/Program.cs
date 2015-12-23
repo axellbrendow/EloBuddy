@@ -94,7 +94,7 @@ namespace WuMorgana
             Menu.AddGroupLabel("Combo");
             {
                 Menu.Add("UseQCombo", new CheckBox("Use Q Combo"));
-                Menu.Add("QHitChanceCombo", new Slider("QHitChance:", 70, 0, 100));
+                Menu.Add("QHitChanceCombo", new Slider("QHitChance:", 75, 0, 100));
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseRCombo", new CheckBox("Use R Combo"));
                 Menu.Add("Min Enemies R", new Slider("Min Enemies R", 2, 1, 5));
@@ -107,7 +107,7 @@ namespace WuMorgana
             Menu.AddGroupLabel("Harass");
             {
                 Menu.Add("UseQHarass", new CheckBox("Use Q Harass"));
-                Menu.Add("QHitChanceHarass", new Slider("QHitChance:", 70, 0, 100));
+                Menu.Add("QHitChanceHarass", new Slider("QHitChance:", 75, 0, 100));
                 Menu.Add("UseWHarass", new CheckBox("Use W Harass"));
                 Menu.Add("Harass, Mana %", new Slider("Harass, Mana %", 30, 1, 100));
             }
