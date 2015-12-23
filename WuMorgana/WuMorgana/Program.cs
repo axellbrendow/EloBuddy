@@ -346,7 +346,7 @@ namespace WuMorgana
 
             if (Allies.Count == 1)
             {
-                delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
+                delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 200 - Game.Ping);
 
                 Core.DelayAction(delegate
                 {
@@ -361,7 +361,7 @@ namespace WuMorgana
             {
                 if (CollisionSpells.Any(it => it == args.SData.Name))
                 {
-                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
+                    delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 200 - Game.Ping);
 
                     Core.DelayAction(delegate
                     {
@@ -380,7 +380,7 @@ namespace WuMorgana
                 {
                     IEnumerable<AIHeroClient> priorities = from aliado in EntityManager.Heroes.Allies orderby EMenu[aliado.BaseSkinName].Cast<Slider>().CurrentValue descending select aliado;
                     
-                    delay = (int)((sender.Distance(ally) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
+                    delay = (int)((sender.Distance(ally) / args.SData.MissileMaxSpeed * 1000) + args.SData.SpellCastTime - 200 - Game.Ping);
 
                     Core.DelayAction(delegate
                     {
@@ -713,11 +713,11 @@ namespace WuMorgana
             switch (slot)
             {
                 case SpellSlot.Q:
-                    return Damage.CalculateDamageOnUnit(Player, target, DamageType.Magical, new float[] { 80, 135, 190, 245, 300 }[Q.Level - 1] + 0.9f * Player.TotalMagicalDamage)-30;
+                    return Player.CalculateDamageOnUnit(target, DamageType.Magical, new float[] { 80, 135, 190, 245, 300 }[Q.Level - 1] + 0.9f * Player.TotalMagicalDamage)-30;
                 case SpellSlot.W:
-                    return Damage.CalculateDamageOnUnit(Player, target, DamageType.Magical, new float[] { 80, 160, 240, 320, 400 }[W.Level - 1] + 1.1f * Player.TotalMagicalDamage)*3/5;
+                    return Player.CalculateDamageOnUnit(target, DamageType.Magical, new float[] { 80, 160, 240, 320, 400 }[W.Level - 1] + 1.1f * Player.TotalMagicalDamage)*3/5;
                 case SpellSlot.R:
-                    return Damage.CalculateDamageOnUnit(Player, target, DamageType.Magical, new float[] { 300, 450, 600 }[R.Level - 1] + 1.4f * Player.TotalMagicalDamage)-30;
+                    return Player.CalculateDamageOnUnit(target, DamageType.Magical, new float[] { 300, 450, 600 }[R.Level - 1] + 1.4f * Player.TotalMagicalDamage)-30;
                 default:
                     return 0;
             }
