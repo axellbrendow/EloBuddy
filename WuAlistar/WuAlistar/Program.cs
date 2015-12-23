@@ -90,7 +90,7 @@ namespace WuAlistar
 
             Menu.AddSeparator();
 
-            Menu.Add("W/Q Delay", new Slider("W/Q Delay", 50, -200, 200));
+            Menu.Add("W/Q Delay", new Slider("W/Q Delay", 0, -400, 400));
 
             Menu.AddSeparator();
 
@@ -193,7 +193,7 @@ namespace WuAlistar
 
             if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
-            Target = TargetSelector.GetTarget(800, DamageType.Magical);
+            Target = TargetSelector.GetTarget(1300, DamageType.Magical);
 
             if (Target != null)
             {
@@ -224,7 +224,7 @@ namespace WuAlistar
                                     Insecing = false;
                                 }
 
-                                else if (Target.IsValidTarget(Flash.Range + Q.Range - 40) && Flash.IsReady() && Q.IsReady() && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
+                                else if (Target.IsValidTarget(Flash.Range + Q.Range - 50) && Flash.IsReady() && Q.IsReady() && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
                                 {
                                     Insecing = true;
                                     QWInsec(true);
@@ -279,7 +279,7 @@ namespace WuAlistar
 
             public static void Heal()
             {
-                if (!Player.HasBuff("recall"))
+                if (!Player.HasBuff("recall") && !Insecing)
                 {
                     if (E.IsReady() && EntityManager.Heroes.Allies.Where(ally => ally.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && E.IsInRange(ally)).Any() && Player.ManaPercent >= Menu["ManaToE"].Cast<Slider>().CurrentValue)
                     {
@@ -302,7 +302,7 @@ namespace WuAlistar
                 if (Talisma.IsReady()) Talisma.Cast();
             }
 
-            int delay = (int)( ( (Player.Distance(Target) - 200) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed) * 1000 + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
+            int delay = (int)( ( (Player.Distance(Target)) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed * 1000) + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
 
             W.Cast(Target);
 
@@ -324,20 +324,26 @@ namespace WuAlistar
             if (flash)
             {
                 var FlashPos = Player.Position.Extend(Target, Flash.Range).To3D();
-                Flash.Cast(FlashPos);
 
-                Core.DelayAction( delegate
+                var Flashed = Flash.Cast(FlashPos);
+
+                if (Flashed)
                 {
-                    Q.Cast();
+                    Core.DelayAction(delegate
+                    {
+                        int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 400 + Q.CastDelay + 2 * Game.Ping;
 
-                    WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
+                        Q.Cast();
 
-                    int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay + Game.Ping;
+                        WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
+                        var WalkPos3D = WalkPos.To3D();
 
-                    EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
-                    Core.DelayAction(() => CheckWDistance(), delay);
-                    Core.DelayAction(() => Insecing = false, delay + 200);
-                }, Game.Ping + 30);
+                        EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos3D);
+                        Core.DelayAction(() => CheckWDistance(), delay);
+                        Core.DelayAction(() => Insecing = false, delay + 1000);
+                    }, Game.Ping + 70);
+                }
+                else Insecing = false;
 
                 return;
             }
@@ -348,11 +354,11 @@ namespace WuAlistar
 
                 WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
-                int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 200 + Q.CastDelay + Game.Ping;
+                int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 400 + Q.CastDelay + 2 * Game.Ping;
 
                 EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
                 Core.DelayAction(() => CheckWDistance(), delay);
-                Core.DelayAction(() => Insecing = false, delay + 200);
+                Core.DelayAction(() => Insecing = false, delay + 1000);
 
                 return;
             }
@@ -362,7 +368,8 @@ namespace WuAlistar
 
         static void CheckWDistance()
         {
-            if (Player.Distance(WalkPos) <= 40) W.Cast(Target);
+            if (Player.Distance(WalkPos) <= 70) { Chat.Print("Yes Cast"); W.Cast(Target); }
+            else Chat.Print("No Distance");
             return;
         }
 
