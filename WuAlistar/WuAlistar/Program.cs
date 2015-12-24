@@ -24,6 +24,8 @@ namespace WuAlistar
         static readonly String CN = "Alistar";
         static AIHeroClient Player { get { return ObjectManager.Player; } }
         static Spell.Skillshot Flash;
+        static Spell.Active Heal;
+        static Spell.Targeted Exhaust;
         static ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
@@ -66,7 +68,22 @@ namespace WuAlistar
             {
                 Flash = new Spell.Skillshot(flash.Slot, 425, SkillShotType.Linear);
             }
-            flash = null;
+
+            //-------------------------------------------------Heal--------------------------------------------------
+
+            SpellDataInst heal = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("heal")).First() : null;
+            if (heal != null)
+            {
+                Heal = new Spell.Active(heal.Slot, 850);
+            }
+
+            //-------------------------------------------------Exhaust--------------------------------------------------
+
+            SpellDataInst exhaust = Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).Any() ? Player.Spellbook.Spells.Where(spell => spell.Name.Contains("exhaust")).First() : null;
+            if (exhaust != null)
+            {
+                Exhaust = new Spell.Targeted(exhaust.Slot, 650);
+            }
 
             //-----------------------------||   Menu   ||------------------------------
 
@@ -103,12 +120,20 @@ namespace WuAlistar
 
             Menu.AddSeparator();
 
+            Menu.Add("UseExhaust?", new CheckBox("Use Exhaust?"));
+
+            Menu.AddSeparator();
+
+            Menu.Add("UseHeal?", new CheckBox("Use Heal?"));
+            Menu.Add("HealHealth", new Slider("Auto Heal when Health% is at:", 20, 1, 100));
+
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan], Version: " + AssVersion);
+            if (Exhaust != null) Chat.Print("Use Harass Key in lane for not lose your Exhaust");
         }
 
         //-------------------------------------Interrupter_OnInterruptableSpell--------------------------------------
@@ -237,10 +262,11 @@ namespace WuAlistar
                     //---------------------------------------------------Combo--------------------------------------------
 
                     if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) Modes.Harass();
                 }
             }
 
-            Modes.Heal();
+            if (!Player.HasBuff("recall") && !Insecing && E.IsReady()) Modes.GoHeal();
 
             return;
         }
@@ -257,9 +283,20 @@ namespace WuAlistar
 
                 else if (!Combing && W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 50) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
+                if (Exhaust != null && Menu["UseExhaust?"].Cast<CheckBox>().CurrentValue && TargetSelector.GetPriority(Target) > 3 && Target.IsValidTarget(Exhaust.Range) && Exhaust.IsReady()) Exhaust.Cast(Target);
+
                 if (Target.IsValidTarget(Bilgewater.Range) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
 
                 if (Target.IsValidTarget(Randuin.Range) && Randuin.IsReady()) Randuin.Cast();
+
+                return;
+            }
+
+            public static void Harass()
+            {
+                if (Q.IsReady() && Target.IsValidTarget(Q.Range - 50) && !Player.IsDashing()) Q.Cast();
+
+                else if (!Combing && W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 50) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
                 return;
             }
@@ -275,18 +312,25 @@ namespace WuAlistar
                     if (Mikael.IsReady() && (Ally.HasBuffOfType(BuffType.Charm) || Ally.HasBuffOfType(BuffType.Fear) || Ally.HasBuffOfType(BuffType.Poison) || Ally.HasBuffOfType(BuffType.Polymorph) || Ally.HasBuffOfType(BuffType.Silence) || Ally.HasBuffOfType(BuffType.Sleep) || Ally.HasBuffOfType(BuffType.Slow) || Ally.HasBuffOfType(BuffType.Snare) || Ally.HasBuffOfType(BuffType.Stun) || Ally.HasBuffOfType(BuffType.Taunt))) Mikael.Cast(Ally);
                 }
 
+                if (Heal != null && Menu["UseHeal?"].Cast<CheckBox>().CurrentValue)
+                {
+                    var healtarget = EntityManager.Heroes.Allies.FirstOrDefault(it => it.IsValidTarget(Heal.Range) && it.HealthPercent <= Menu["HealHealth"].Cast<Slider>().CurrentValue);
+
+                    if (healtarget != null)
+                    {
+                        if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget() && it.Distance(healtarget) <= it.GetAutoAttackRange())) Heal.Cast();
+                    }
+                }
+
                 return;
             }
 
-            public static void Heal()
+            public static void GoHeal()
             {
-                if (!Player.HasBuff("recall") && !Insecing)
+                if (EntityManager.Heroes.Allies.Where(ally => ally.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && E.IsInRange(ally)).Any() && Player.ManaPercent >= Menu["ManaToE"].Cast<Slider>().CurrentValue)
                 {
-                    if (E.IsReady() && EntityManager.Heroes.Allies.Where(ally => ally.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && E.IsInRange(ally)).Any() && Player.ManaPercent >= Menu["ManaToE"].Cast<Slider>().CurrentValue)
-                    {
-                        if (Player.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && !Menu["EYourself"].Cast<CheckBox>().CurrentValue) { }
-                        else E.Cast();
-                    }
+                    if (Player.HealthPercent <= Menu["LifeToE"].Cast<Slider>().CurrentValue && !Menu["EYourself"].Cast<CheckBox>().CurrentValue) { }
+                    else E.Cast();
                 }
 
                 return;
