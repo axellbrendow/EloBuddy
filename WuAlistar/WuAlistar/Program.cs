@@ -31,6 +31,7 @@ namespace WuAlistar
         static Menu Menu;
         static Vector2 WalkPos;
         static bool Insecing = new bool();
+        static bool Combing = new bool(); //Kappa
         static AIHeroClient Target = null;
         static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
         static readonly Spell.Active Q = new Spell.Active(SpellSlot.Q, 365);
@@ -43,7 +44,7 @@ namespace WuAlistar
 
         static void OnLoadingComplete(EventArgs args)
         {
-            if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't choose " + CN + ", addon disabled"); return; }
+            if (Player.BaseSkinName != CN) { Chat.Print("Sorry, you didn't pick " + CN + ", addon disabled"); return; }
 
             AssVersion = Assembly.GetExecutingAssembly().GetName().Version;
             SearchVersion();
@@ -71,7 +72,7 @@ namespace WuAlistar
 
             Menu = MainMenu.AddMenu("Wu" + CN, "Wu" + CN);
             
-            string slot = "";//H3U3UH3UH3U3HU3HUH3UH3U3U
+            /*string slot = "";//H3U3UH3UH3U3HU3HUH3UH3U3U
             string champ = "";//H3UH3UH3U3HU3H3U3H3UH3UH3U
 
             foreach (string spell in DodgeSpells)
@@ -80,7 +81,7 @@ namespace WuAlistar
                 {
                     Menu.Add(spell, new CheckBox("Interrupt " + champ + slot + " ?"));
                 }
-            }
+            }*/
 
             Menu.AddSeparator();
 
@@ -193,7 +194,7 @@ namespace WuAlistar
 
             if (Player.CountEnemiesInRange(1000) > 0) Modes.SaveAlly();
 
-            Target = TargetSelector.GetTarget(1300, DamageType.Magical);
+            Target = TargetSelector.GetTarget(1200, DamageType.Magical);
 
             if (Target != null)
             {
@@ -254,7 +255,7 @@ namespace WuAlistar
 
                 if (Q.IsReady() && Target.IsValidTarget(Q.Range - 40) && !Player.IsDashing()) Q.Cast();
 
-                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 30) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) WQ();
+                else if (!Combing && W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 50) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
                 if (Target.IsValidTarget(Bilgewater.Range) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
 
@@ -302,11 +303,14 @@ namespace WuAlistar
                 if (Talisma.IsReady()) Talisma.Cast();
             }
 
-            int delay = (int)( ( (Player.Distance(Target)) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed * 1000) + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
+            int delay = (int)( ( Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed * 1000) + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
 
-            W.Cast(Target);
-
-            Core.DelayAction(() => Q.Cast(), delay);
+            if (W.Cast(Target))
+            {
+                Core.DelayAction(() => Q.Cast(), delay);
+                Core.DelayAction(() => Combing = false, delay + 1000);
+            }
+            else Combing = false;
 
             return;
         }
