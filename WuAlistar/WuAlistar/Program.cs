@@ -72,7 +72,7 @@ namespace WuAlistar
 
             Menu = MainMenu.AddMenu("Wu" + CN, "Wu" + CN);
             
-            /*string slot = "";//H3U3UH3UH3U3HU3HUH3UH3U3U
+            string slot = "";//H3U3UH3UH3U3HU3HUH3UH3U3U
             string champ = "";//H3UH3UH3U3HU3H3U3H3UH3UH3U
 
             foreach (string spell in DodgeSpells)
@@ -81,7 +81,7 @@ namespace WuAlistar
                 {
                     Menu.Add(spell, new CheckBox("Interrupt " + champ + slot + " ?"));
                 }
-            }*/
+            }
 
             Menu.AddSeparator();
 
