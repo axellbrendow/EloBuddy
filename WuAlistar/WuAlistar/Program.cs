@@ -22,7 +22,7 @@ namespace WuAlistar
     {
         static Version AssVersion;//Kappa
         static readonly String CN = "Alistar";
-        static AIHeroClient Player { get { return ObjectManager.Player; } }
+        static AIHeroClient Player = EloBuddy.Player.Instance;
         static Spell.Skillshot Flash;
         static Spell.Active Heal;
         static Spell.Targeted Exhaust;
@@ -33,7 +33,7 @@ namespace WuAlistar
         static Menu Menu;
         static Vector2 WalkPos;
         static bool Insecing = new bool();
-        static bool Combing = new bool(); ///Kappa
+        static bool Combing = new bool(); //Kappa
         static AIHeroClient Target = null;
         static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
         static readonly Spell.Active Q = new Spell.Active(SpellSlot.Q, 365);

@@ -11,3 +11,6 @@ C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAlistar\WuAlistar\bin\Release\WuAlistar.pdb
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAlistar\WuAlistar\bin\Release\SharpDX.Direct3D9.dll
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAlistar\WuAlistar\bin\Release\Newtonsoft.Json.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAlistar\WuAlistar\bin\Release\EloBuddy.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAlistar\WuAlistar\bin\Release\EloBuddy.SDK.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAlistar\WuAlistar\bin\Release\SharpDX.dll
