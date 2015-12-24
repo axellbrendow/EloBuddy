@@ -33,7 +33,7 @@ namespace WuAlistar
         static Menu Menu;
         static Vector2 WalkPos;
         static bool Insecing = new bool();
-        static bool Combing = new bool(); //Kappa
+        static bool Combing = new bool(); ///Kappa
         static AIHeroClient Target = null;
         static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
         static readonly Spell.Active Q = new Spell.Active(SpellSlot.Q, 365);
