@@ -299,7 +299,7 @@ namespace WuYi
 
                     if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
 
-                    Core.DelayAction(() => Dodge(), (int)args.SData.SpellCastTime - Game.Ping - 100);
+                    Core.DelayAction(() => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 100);
 
                     return;
                 }
