@@ -49,6 +49,7 @@ namespace WuYi
 
             //-------------------------------------------------Items--------------------------------------------------
 
+            R.AllowedCollisionCount = int.MaxValue;
             QSpeed = Player.Spellbook.GetSpell(SpellSlot.Q).SData.MissileSpeed;
 
             BOTRK = new Item(3153, 550);
