@@ -27,7 +27,7 @@ namespace WuYi
         static ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
         static ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
-        static Item BOTRK, Hextech, GhostBlade, Tiamat, Hydra, Bilgewater, Randuin, Scimitar, QSS;
+        static Item BOTRK, Hextech, GhostBlade, Tiamat, Titanic, Hydra, Bilgewater, Randuin, Scimitar, QSS;
         static Menu Menu;
         static Menu EOMenu;
         static AIHeroClient Target = null;
@@ -60,6 +60,7 @@ namespace WuYi
             Randuin = new Item(3143, 500);
             Scimitar = new Item(3139);
             QSS = new Item(3140);
+            Titanic = new Item(3053, 700);
 
             //-------------------------------------------------Smite--------------------------------------------------
 
@@ -486,6 +487,8 @@ namespace WuYi
                 if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
 
                 if (Target.IsValidTarget(400) && Tiamat.IsReady()) Tiamat.Cast();
+
+                if (Target.IsValidTarget(680) && Titanic.IsReady()) Titanic.Cast();
 
                 if (Target.IsValidTarget(400) && Hydra.IsReady()) Hydra.Cast();
 
