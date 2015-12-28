@@ -273,7 +273,7 @@ namespace WuMorgana
 
                                 if (target != null)
                                 {
-                                    int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 200 - Game.Ping);
+                                    int delay = (int)((sender.Distance(target) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2)) * 1000 + args.SData.SpellCastTime - 300 - Game.Ping);
 
                                     Core.DelayAction(() => E.Cast(target), delay);
                                     //Chat.Print("Targetted detection");
