@@ -198,18 +198,15 @@ namespace WuYi
 
         static void Obj_AI_Turret_OnBasicAttack(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.Distance(Player) <= 2000 && sender is Obj_AI_Turret)
+            if (sender is Obj_AI_Turret && sender.IsAlly && E.IsReady())
             {
-                if (sender.IsAlly && args.Target != null && E.IsReady())
-                {
-                    //Chat.Print("Ally tower shot target: {0}", args.Target.Name);
+                //Chat.Print("Ally tower shot target: {0}", args.Target.Name);
 
-                    var target = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.NetworkId == args.Target.NetworkId);
+                var target = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.NetworkId == args.Target.NetworkId);
 
-                    if (target != null && E.IsInRange(target) && Player.HealthPercent <= target.HealthPercent) E.Cast(target);
+                if (target != null && E.IsInRange(target) && Player.HealthPercent <= target.HealthPercent) E.Cast(target);
 
-                    return;
-                }
+                return;
             }
 
             return;
