@@ -475,6 +475,16 @@ namespace WuKennen
 
                 if (Exhaust != null && Menu["UseExhaust?"].Cast<CheckBox>().CurrentValue && TargetSelector.GetPriority(Target) > 3 && Target.IsValidTarget(Exhaust.Range)) Exhaust.Cast(Target);
 
+                if (ERange && GhostBlade.IsReady()) GhostBlade.Cast();
+
+                if (Target.IsValidTarget(550) && BOTRK.IsReady()) BOTRK.Cast(Target);
+
+                if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
+
+                if (Target.IsValidTarget(500) && Randuin.IsReady()) Randuin.Cast();
+
+                if (Target.IsValidTarget(700) && Hextech.IsReady()) Hextech.Cast(Target);
+
                 return;
             }
 
