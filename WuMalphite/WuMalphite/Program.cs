@@ -50,6 +50,7 @@ namespace WuMalphite
             SearchVersion();
 
             R.MinimumHitChance = HitChance.High;
+            R.AllowedCollisionCount = int.MaxValue;
 
             //-------------------------------------------------Itens--------------------------------------------------
 

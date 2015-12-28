@@ -60,6 +60,7 @@ namespace WuMorgana
             Zhonya = new Item(ItemId.Zhonyas_Hourglass);//
 
             Q.MinimumHitChance = HitChance.Medium;
+            W.AllowedCollisionCount = int.MaxValue;
 
             //-------------------------------------------------Ignite--------------------------------------------------
 

@@ -60,6 +60,8 @@ namespace WuAnnie
             R.MinimumHitChance = HitChance.High;
             W.MinimumHitChance = HitChance.Medium;
             W.ConeAngleDegrees = 50;
+            W.AllowedCollisionCount = int.MaxValue;
+            R.AllowedCollisionCount = int.MaxValue;
 
             //-------------------------------------------------Smite--------------------------------------------------
 
