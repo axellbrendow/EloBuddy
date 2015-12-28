@@ -202,7 +202,7 @@ namespace WuAnnie
 
         static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
-            if (e.DangerLevel == DangerLevel.High && sender.IsValidTarget(R.Range))
+            if (sender.IsEnemy && e.DangerLevel == DangerLevel.High && sender.IsValidTarget(R.Range))
             {
                 if (W.IsReady()) { W.Cast(sender); return; }
                 if (Q.IsReady() && sender.Distance(Player) <= 200) { Q.Cast(sender); return; }
