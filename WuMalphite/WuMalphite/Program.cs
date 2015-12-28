@@ -159,7 +159,7 @@ namespace WuMalphite
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
         }
 
-        //----------------------------------------------Drawing_OnEndScene----------------------------------------
+        //---------------------------------------Drawing_OnEndScene-------------------------------------------
 
         static void Drawing_OnEndScene(EventArgs args)
         {
@@ -169,7 +169,13 @@ namespace WuMalphite
                 {
                     if (Menu["ComboDamage on HPBar"].Cast<CheckBox>().CurrentValue)
                     {
-                        float FutureDamage = GetComboDamage(Target) > Target.Health ? 1 : GetComboDamage(Target) / Target.MaxHealth;
+                        float FutureDamage = GetComboDamage(Target) > Target.Health ? -1 : GetComboDamage(Target) / Target.MaxHealth;
+
+                        if (FutureDamage == -1)
+                        {
+                            Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Killable");
+                            return;
+                        }
 
                         Line.DrawLine
                         (
@@ -177,6 +183,7 @@ namespace WuMalphite
                             new Vector2(Target.HPBarPosition.X + 1, Target.HPBarPosition.Y + 9),
                             new Vector2(Target.HPBarPosition.X + 1 + FutureDamage * 104, Target.HPBarPosition.Y + 9)
                         );
+                        return;
                     }
                 }
 
