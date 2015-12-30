@@ -147,7 +147,7 @@ namespace WuGaren
 
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("QAfterAA", new CheckBox("QAfterAA"));
-            Menu.Add("JEBQ", new CheckBox("Just E Before Q"));
+            Menu.Add("JEBQ", new CheckBox("Just E After Q"));
             Menu.Add("Interrupter", new CheckBox("Try to interrupt spells [Q]"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
 
