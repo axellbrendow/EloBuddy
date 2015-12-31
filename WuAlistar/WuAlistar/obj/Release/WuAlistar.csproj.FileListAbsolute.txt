@@ -1,0 +1,11 @@
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\WuAlistar.exe.config
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\WuAlistar.exe
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\WuAlistar.pdb
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\EloBuddy.dll
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\EloBuddy.SDK.dll
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\SharpDX.dll
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\bin\Release\Newtonsoft.Json.dll
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\obj\Release\WuAlistar.csprojResolveAssemblyReference.cache
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\obj\Release\WuAlistar.exe
+C:\Users\Vendas1\AppData\Roaming\EloBuddy\Repositories\520A0EE1\WuAlistar\WuAlistar\obj\Release\WuAlistar.pdb
