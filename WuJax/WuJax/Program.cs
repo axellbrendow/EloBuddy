@@ -85,7 +85,7 @@ namespace WuJax
             {
                 Menu.Add("UseQCombo", new CheckBox("Use Q Combo"));
                 Menu.Add("QOnDash", new CheckBox("Enemy AA range ? just Q on dash!"));
-                Menu.Add("QDelayCombo", new Slider("Use E and then jump after some milliseconds (1000 milliseconds = 1 second, Jax E duration is 2 seconds):", 1500, 0, 1900));
+                Menu.Add("QDelayCombo", new Slider("Use E and then jump after some milliseconds (1000 ms = 1 sec):", 1500, 0, 1900));
                 Menu.Add("UseWCombo", new CheckBox("Use W Combo"));
                 Menu.Add("UseWAARCombo", new CheckBox("W AA Reset"));
                 Menu.Add("UseECombo", new CheckBox("Use E Combo"));
@@ -100,7 +100,7 @@ namespace WuJax
             Menu.AddGroupLabel("Harass");
             {
                 Menu.Add("UseQHarass", new CheckBox("Use Q Harass"));
-                Menu.Add("QDelayHarass", new Slider("Use E and then jump after some milliseconds (1000 milliseconds = 1 second, Jax E duration is 2 seconds):", 1500, 0, 1900));
+                Menu.Add("QDelayHarass", new Slider("Use E and then jump after some milliseconds (1000 ms = 1 sec):", 1500, 0, 1900));
                 Menu.Add("UseWHarass", new CheckBox("Use W Harass"));
                 Menu.Add("UseWAARHarass", new CheckBox("W AA Reset"));
                 Menu.Add("UseEHarass", new CheckBox("Use E Harass"));
