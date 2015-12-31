@@ -541,18 +541,18 @@ namespace WuGaren
         {
             float damage = new float();
 
-            if (slot == SpellSlot.R && target.HasBuff("garenpassiveenemytarget")) return EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.True, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true) - 180;
+            if (slot == SpellSlot.R && target.HasBuff("garenpassiveenemytarget")) return EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.True, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true);
 
             switch (slot)
             {
                 case SpellSlot.Q:
-                    damage = Player.CalculateDamageOnUnit(target, DamageType.Physical, QDamages[Q.Level - 1] + 1.4f * Player.TotalAttackDamage, true, true) - 40;
+                    damage = Player.CalculateDamageOnUnit(target, DamageType.Physical, QDamages[Q.Level - 1] + 1.4f * Player.TotalAttackDamage, true, true);
                     break;
                 case SpellSlot.E:
                     damage = Player.CalculateDamageOnUnit(target, DamageType.Physical, (EDamages[E.Level-1] + EPercentADSpin[E.Level-1] * Player.TotalAttackDamage) * Espins()) - 100;
                     break;
                 case SpellSlot.R:
-                    damage = EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true) - 40;
+                    damage = EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true);
                     break;
             }
 
