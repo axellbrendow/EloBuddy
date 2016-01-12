@@ -820,7 +820,7 @@ namespace WuAzir
 
             if (!WhyIDidThatAddonInsec && Orbwalker.ValidAzirSoldiers.Any(it => it.Distance(target) >= E.Width + target.BoundingRadius && it.Distance(target) <= (R.Width/2) - 50))
             {
-                if (!WhyIDidThatAddonInsec) Chat.Print("Why I did that Addon");
+                if (!WhyIDidThatAddonInsec)
 
                 WhyIDidThatAddonInsec = true;
 
@@ -842,17 +842,11 @@ namespace WuAzir
                         {
                             //Delayed insec
 
-                            Chat.Print("E was used");
-
                             Core.DelayAction(delegate
                             {
-                                Chat.Print("EDelay passed");
-
                                 if (Player.Spellbook.CastSpell(SpellSlot.Q, CursorCorrectRange(Q.Range)))
                                 {
                                     LastQTime = Game.Time;
-
-                                    Chat.Print("Q was used");
                                 }
 
                                 else WhyIDidThatAddonInsec = false;
@@ -860,7 +854,7 @@ namespace WuAzir
                         }
                         else WhyIDidThatAddonInsec = false;
                     }
-                    else { WhyIDidThatAddonInsec = false; Chat.Print("Collision"); }
+                    else { WhyIDidThatAddonInsec = false; }
                 }
 
                 else WhyIDidThatAddonInsec = false;
