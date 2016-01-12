@@ -21,7 +21,7 @@ namespace WuAzir
     static class Program
     {
         static Version AssVersion;//Kappa
-        static readonly String CN = "Azir";
+        const string CN = "Azir";
         static Spell.Active Heal;
         static Spell.Targeted Smite, Ignite, Exhaust;
         static Spell.Skillshot Flash;
@@ -30,8 +30,6 @@ namespace WuAzir
         const int GetFuckingInsecMana = 270;
         static Obj_AI_Minion InsecSoldier;
         static Item Mikael, Zhonya, Talisma, Hextech, Randuin, Scimitar, QSS;
-        static readonly ColorBGRA Green = new ColorBGRA(Color.Green.R, Color.Green.G, Color.Green.B, Color.Green.A);
-        static readonly ColorBGRA Red = new ColorBGRA(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A);
 
         static AIHeroClient Target;
         static List<Obj_AI_Minion> AzirSoldiers = new List<Obj_AI_Minion>();
@@ -306,17 +304,17 @@ namespace WuAzir
             if (!Player.IsDead)
             {
                 if (Menu["DrawQ"].Cast<CheckBox>().CurrentValue)
-                    Circle.Draw(Q.IsReady() ? Green : Red, Q.Range, Player.Position);
+                    Circle.Draw(Q.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Q.Range, Player.Position);
 
                 if (Menu["DrawW"].Cast<CheckBox>().CurrentValue)
-                    Circle.Draw(W.IsReady() ? Green : Red, W.Range, Player.Position);
+                    Circle.Draw(W.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, W.Range, Player.Position);
 
                 if (Menu["DrawR"].Cast<CheckBox>().CurrentValue)
-                    Circle.Draw(R.IsReady() ? Green : Red, R.Range, Player.Position);
+                    Circle.Draw(R.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, R.Range, Player.Position);
 
                 if (Smite != null)
                     if (Menu["DrawSmite"].Cast<CheckBox>().CurrentValue)
-                        Circle.Draw(Smite.IsReady() ? Green : Red, Smite.Range, Player.Position);
+                        Circle.Draw(Smite.IsReady() ? SharpDX.Color.Green : SharpDX.Color.Red, Smite.Range, Player.Position);
 
             }
 
