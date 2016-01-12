@@ -34,11 +34,11 @@ namespace WuAzir
         static AIHeroClient Target;
         static List<Obj_AI_Minion> AzirSoldiers = new List<Obj_AI_Minion>();
         static Menu Menu;
-        static Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 825, SkillShotType.Linear, 250, 1000, 70);
-        static Spell.Skillshot W = new Spell.Skillshot(SpellSlot.W, 450, SkillShotType.Circular);
-        static Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Linear, 250, 1600, 100);
-        static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 250, SkillShotType.Linear, 500, 1000, 532);
-        static AIHeroClient Player = EloBuddy.Player.Instance;
+        readonly static Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 825, SkillShotType.Linear, 250, 1000, 70);
+        readonly static Spell.Skillshot W = new Spell.Skillshot(SpellSlot.W, 450, SkillShotType.Circular);
+        readonly static Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Linear, 250, 1600, 100);
+        readonly static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 250, SkillShotType.Linear, 500, 1000, 532);
+        readonly static AIHeroClient Player = EloBuddy.Player.Instance;
 
         static void Main(string[] args) { Loading.OnLoadingComplete += OnLoadingComplete; }
 
