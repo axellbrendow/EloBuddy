@@ -147,7 +147,7 @@ namespace WuGaren
 
             Menu.Add("KS", new CheckBox("KS"));
             Menu.Add("QAfterAA", new CheckBox("QAfterAA"));
-            Menu.Add("JEBQ", new CheckBox("Just E Before Q", false));
+            Menu.Add("JEBQ", new CheckBox("Just E After Q"));
             Menu.Add("Interrupter", new CheckBox("Try to interrupt spells [Q]"));
             Menu.Add("Auto Ignite", new CheckBox("Auto Ignite"));
 
@@ -541,18 +541,18 @@ namespace WuGaren
         {
             float damage = new float();
 
-            if (slot == SpellSlot.R && target.HasBuff("garenpassiveenemytarget")) return EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.True, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true) - 180;
+            if (slot == SpellSlot.R && target.HasBuff("garenpassiveenemytarget")) return EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.True, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true);
 
             switch (slot)
             {
                 case SpellSlot.Q:
-                    damage = Player.CalculateDamageOnUnit(target, DamageType.Physical, QDamages[Q.Level - 1] + 1.4f * Player.TotalAttackDamage, true, true) - 100;
+                    damage = Player.CalculateDamageOnUnit(target, DamageType.Physical, QDamages[Q.Level - 1] + 1.4f * Player.TotalAttackDamage, true, true);
                     break;
                 case SpellSlot.E:
                     damage = Player.CalculateDamageOnUnit(target, DamageType.Physical, (EDamages[E.Level-1] + EPercentADSpin[E.Level-1] * Player.TotalAttackDamage) * Espins()) - 100;
                     break;
                 case SpellSlot.R:
-                    damage = EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true) - 180;
+                    damage = EloBuddy.Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, RDamages[R.Level - 1] + (target.MaxHealth - target.Health) * RMissingHealth[R.Level - 1], true, true);
                     break;
             }
 

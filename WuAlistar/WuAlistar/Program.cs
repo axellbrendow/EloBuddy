@@ -22,7 +22,7 @@ namespace WuAlistar
     {
         static Version AssVersion;//Kappa
         static readonly String CN = "Alistar";
-        static AIHeroClient Player { get { return ObjectManager.Player; } }
+        static AIHeroClient Player = EloBuddy.Player.Instance;
         static Spell.Skillshot Flash;
         static Spell.Active Heal;
         static Spell.Targeted Exhaust;
@@ -35,7 +35,7 @@ namespace WuAlistar
         static bool Insecing = new bool();
         static bool Combing = new bool(); //Kappa
         static AIHeroClient Target = null;
-        static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
+        static List<string> DodgeSpells = new List<string>() { "LuxMaliceCannon", "LuxMaliceCannonMis", "EzrealtrueShotBarrage", "KatarinaR", "YasuoDashWrapper", "ViR", "NamiR", "ThreshQ", "AbsoluteZero", "xerathrmissilewrapper", "yasuoq3w", "UFSlash" };
         static readonly Spell.Active Q = new Spell.Active(SpellSlot.Q, 365);
         static readonly Spell.Targeted W = new Spell.Targeted(SpellSlot.W, 650);
         static readonly Spell.Active E = new Spell.Active(SpellSlot.E, 575);
@@ -120,6 +120,10 @@ namespace WuAlistar
 
             Menu.AddSeparator();
 
+            Menu.Add("GapCloser", new CheckBox("Q/W on enemy gapcloser"));
+
+            Menu.AddSeparator();
+
             Menu.Add("UseExhaust?", new CheckBox("Use Exhaust?"));
 
             Menu.AddSeparator();
@@ -131,9 +135,21 @@ namespace WuAlistar
             Drawing.OnDraw += Drawing_OnDraw;
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
+            Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan], Version: " + AssVersion);
             if (Exhaust != null) Chat.Print("Use Harass Key in lane for not lose your Exhaust");
+        }
+
+        static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
+        {
+            if (sender.IsEnemy && Menu["GapCloser"].Cast<CheckBox>().CurrentValue)
+            {
+                if (sender.IsValidTarget(Q.Range)) Q.Cast();
+                else if (sender.IsValidTarget(W.Range)) W.Cast(sender);
+            }
+
+            return;
         }
 
         //-------------------------------------Interrupter_OnInterruptableSpell--------------------------------------
@@ -142,7 +158,7 @@ namespace WuAlistar
         {
             if (e.DangerLevel == DangerLevel.High)
             {
-                if (W.IsReady() && sender.IsValidTarget(200)) W.Cast(sender);
+                if (W.IsReady() && sender.IsValidTarget(300)) W.Cast(sender);
                 else if (Q.IsReady() && sender.IsValidTarget(Q.Range)) Q.Cast();
             }
 
@@ -162,8 +178,22 @@ namespace WuAlistar
                     return;
                 }
 
+                if (args.SData.Name == "AbsoluteZero")
+                {
+                    if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
+                    else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
+                    return;
+                }
+
+                if (args.SData.Name == "EzrealtrueShotBarrage")
+                {
+                    if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
+                    else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
+                    return;
+                }
+
                 if (Q.IsReady() && Q.IsInRange(sender)) { Q.Cast(); return; }
-                if (W.IsReady() && sender.Distance(Player) <= 200) { W.Cast(sender); return; }
+                if (W.IsReady() && sender.Distance(Player) <= 300) { W.Cast(sender); return; }
             }
 
             return;
@@ -177,7 +207,12 @@ namespace WuAlistar
             {
                 if (Target != null && W.IsReady())
                 {
-                    if (!Menu["Insec"].Cast<KeyBind>().CurrentValue && !Insecing) WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
+                    if (Q.IsReady() && (Target.IsValidTarget(600)) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
+                    {
+                        Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 180, Color.Yellow, "W/Q is possible !!");
+                    }
+
+                    if (!Menu["Insec"].Cast<KeyBind>().CurrentValue && !Insecing) WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 200);
 
                     if (Q.IsReady() && (Target.IsValidTarget(Q.Range - 50) || (Target.IsValidTarget(Q.Range) && !Target.CanMove)) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
                     {
@@ -233,27 +268,28 @@ namespace WuAlistar
 
                         if (W.IsReady())
                         {
-                            if (Q.IsReady() && (Target.IsValidTarget(Q.Range - 50) || (Target.IsValidTarget(Q.Range) && !Target.CanMove)) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
+                            if (Q.IsReady() && (Target.IsValidTarget(Q.Range - 130) || (Target.IsValidTarget(Q.Range - 50) && !CanMove(Target))) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
                             {
                                 Insecing = true;
-                                QWInsec();
+                                QWInsec(false, Game.CursorPos);
                             }
                             else if (Flash != null)
                             {
                                 WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 100);
 
-                                if (Player.Distance(WalkPos) <= Flash.Range - 40 && Flash.IsReady() && Player.Mana >= Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level-1])
+                                if ((Player.Distance(WalkPos) <= Flash.Range - 80 || (Target.IsValidTarget(Flash.Range - 50) && !CanMove(Target))) && Flash.IsReady() && Player.Mana >= Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level-1])
                                 {
                                     Insecing = true;
-                                    Flash.Cast(WalkPos.To3D());
-                                    W.Cast(Target);
+
+                                    if (Flash.Cast(WalkPos.To3D())) W.Cast(Target);
+
                                     Insecing = false;
                                 }
 
-                                else if (Target.IsValidTarget(Flash.Range + Q.Range - 50) && Flash.IsReady() && Q.IsReady() && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
+                                else if ((Target.IsValidTarget(Flash.Range + Q.Range - 130) || (Target.IsValidTarget(Flash.Range + Q.Range - 50) && !CanMove(Target))) && Flash.IsReady() && Q.IsReady() && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1]))
                                 {
                                     Insecing = true;
-                                    QWInsec(true);
+                                    QWInsec(true, Game.CursorPos);
                                 }
                             }
                         }
@@ -261,8 +297,8 @@ namespace WuAlistar
 
                     //---------------------------------------------------Combo--------------------------------------------
 
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Modes.Combo();
-                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) Modes.Harass();
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && !Combing) Modes.Combo();
+                    if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && !Combing) Modes.Harass();
                 }
             }
 
@@ -279,9 +315,9 @@ namespace WuAlistar
             {
                 if (QSS.IsReady() && (Player.HasBuffOfType(BuffType.Charm) || Player.HasBuffOfType(BuffType.Blind) || Player.HasBuffOfType(BuffType.Fear) || Player.HasBuffOfType(BuffType.Polymorph) || Player.HasBuffOfType(BuffType.Silence) || Player.HasBuffOfType(BuffType.Sleep) || Player.HasBuffOfType(BuffType.Snare) || Player.HasBuffOfType(BuffType.Stun) || Player.HasBuffOfType(BuffType.Suppression) || Player.HasBuffOfType(BuffType.Taunt))) QSS.Cast();
 
-                if (Q.IsReady() && Target.IsValidTarget(Q.Range - 40) && !Player.IsDashing()) Q.Cast();
+                if (Q.IsReady() && Target.IsValidTarget(Q.Range - 80) && !Player.IsDashing()) Q.Cast();
 
-                else if (!Combing && W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 50) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
+                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(650) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
                 if (Exhaust != null && Menu["UseExhaust?"].Cast<CheckBox>().CurrentValue && TargetSelector.GetPriority(Target) > 3 && Target.IsValidTarget(Exhaust.Range) && Exhaust.IsReady()) Exhaust.Cast(Target);
 
@@ -296,7 +332,7 @@ namespace WuAlistar
             {
                 if (Q.IsReady() && Target.IsValidTarget(Q.Range - 50) && !Player.IsDashing()) Q.Cast();
 
-                else if (!Combing && W.IsReady() && Q.IsReady() && Target.IsValidTarget(W.Range - 50) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
+                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(650) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
                 return;
             }
@@ -337,6 +373,17 @@ namespace WuAlistar
             }
         }
 
+        //-----------------------------------CanMove(AIHeroClient target)------------------------------------------
+
+        static bool CanMove(Obj_AI_Base target)
+        {
+            if (target.HasBuffOfType(BuffType.Charm) || target.HasBuffOfType(BuffType.Fear) || target.HasBuffOfType(BuffType.Knockback) ||
+                target.HasBuffOfType(BuffType.Knockup) || target.HasBuffOfType(BuffType.Sleep) || target.HasBuffOfType(BuffType.Snare) ||
+                target.HasBuffOfType(BuffType.Stun) || target.HasBuffOfType(BuffType.Suppression) || target.HasBuffOfType(BuffType.Taunt)) return false;
+
+            return true;
+        }
+
         //----------------------------------------------WQ()----------------------------------------
 
         static void WQ()
@@ -347,12 +394,22 @@ namespace WuAlistar
                 if (Talisma.IsReady()) Talisma.Cast();
             }
 
-            int delay = (int)( ( Player.Distance(Target) / Player.Spellbook.GetSpell(SpellSlot.W).SData.MissileSpeed * 1000) + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
+            int delay = new int();
+
+            if (Player.Distance(Target) <= Q.Range + 135) delay = 0; //500
+            else if (Player.Distance(Target) <= 600) delay = 50;
+            else if (Player.Distance(Target) > 600) delay = 100;
+
+            //int delay = (int)((Math.Max(0, Player.Distance(Target) - 365) / 5000 * 1000) + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
+
+            //Chat.Print(string.Format("Distance: {0}", Player.Distance(Target)));
 
             if (W.Cast(Target))
             {
                 Core.DelayAction(() => Q.Cast(), delay);
                 Core.DelayAction(() => Combing = false, delay + 1000);
+
+                //Chat.Print(Player.Distance(Target).ToString());
             }
             else Combing = false;
 
@@ -361,7 +418,7 @@ namespace WuAlistar
 
         //----------------------------------------------QWInsec(bool flash)----------------------------------------
 
-        static void QWInsec(bool flash = false)
+        static void QWInsec(bool flash = false, Vector3 cursorpos = default(Vector3))
         {
             if (EntityManager.Heroes.Allies.Where(ally => !ally.IsMe && ally.Distance(Player) <= 600).Count() > 0)
             {
@@ -379,16 +436,18 @@ namespace WuAlistar
                 {
                     Core.DelayAction(delegate
                     {
-                        int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 400 + Q.CastDelay + 2 * Game.Ping;
+                        if (Q.Cast())
+                        {
+                            WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
-                        Q.Cast();
+                            int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 300 + Q.CastDelay + 2 * Game.Ping;
 
-                        WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
-                        var WalkPos3D = WalkPos.To3D();
+                            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
 
-                        EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos3D);
-                        Core.DelayAction(() => CheckWDistance(), delay);
-                        Core.DelayAction(() => Insecing = false, delay + 1000);
+                            Core.DelayAction(() => CheckWDistance(), delay);
+                            Core.DelayAction(() => Insecing = false, delay + 1000);
+                        }
+                        else Insecing = false;
                     }, Game.Ping + 70);
                 }
                 else Insecing = false;
@@ -398,15 +457,17 @@ namespace WuAlistar
 
             else
             {
-                Q.Cast();
+                if (Q.Cast())
+                {
+                    WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
-                WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
+                    int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 300 + Q.CastDelay + 2 * Game.Ping;
 
-                int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 400 + Q.CastDelay + 2 * Game.Ping;
-
-                EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
-                Core.DelayAction(() => CheckWDistance(), delay);
-                Core.DelayAction(() => Insecing = false, delay + 1000);
+                    EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
+                    Core.DelayAction(() => CheckWDistance(), delay);
+                    Core.DelayAction(() => Insecing = false, delay + 1000);
+                }
+                else Insecing = false;
 
                 return;
             }
@@ -417,6 +478,8 @@ namespace WuAlistar
         static void CheckWDistance()
         {
             if (Player.Distance(WalkPos) <= 70) W.Cast(Target);
+            else Insecing = false;
+
             return;
         }
 
