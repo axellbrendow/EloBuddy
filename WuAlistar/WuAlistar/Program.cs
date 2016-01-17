@@ -394,7 +394,7 @@ namespace WuAlistar
                 if (Talisma.IsReady()) Talisma.Cast();
             }
 
-            int delay = (int)((150 * (Player.Distance(Target))) / 650) + Menu["Q/W Delay"].Cast<Slider>().CurrentValue;
+            int delay = (int)((150 * (Player.Distance(Target))) / 650) + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
 
             if (Player.Spellbook.CastSpell(SpellSlot.W, Target))
             {
