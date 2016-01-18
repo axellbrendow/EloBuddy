@@ -157,6 +157,8 @@ namespace WuYi
             EOMenu = Menu.AddSubMenu("Q/W Evade Options", "Q/W Evade Options");
             EOMenu.AddGroupLabel("0 = Don't evade / 1 = Q Evade / 2 = W Evade / 3 = Q/W Evade");
             EOMenu.AddSeparator();
+            EOMenu.Add("Q/WOnlyCombo", new CheckBox("Just evade on combo ?"));
+            EOMenu.AddSeparator();
 
             foreach (AIHeroClient hero in EntityManager.Heroes.Enemies)
             {
@@ -284,6 +286,8 @@ namespace WuYi
 
         static void AIHeroClient_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
+            if (EOMenu["Q/WOnlyCombo"].Cast<CheckBox>().CurrentValue && !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) return;
+
             if (sender.IsValidTarget() && sender.IsEnemy && MenuSpells.Any(el => el == args.SData.Name) && Player.Distance(sender) <= args.SData.CastRange)
             {
                 if (Q.IsReady() && (EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 1 || EOMenu[args.SData.Name].Cast<Slider>().CurrentValue == 3))
@@ -300,7 +304,11 @@ namespace WuYi
 
                     if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
 
-                    Core.DelayAction(() => Q.Cast(Target), (int)args.SData.SpellCastTime - Game.Ping - 100);
+                    Core.DelayAction(delegate
+                    {
+                        if (Target != null && Target.IsValidTarget(Q.Range)) Q.Cast(Target);
+
+                    }, (int)args.SData.SpellCastTime - Game.Ping - 100);
 
                     return;
                 }
