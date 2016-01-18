@@ -167,7 +167,7 @@ namespace WuYi
             EOMenu = Menu.AddSubMenu("Q/W Evade Options", "Q/W Evade Options");
             EOMenu.AddGroupLabel("0 = Don't evade / 1 = Q Evade / 2 = W Evade / 3 = Q/W Evade");
             EOMenu.AddSeparator();
-            EOMenu.Add("Q/WOnlyCombo", new CheckBox("Just evade on combo ?"));
+            EOMenu.Add("Q/WOnlyCombo", new CheckBox("Just evade on combo ?", false));
             EOMenu.AddSeparator();
 
             foreach (AIHeroClient hero in EntityManager.Heroes.Enemies)
