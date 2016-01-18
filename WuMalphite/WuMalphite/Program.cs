@@ -118,6 +118,17 @@ namespace WuMalphite
             }
             Menu.AddSeparator();
 
+            //------------------------------JungleClear-------------------------------
+
+            Menu.AddGroupLabel("JungleClear");
+            {
+                Menu.Add("UseQJungleClear", new CheckBox("Use Q JungleClear"));
+                Menu.Add("UseWJungleClear", new CheckBox("Use W JungleClear"));
+                Menu.Add("UseEJungleClear", new CheckBox("Use E JungleClear"));
+                Menu.Add("JungleClear, Mana %", new Slider("JungleClear, Mana %", 30, 1, 100));
+            }
+            Menu.AddSeparator();
+
             //------------------------------Smite Usage-------------------------------
 
             Menu.AddGroupLabel("Smite Usage");
@@ -155,9 +166,20 @@ namespace WuMalphite
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnEndScene += Drawing_OnEndScene;
             Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
+            Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
 
             Chat.Print("Wu" + CN + " Loaded, [By WujuSan] , Version: " + AssVersion);
+        }
+
+        static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
+        {
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue)
+            {
+                var monster = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, 400).FirstOrDefault();
+
+                if (monster != null) Q.Cast(monster);
+            }
         }
 
         //---------------------------------------Drawing_OnEndScene-------------------------------------------
@@ -277,16 +299,7 @@ namespace WuMalphite
                     {
                         bool kill = GetSmiteDamage() >= Mob.Health;
 
-                        if (kill)
-                        {
-                            if ((Mob.Name.Contains("SRU_Dragon") || Mob.Name.Contains("SRU_Baron"))) Smite.Cast(Mob);
-                            else if (Mob.Name.StartsWith("SRU_Red") && Menu["Red?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
-                            else if (Mob.Name.StartsWith("SRU_Blue") && Menu["Blue?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
-                            else if (Mob.Name.StartsWith("SRU_Murkwolf") && Menu["Wolf?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
-                            else if (Mob.Name.StartsWith("SRU_Krug") && Menu["Krug?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
-                            else if (Mob.Name.StartsWith("SRU_Gromp") && Menu["Gromp?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
-                            else if (Mob.Name.StartsWith("SRU_Razorbeak") && Menu["Raptor?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
-                        }
+                        if (kill && (Mob.Name.Contains("SRU_Dragon") || Mob.Name.Contains("SRU_Baron"))) Smite.Cast(Mob);
                     }
                 }
             }
@@ -347,6 +360,10 @@ namespace WuMalphite
             //---------------------------------------------------LaneClear--------------------------------------------
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) && Player.ManaPercent >= Menu["LaneClear, Mana %"].Cast<Slider>().CurrentValue) Modes.LaneClear();
+
+            //---------------------------------------------------JungleClear--------------------------------------------
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Player.ManaPercent >= Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue) Modes.JungleClear();
 
             return;
         }
@@ -469,6 +486,49 @@ namespace WuMalphite
                     if (UseItem) Hydra.Cast();
                     UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
                     if (UseItem) Hydra.Cast();
+                }
+
+                return;
+            }
+
+            //-------------------------------------------JungleClear()-----------------------------------------------
+
+            public static void JungleClear()
+            {
+                //---------------------------------------------Smite Usage---------------------------------------------
+
+                if (Smite != null && Smite.IsReady() && Menu["Use Smite?"].Cast<CheckBox>().CurrentValue)
+                {
+                    Obj_AI_Minion Mob = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Smite.Range).FirstOrDefault();
+
+                    if (Mob != default(Obj_AI_Minion))
+                    {
+                        bool kill = GetSmiteDamage() >= Mob.Health;
+
+                        if (kill)
+                        {
+                            if (Mob.Name.StartsWith("SRU_Red") && Menu["Red?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
+                            else if (Mob.Name.StartsWith("SRU_Blue") && Menu["Blue?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
+                            else if (Mob.Name.StartsWith("SRU_Murkwolf") && Menu["Wolf?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
+                            else if (Mob.Name.StartsWith("SRU_Krug") && Menu["Krug?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
+                            else if (Mob.Name.StartsWith("SRU_Gromp") && Menu["Gromp?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
+                            else if (Mob.Name.StartsWith("SRU_Razorbeak") && Menu["Raptor?"].Cast<CheckBox>().CurrentValue) Smite.Cast(Mob);
+                        }
+                    }
+                }
+
+                if (!W.IsReady() && !E.IsReady()) return;
+
+                var monsters = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, 500);
+
+                if (W.IsReady() && Menu["UseWJungleClear"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (monsters.Any(it => Player.IsInAutoAttackRange(it))) W.Cast();
+                }
+
+                if (E.IsReady() && Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (monsters.Count() == monsters.Where(it => E.IsInRange(it)).Count()) E.Cast();
                 }
 
                 return;

@@ -108,7 +108,7 @@ namespace WuAlistar
 
             Menu.AddSeparator();
 
-            Menu.Add("W/Q Delay", new Slider("W/Q Delay", 0, -400, 400));
+            Menu.Add("W/Q Delay", new Slider("W/Q Delay", 0, -200, 200));
 
             Menu.AddSeparator();
 
@@ -317,7 +317,7 @@ namespace WuAlistar
 
                 if (Q.IsReady() && Target.IsValidTarget(Q.Range - 80) && !Player.IsDashing()) Q.Cast();
 
-                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(650) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
+                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(625) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
                 if (Exhaust != null && Menu["UseExhaust?"].Cast<CheckBox>().CurrentValue && TargetSelector.GetPriority(Target) > 3 && Target.IsValidTarget(Exhaust.Range) && Exhaust.IsReady()) Exhaust.Cast(Target);
 
@@ -332,7 +332,7 @@ namespace WuAlistar
             {
                 if (Q.IsReady() && Target.IsValidTarget(Q.Range - 50) && !Player.IsDashing()) Q.Cast();
 
-                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(650) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
+                else if (W.IsReady() && Q.IsReady() && Target.IsValidTarget(625) && Player.Mana >= (Player.Spellbook.GetSpell(SpellSlot.W).SData.ManaCostArray[W.Level - 1] + Player.Spellbook.GetSpell(SpellSlot.Q).SData.ManaCostArray[Q.Level - 1])) { WQ(); Combing = true; }
 
                 return;
             }
@@ -394,22 +394,13 @@ namespace WuAlistar
                 if (Talisma.IsReady()) Talisma.Cast();
             }
 
-            int delay = new int();
+            int delay = (int)((150 * (Player.Distance(Target))) / 650) + Menu["W/Q Delay"].Cast<Slider>().CurrentValue;
 
-            if (Player.Distance(Target) <= Q.Range + 135) delay = 0; //500
-            else if (Player.Distance(Target) <= 600) delay = 50;
-            else if (Player.Distance(Target) > 600) delay = 100;
-
-            //int delay = (int)((Math.Max(0, Player.Distance(Target) - 365) / 5000 * 1000) + W.CastDelay - Q.CastDelay + Menu["W/Q Delay"].Cast<Slider>().CurrentValue);
-
-            //Chat.Print(string.Format("Distance: {0}", Player.Distance(Target)));
-
-            if (W.Cast(Target))
+            if (Player.Spellbook.CastSpell(SpellSlot.W, Target))
             {
+                Chat.Print(Player.Distance(Target));
                 Core.DelayAction(() => Q.Cast(), delay);
                 Core.DelayAction(() => Combing = false, delay + 1000);
-
-                //Chat.Print(Player.Distance(Target).ToString());
             }
             else Combing = false;
 
@@ -438,6 +429,9 @@ namespace WuAlistar
                     {
                         if (Q.Cast())
                         {
+                            Orbwalker.DisableMovement = true;
+                            Orbwalker.DisableAttacking = true;
+
                             WalkPos = Game.CursorPos.Extend(Target, Game.CursorPos.Distance(Target) + 150);
 
                             int delay = (int)(Player.Distance(WalkPos) / Player.MoveSpeed * 1000) + 300 + Q.CastDelay + 2 * Game.Ping;
@@ -445,6 +439,8 @@ namespace WuAlistar
                             EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, WalkPos.To3D());
 
                             Core.DelayAction(() => CheckWDistance(), delay);
+                            Core.DelayAction(() => Orbwalker.DisableAttacking = false, delay + 200);
+                            Core.DelayAction(() => Orbwalker.DisableMovement = false, delay + 200);
                             Core.DelayAction(() => Insecing = false, delay + 1000);
                         }
                         else Insecing = false;

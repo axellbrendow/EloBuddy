@@ -365,7 +365,7 @@ namespace WuGaren
 
                 if (R.IsReady())
                 {
-                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(R.Range) && SpellDamage(Target, SpellSlot.R) > Target.Health + 30)
+                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(R.Range) && SpellDamage(Target, SpellSlot.R) > (Target.Health + (Target.HasBuff("garenpassiveenemytarget") ? 0 : Target.MagicShield)) + 20)
                     {
                         if (Player.HasBuff("GarenE")) E.Cast();
                         R.Cast(Target);
@@ -464,7 +464,7 @@ namespace WuGaren
             {
                 if (R.IsReady())
                 {
-                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= enemy.Health + 30 && enemy.IsValidTarget(R.Range));
+                    var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= (enemy.Health + (enemy.HasBuff("garenpassiveenemytarget") ? 0 : enemy.MagicShield)) + 20 && enemy.IsValidTarget(R.Range));
                     if (bye != default(AIHeroClient))
                     {
                         if (Player.HasBuff("GarenE")) E.Cast();
