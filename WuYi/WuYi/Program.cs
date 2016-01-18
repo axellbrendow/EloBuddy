@@ -60,7 +60,7 @@ namespace WuYi
             Randuin = new Item(3143, 500);
             Scimitar = new Item(3139);
             QSS = new Item(3140);
-            Titanic = new Item(3053, 700);
+            Titanic = new Item(3053, 100);
 
             //-------------------------------------------------Smite--------------------------------------------------
 
@@ -114,6 +114,16 @@ namespace WuYi
                 Menu.Add("JustQIMWD", new CheckBox("Just Q if minion will die"));
                 Menu.Add("Min Minions Q", new Slider("Min Minions Q", 3, 1, 4));
                 Menu.Add("LaneClear, Mana %", new Slider("LaneClear, Mana %", 30, 1, 100));
+            }
+            Menu.AddSeparator();
+
+            //------------------------------JungleClear-------------------------------
+
+            Menu.AddGroupLabel("JungleClear");
+            {
+                Menu.Add("UseQJungleClear", new CheckBox("Use Q JungleClear"));
+                Menu.Add("UseEJungleClear", new CheckBox("Use E JungleClear"));
+                Menu.Add("JungleClear, Mana %", new Slider("JungleClear, Mana %", 30, 1, 100));
             }
             Menu.AddSeparator();
 
@@ -191,7 +201,7 @@ namespace WuYi
 
         static void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
         {
-            if (target != null)
+            if (target != null && target.IsValidTarget())
             {
                 if (W.IsReady() && Player.Distance(target) <= Player.GetAutoAttackRange() - 30)
                 {
@@ -210,6 +220,17 @@ namespace WuYi
                         EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
                         return;
                     }
+                }
+
+                if (Q.IsReady() && Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear) && Menu["UseQJungleClear"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (Player.ManaPercent < Menu["JungleClear, Mana %"].Cast<Slider>().CurrentValue) return;
+
+                    var monster = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Q.Range).FirstOrDefault();
+
+                    if (monster != null) Q.Cast(monster);
+
+                    return;
                 }
             }
             
@@ -553,15 +574,32 @@ namespace WuYi
                 {
                     bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
                     if (UseItem) Tiamat.Cast();
-                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
-                    if (UseItem) Tiamat.Cast();
                 }
 
                 if (Hydra.IsReady())
                 {
                     bool UseItem = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Hydra.Range).Count() >= 3;
                     if (UseItem) Hydra.Cast();
-                    UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                }
+
+                return;
+            }
+
+            //-------------------------------------------LaneClear()-----------------------------------------------
+
+            public static void JungleClear()
+            {
+                if (E.IsReady() && Menu["UseEJungleClear"].Cast<CheckBox>().CurrentValue && EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Player.GetAutoAttackRange()).Any()) E.Cast();
+
+                if (Tiamat.IsReady())
+                {
+                    bool UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
+                    if (UseItem) Tiamat.Cast();
+                }
+
+                if (Hydra.IsReady())
+                {
+                    bool UseItem = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Hydra.Range).Count() >= 2;
                     if (UseItem) Hydra.Cast();
                 }
 
@@ -607,6 +645,8 @@ namespace WuYi
             switch (slot)
             {
                 case SpellSlot.Q:
+                    if (target.IsMinion)
+                        return Player.CalculateDamageOnUnit(target, DamageType.Physical, new[] { 0, 100, 160, 220, 280, 340 }[Q.Level] + Player.TotalAttackDamage, true, true);
                     return Damage.CalculateDamageOnUnit(Player, target, DamageType.Physical, new float[] { 25, 60, 95, 130, 165 }[Q.Level-1] + Player.TotalAttackDamage, true, true);
 
                 case SpellSlot.E:
