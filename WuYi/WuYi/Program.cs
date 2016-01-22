@@ -515,13 +515,13 @@ namespace WuYi
 
                 if (Target.IsValidTarget(550) && Bilgewater.IsReady()) Bilgewater.Cast(Target);
 
-                if (Target.IsValidTarget(400) && Tiamat.IsReady()) Tiamat.Cast();
+                if (Target.IsValidTarget(350) && Tiamat.IsReady()) Tiamat.Cast();
 
-                if (Target.IsValidTarget(680) && Titanic.IsReady()) Titanic.Cast();
+                if (Target.IsValidTarget(100) && Titanic.IsReady() && Titanic.Cast()) Orbwalker.ResetAutoAttack();
 
-                if (Target.IsValidTarget(400) && Hydra.IsReady()) Hydra.Cast();
+                if (Target.IsValidTarget(350) && Hydra.IsReady()) Hydra.Cast();
 
-                if (Target.IsValidTarget(500) && Randuin.IsReady()) Randuin.Cast();
+                if (Target.IsValidTarget(450) && Randuin.IsReady()) Randuin.Cast();
 
                 if (Target.IsValidTarget(700) && Hextech.IsReady()) Hextech.Cast(Target);
 
