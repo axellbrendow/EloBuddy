@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Reflection;
@@ -34,7 +34,7 @@ namespace WuGaren
         static readonly Spell.Active E = new Spell.Active(SpellSlot.E, 300);
         static readonly Spell.Targeted R = new Spell.Targeted(SpellSlot.R, 400);
         static readonly int[] QDamages = new int[] { 30, 55, 80, 105, 130 };
-        static readonly float[] EDamages = new float[] { 15, 18.8f, 25.5f, 26.3f, 30 };
+        static readonly float[] EDamages = new float[] { 15, 18.8f, 22.5f, 26.3f, 30 };
         static readonly float[] EPercentADSpin = new float[] { 0.345f, 0.353f, 0.36f, 0.368f, 0.375f };
         static readonly int[] RDamages = new int[] { 175, 350, 525 };
         static readonly float[] RMissingHealth = new float[] { 0.286f, 0.333f, 0.4f };
@@ -201,7 +201,7 @@ namespace WuGaren
         {
             if (!Player.IsDead)
             {
-                if (Target != null)
+                if (Target != null && Target.IsValidTarget())
                 {
                     if (Menu["ComboDamage on HPBar"].Cast<CheckBox>().CurrentValue)
                     {
@@ -365,10 +365,24 @@ namespace WuGaren
 
                 if (R.IsReady())
                 {
-                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(R.Range) && SpellDamage(Target, SpellSlot.R) > (Target.Health + (Target.HasBuff("garenpassiveenemytarget") ? 0 : Target.MagicShield)) + 20)
+                    if (Menu["UseRCombo"].Cast<CheckBox>().CurrentValue && Target.IsValidTarget(R.Range) && SpellDamage(Target, SpellSlot.R) > (Target.Health + (Target.HasBuff("garenpassiveenemytarget") ? 0 : Target.MagicShield)) + 20
+                        && !Target.HasBuff("JudicatorIntervention")     //kayle R
+                        && !Target.HasBuff("Spell Shield")              //sivir E
+                        && !Target.HasBuff("FioraW")
+                        && !Target.HasBuff("kindredrnodeathbuff")
+                        && !Target.HasBuff("BansheesVeil")
+                        && !Target.HasBuff("NocturneShroudofDarknessShield")
+                        && !Target.HasBuff("ChronoShift")               //zilean R
+                        && !Target.HasBuff("yorickrazombie")            //yorick R
+                        && !Target.HasBuff("mordekaisercotgself")       //mordekaiser R
+                        && !Target.HasBuff("UndyingRage")               //tryndamere R
+                        && !Target.HasBuff("sionpassivezombie")         //sion Passive
+                        && !Target.HasBuff("KarthusDeathDefiedBuff")    //karthus passive
+                        && !Target.HasBuff("kogmawicathiansurprise")    //kog'maw passive
+                        && !Target.HasBuff("zyrapqueenofthorns"))       //zyra passive)
                     {
-                        if (Player.HasBuff("GarenE")) E.Cast();
-                        R.Cast(Target);
+                            if (Player.HasBuff("GarenE")) E.Cast();
+                            R.Cast(Target);
                     }
                 }
 
@@ -465,6 +479,20 @@ namespace WuGaren
                 if (R.IsReady())
                 {
                     var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.R) >= (enemy.Health + (enemy.HasBuff("garenpassiveenemytarget") ? 0 : enemy.MagicShield)) + 20 && enemy.IsValidTarget(R.Range));
+                    if (!bye.HasBuff("JudicatorIntervention")    //kayle R
+                    && !bye.HasBuff("Spell Shield")              //sivir E
+                    && !bye.HasBuff("FioraW")
+                    && !bye.HasBuff("kindredrnodeathbuff")
+                    && !bye.HasBuff("BansheesVeil")
+                    && !bye.HasBuff("NocturneShroudofDarknessShield")
+                    && !bye.HasBuff("ChronoShift")               //zilean R
+                    && !bye.HasBuff("yorickrazombie")            //yorick R
+                    && !bye.HasBuff("mordekaisercotgself")       //mordekaiser R
+                    && !bye.HasBuff("UndyingRage")               //tryndamere R
+                    && !bye.HasBuff("sionpassivezombie")         //sion Passive
+                    && !bye.HasBuff("KarthusDeathDefiedBuff")    //karthus passive
+                    && !bye.HasBuff("kogmawicathiansurprise")    //kog'maw passive
+                    && !bye.HasBuff("zyrapqueenofthorns"))       //zyra passive
                     if (bye != default(AIHeroClient))
                     {
                         if (Player.HasBuff("GarenE")) E.Cast();
@@ -476,6 +504,13 @@ namespace WuGaren
                 if (Q.IsReady())
                 {
                     var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => SpellDamage(enemy, SpellSlot.Q) >= enemy.Health && Target.IsValidTarget(Player.GetAutoAttackRange()));
+                    if (!bye.HasBuff("ChronoShift")             //zilean R
+                    && !bye.HasBuff("yorickrazombie")           //yorick R
+                    && !bye.HasBuff("mordekaisercotgself")      //mordekaiser R
+                    && !bye.HasBuff("sionpassivezombie")        //sion Passive
+                    && !bye.HasBuff("KarthusDeathDefiedBuff")   //karthus passive
+                    && !bye.HasBuff("kogmawicathiansurprise")   //kog'maw passive
+                    && !bye.HasBuff("zyrapqueenofthorns"))      //zyra passive
                     if (bye != default(AIHeroClient))
                     {
                         if (Player.HasBuff("GarenE")) E.Cast();
