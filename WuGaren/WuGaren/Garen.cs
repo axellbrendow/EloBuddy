@@ -52,14 +52,12 @@ namespace WuAIO
                 menu.NewCheckbox("w", "W", true, true);
                 menu.NewCheckbox("e", "E", true, true);
                 menu.NewCheckbox("e.jaq", "E just after Q");
-                menu.NewSlider("mana%", "Min mana%", 30, 1, 99, true);
             }
 
             menu = MenuManager.AddSubMenu("Lane Clear");
             {
                 menu.NewCheckbox("e", "E");
                 menu.NewCheckbox("e.minminions", "Min minions E");
-                menu.NewSlider("mana%", "Min mana%", 30, 1, 99, true);
             }
 
             menu = MenuManager.AddSubMenu("Jungle Clear");
@@ -67,7 +65,6 @@ namespace WuAIO
                 menu.NewCheckbox("q", "Q");
                 menu.NewCheckbox("w", "W");
                 menu.NewCheckbox("e", "E");
-                menu.NewSlider("mana%", "Min mana%", 30, 1, 99, true);
             }
 
             menu = MenuManager.AddSubMenu("Flee");
@@ -239,7 +236,7 @@ namespace WuAIO
 
         public override void LaneClear()
         {
-            if (Player.ManaPercent < laneclear.Value("mana%") || !E.IsReady() || !laneclear.IsActive("e") || Player.HasBuff("GarenE")) return;
+            if (!E.IsReady() || !laneclear.IsActive("e") || Player.HasBuff("GarenE")) return;
 
             var minions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, E.Range);
 
@@ -252,8 +249,6 @@ namespace WuAIO
 
         public override void JungleClear()
         {
-            if (Player.ManaPercent < laneclear.Value("mana%")) return;
-
             var monsters = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, 600).Where(it => it.Health >= 200);
 
             if (monsters.Count(it => it.IsValidTarget(E.Range)) == monsters.Count())
