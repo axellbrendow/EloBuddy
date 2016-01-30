@@ -53,6 +53,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bases\Damage.cs" />
+    <Compile Include="Bases\HeroBase.cs" />
+    <Compile Include="Bases\Interface\IHero.cs" />
+    <Compile Include="Bases\Scale.cs" />
+    <Compile Include="Extensions\Obj_AI_BaseExtensions.cs" />
+    <Compile Include="Extensions\SpellsExtensions.cs" />
+    <Compile Include="Garen.cs" />
+    <Compile Include="Managers\DamageManager.cs" />
+    <Compile Include="Managers\MenuManager.cs" />
+    <Compile Include="Managers\SkinManager.cs" />
+    <Compile Include="Managers\VersionManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -9,3 +9,11 @@ C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Debug\Newtonsoft.Json.dll
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\obj\Debug\WuAzir.exe
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\obj\Debug\WuAzir.pdb
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\WuAzir.exe.config
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\WuAzir.exe
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\WuAzir.pdb
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\EloBuddy.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\EloBuddy.SDK.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\SharpDX.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\SharpDX.Direct3D9.dll
+C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuAzir\WuAzir\bin\Release\Newtonsoft.Json.dll
