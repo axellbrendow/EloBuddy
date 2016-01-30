@@ -4,7 +4,6 @@ using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
-using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Enumerations;
 using SharpDX;
 using WuAIO.Bases;
@@ -113,7 +112,7 @@ namespace WuAIO
                 {
                     new Bases.Damage
                     (
-                        Q, DamageType.Physical, new float[] { 0, 70, 110, 150, 190, 230 },
+                        Q, DamageType.Physical, new float[] { 0, 20, 50, 80, 110, 140 },
 
                         new List<Scale>()
                         {
@@ -124,8 +123,7 @@ namespace WuAIO
 
                     new Bases.Damage
                     (
-                        W, DamageType.True, new float[] { 0, 15, 30, 45, 60, 75 },
-                        null
+                        W, DamageType.True, new float[] { 0, 15, 30, 45, 60, 75 }
                     ),
 
                     new Bases.Damage
