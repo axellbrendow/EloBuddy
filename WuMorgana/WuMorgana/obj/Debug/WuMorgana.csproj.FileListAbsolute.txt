@@ -14,3 +14,14 @@ C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuMorgana\WuMorgana\bin\Release\SharpDX.dll
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuMorgana\WuMorgana\bin\Release\SharpDX.Direct3D9.dll
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuMorgana\WuMorgana\bin\Release\Newtonsoft.Json.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\WuMorgana.exe.config
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\obj\Debug\WuMorgana.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\obj\Debug\WuMorgana.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\WuMorgana.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\WuMorgana.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\EloBuddy.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\EloBuddy.SDK.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\SharpDX.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\bin\Release\Newtonsoft.Json.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuMorgana\WuMorgana\obj\Debug\WuMorgana.csprojResolveAssemblyReference.cache

@@ -17,3 +17,14 @@ C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuKennen\WuKennen\bin\Release\SharpDX.dll
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuKennen\WuKennen\bin\Release\SharpDX.Direct3D9.dll
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuKennen\WuKennen\bin\Release\Newtonsoft.Json.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\WuKennen.exe.config
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\obj\Debug\WuKennen.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\obj\Debug\WuKennen.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\WuKennen.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\WuKennen.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\EloBuddy.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\EloBuddy.SDK.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\SharpDX.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\bin\Release\Newtonsoft.Json.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuKennen\WuKennen\obj\Debug\WuKennen.csprojResolveAssemblyReference.cache
