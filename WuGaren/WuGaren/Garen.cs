@@ -43,6 +43,7 @@ namespace WuAIO
                 menu.NewCheckbox("e", "E", true, true);
                 menu.NewCheckbox("e.jaq", "E just after Q");
                 menu.NewCheckbox("r", "R", true, true);
+                menu.NewCheckbox("r.jotmpt", "Just R on the most prioritized target");
             }
 
             menu = MenuManager.AddSubMenu("Harass");
@@ -76,6 +77,7 @@ namespace WuAIO
             menu = MenuManager.AddSubMenu("Misc");
             {
                 menu.NewCheckbox("ks", "KS");
+                menu.NewCheckbox("ks.r.jotmpt", "[KS] Just R on the most prioritized target");
                 menu.NewCheckbox("interrupter", "Interrupter");
             }
         }
@@ -151,9 +153,32 @@ namespace WuAIO
 
                 if (bye != null)
                 {
-                    if (Player.HasBuff("GarenE")) E.Cast();
-                    Core.DelayAction(() => R.Cast(bye), 100);
-                    return;
+                    if (misc.IsActive("ks.r.jotmpt"))
+                    {
+                        if (EntityManager.Heroes.Enemies.Where(it => it.IsValidTarget(R.Range + 75)).Max(itt => TargetSelector.GetPriority(itt)) == TargetSelector.GetPriority(bye))
+                        {
+                            if (Player.HasBuff("GarenE"))
+                            {
+                                E.Cast();
+                                Core.DelayAction(() => R.Cast(bye), 100);
+                            }
+
+                            R.Cast(bye);
+                        }
+                    }
+                    else
+                    {
+                        if (Player.HasBuff("GarenE"))
+                        {
+                            E.Cast();
+                            Core.DelayAction(() => R.Cast(bye), 100);
+                        }
+
+                        R.Cast(bye);
+
+                        return;
+                    }
+                    
                 }
             }
 
@@ -205,8 +230,16 @@ namespace WuAIO
 
             if (R.IsReady() && R.IsInRange(Target) && damageManager.SpellDamage(Target, SpellSlot.R) >= Target.Health && combo.IsActive("r"))
             {
-                if (Player.HasBuff("GarenE")) E.Cast();
-                R.Cast(Target);
+                if (EntityManager.Heroes.Enemies.Where(it => it.IsValidTarget(R.Range + 75)).Max(itt => TargetSelector.GetPriority(itt)) == TargetSelector.GetPriority(Target))
+                {
+                    if (Player.HasBuff("GarenE"))
+                    {
+                        E.Cast();
+                        Core.DelayAction(() => R.Cast(Target), 100);
+                    }
+
+                    R.Cast(Target);
+                }
             }
 
             return;
