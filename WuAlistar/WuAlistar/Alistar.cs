@@ -87,10 +87,12 @@ namespace WuAIO
                 menu.NewSlider("W/Q Delay", "W/Q Delay", 0, -200, 200, true);
                 menu.NewCheckbox("heal", "Use E", true, true);
                 menu.NewCheckbox("heal.myself", "Heal myself");
+                menu.NewSlider("heal.health%", "[E]Heal when ally health% is at", 50, 1, 99, true);
+                menu.NewSlider("heal.mana%", "[E]Heal min mana%", 50, 1, 99, true);
                 menu.NewCheckbox("gapcloser", "W/Q on enemy gapcloser", true, true);
                 menu.NewCheckbox("interrupter", "Interrupt enemy spells");
-                menu.NewKeybind("hu3HU3hu3", "hu3HU3hu3", false, KeyBind.BindTypes.HoldActive, 'U', true);
-                menu.NewSlider("hu3HU3hu3.mode", "hu3HU3hu3 mode, 1:joke, 2:taunt, 3:dance, 4:laugh", 3, 1, 4);
+                menu.NewKeybind("hu3", "hu3HU3hu3", false, KeyBind.BindTypes.HoldActive, 'U', true);
+                menu.NewSlider("hu3.mode", "hu3HU3hu3 mode, 1:joke, 2:taunt, 3:dance, 4:laugh", 3, 1, 4);
             };
         }
 
@@ -100,9 +102,9 @@ namespace WuAIO
 
             //hu3HU3hu3
 
-            if (misc.IsActive("hu3HU3hu3"))
+            if (misc.IsActive("hu3"))
             {
-                switch (misc.Value("hu3HU3hu3.mode"))
+                switch (misc.Value("hu3.mode"))
                 {
                     case 1:
                         Player.DoEmote(Emote.Joke);
@@ -258,7 +260,7 @@ namespace WuAIO
         {
             if (!Combing)
             {
-                var Target = TargetSelector.GetTarget(1000, DamageType.Magical);
+                var Target = TargetSelector.GetTarget(700, DamageType.Magical);
 
                 if (Target == null || !Target.IsValidTarget()) return;
 
