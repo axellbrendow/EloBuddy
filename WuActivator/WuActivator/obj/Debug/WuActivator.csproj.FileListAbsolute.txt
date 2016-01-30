@@ -11,3 +11,15 @@ C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuActivator\WuActivator\obj\Debug\WuActivator.csprojResolveAssemblyReference.cache
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuActivator\WuActivator\obj\Debug\WuActivator.exe
 C:\Program Files (x86)\EasyPHP-14.1\data\localweb\ProjectsPHP\...Other Languages\C#\WuActivator\WuActivator\obj\Debug\WuActivator.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\WuActivator.exe.config
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\obj\Debug\WuActivator.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\obj\Debug\WuActivator.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\WuActivator.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\WuActivator.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\EloBuddy.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\EloBuddy.SDK.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\LevelZero.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\SharpDX.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\bin\Release\Newtonsoft.Json.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuActivator\WuActivator\obj\Debug\WuActivator.csprojResolveAssemblyReference.cache
