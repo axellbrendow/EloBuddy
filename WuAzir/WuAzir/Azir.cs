@@ -540,7 +540,7 @@ namespace WuAIO
             var EMana = 60;
             var RMana = 100;
 
-            if (Player.Distance(Target) < 219)
+            if (Player.Distance(target) < 219)
                 return RMana;
 
             if (E.IsReady() && Orbwalker.ValidAzirSoldiers.Any(it => it.Distance(target) <= 200))

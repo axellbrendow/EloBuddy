@@ -16,7 +16,7 @@ namespace WuAIO
             try
             {
                 Activator.CreateInstance(null, "WuAIO." + Player.Instance.ChampionName);
-                Chat.Print("Wu{0} Loaded, [By WujuSan], Version: {1}", Player.Instance.ChampionName == "MasterYi" ? "Yi" : Player.Instance.ChampionName, VersionManager.AssVersion);
+                Chat.Print("Wu{0} Loaded, [By WSujuSan], Version: {1}", Player.Instance.ChampionName == "MasterYi" ? "Yi" : Player.Instance.ChampionName, VersionManager.AssVersion);
             }
             catch (Exception e)
             {
