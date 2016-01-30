@@ -29,7 +29,7 @@ namespace WuAIO
 
             var menu = MenuManager.AddSubMenu("Drawings");
             {
-                menu.NewCheckbox("disable", "Disable");
+                menu.NewCheckbox("disable", "Disable", false);
                 menu.NewCheckbox("damageindicator", "Damage Indicator");
                 menu.NewCheckbox("e", "E");
                 menu.NewCheckbox("r", "R");

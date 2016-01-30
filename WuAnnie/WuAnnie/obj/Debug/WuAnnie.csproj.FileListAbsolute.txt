@@ -14,3 +14,11 @@ C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Debug\WuAnnie.pdb
 C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Debug\SharpDX.Direct3D9.dll
 C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\obj\Debug\WuAnnie.csprojResolveAssemblyReference.cache
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\WuAnnie.exe.config
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\WuAnnie.exe
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\WuAnnie.pdb
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\EloBuddy.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\EloBuddy.SDK.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\SharpDX.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Vendas1\Source\Repos\EloBuddy\WuAnnie\WuAnnie\bin\Release\Newtonsoft.Json.dll

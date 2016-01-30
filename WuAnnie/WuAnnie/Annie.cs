@@ -33,7 +33,7 @@ namespace WuAIO
 
             var menu = MenuManager.AddSubMenu("Drawings");
             {
-                menu.NewCheckbox("disable", "Disable");
+                menu.NewCheckbox("disable", "Disable", false);
                 menu.NewCheckbox("damageindicator", "Damage Indicator");
                 menu.NewCheckbox("q/w/r", "Q/W/R");
                 menu.NewCheckbox("flash+r", "Flash + R");
@@ -62,7 +62,7 @@ namespace WuAIO
             menu = MenuManager.AddSubMenu("Lane Clear");
             {
                 menu.NewCheckbox("q", "Q");
-                menu.NewSlider("q.mode", "Q mode, 0 : Always, 1 : AlwaysIfNoEnemiesAround, 2 : AlwaysIfNoStun", 2, 0, 2);
+                menu.NewSlider("q.mode", "Q mode, 0 : Always, 1 : AlwaysIfNoEnemiesAround, 2 : AlwaysIfNoStun", 1, 0, 2);
                 menu.NewCheckbox("w", "W", true, true);
                 menu.NewSlider("w.minminions", "Min minions W", 3, 1, 7);
                 menu.NewSlider("mana%", "Min mana%", 30, 1, 99, true);
@@ -84,7 +84,7 @@ namespace WuAIO
             menu = MenuManager.AddSubMenu("Misc");
             {
                 menu.NewCheckbox("ks", "KS");
-                menu.NewCheckbox("stack stun", "Stack stun");
+                menu.NewCheckbox("stackstun", "Stack stun");
                 menu.NewCheckbox("interrupter", "Interrupter");
                 menu.NewCheckbox("gapcloser", "Stun on enemy gapcloser");
                 menu.NewKeybind("autor", "Auto R on target (Ignore the min enemies slider):", false, KeyBind.BindTypes.HoldActive, 'J', true);
@@ -188,7 +188,7 @@ namespace WuAIO
         {
             if (Player.IsDead || draw.IsActive("disable")) return;
 
-            if (R.IsReady() && draw.IsActive("rpos&hits"))
+            if (R.IsReady() && draw.IsActive("ultpos&hits"))
             {
                 var Target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
 
@@ -256,10 +256,10 @@ namespace WuAIO
                 }
                 else
                 {
-                    if (W.IsReady() && combo.IsActive("combo.w") && W.IsInRange(Target))
+                    if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target))
                         W.HitChanceCast(Target, 75);
 
-                    if (Q.IsReady() && combo.IsActive("combo.q") && Q.IsInRange(Target)) Q.Cast(Target);
+                    if (Q.IsReady() && combo.IsActive("q") && Q.IsInRange(Target)) Q.Cast(Target);
                 }
             }
             else
@@ -278,7 +278,7 @@ namespace WuAIO
                 if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target))
                     W.HitChanceCast(Target, 75);
 
-                if (Q.IsReady() && combo.IsActive("q") && E.IsInRange(Target)) Q.Cast(Target);
+                if (Q.IsReady() && combo.IsActive("q") && Q.IsInRange(Target)) Q.Cast(Target);
             }
 
             if (Player.HasBuff("infernalguardiantime"))
@@ -301,7 +301,7 @@ namespace WuAIO
             if (W.IsReady() && harass.IsActive("w") && W.IsInRange(Target))
                 W.HitChanceCast(Target, 75);
 
-            if (Q.IsReady() && harass.IsActive("q") && Target.IsValidTarget(Q.Range)) Q.Cast(Target);
+            if (Q.IsReady() && harass.IsActive("q") && Q.IsInRange(Target)) Q.Cast(Target);
 
             if (Player.HasBuff("infernalguardiantime"))
             {
@@ -350,15 +350,13 @@ namespace WuAIO
 
         public override void LastHit()
         {
-            if (Player.ManaPercent <= lasthit.Value("mana%")) return;
-
             if (Q.IsReady() && lasthit.IsActive("q"))
             {
                 var IEMinions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.ServerPosition, Q.Range).Where(minion => minion.Health <= damageManager.SpellDamage(minion, SpellSlot.Q)).OrderBy(minion => minion.Distance(Player.Position.To2D()));
 
                 if (IEMinions.Any())
                 {
-                    switch (lasthit.Value("lasthit.q.mode"))
+                    switch (lasthit.Value("q.mode"))
                     {
                         case 0:
                             Q.Cast(IEMinions.First());
@@ -497,9 +495,6 @@ namespace WuAIO
             
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
-                if (!harass.IsActive("aa"))
-                { args.Process = false; return; }
-
                 if (!harass.IsActive("aa.maxrange") && Player.Distance(target) >= 530)
                 { args.Process = false; return; }
             }
