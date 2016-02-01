@@ -341,7 +341,7 @@ namespace WuAIO
 
                 if (Player.CastSpell(SpellSlot.W, target))
                 {
-                    Core.DelayAction(() => W.Cast(), delay);
+                    Core.DelayAction(() => Q.Cast(), delay);
                     Core.DelayAction(() => Combing = false, delay + 1000);
                 }
                 else Combing = false;
