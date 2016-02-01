@@ -150,7 +150,7 @@ namespace WuAIO
 
                     if (W.IsReady())
                     {
-                        if (W.IsReady() && (Target.IsValidTarget(W.Range - 130) || (Target.IsValidTarget(W.Range - 50) && !Target.CanMove())) && Player.Instance.Mana >= qwmana)
+                        if (Q.IsReady() && (Target.IsValidTarget(Q.Range - 130) || (Target.IsValidTarget(Q.Range - 50) && !Target.CanMove())) && Player.Instance.Mana >= qwmana)
                         {
                             Insecing = true;
                             QWInsec(Target);
@@ -168,7 +168,7 @@ namespace WuAIO
                                 Insecing = false;
                             }
 
-                            else if ((Target.IsValidTarget(Flash.Range + W.Range - 130) || (Target.IsValidTarget(Flash.Range + W.Range - 50) && !Target.CanMove())) && Flash.IsReady() && W.IsReady() && Player.Instance.Mana >= qwmana)
+                            else if ((Target.IsValidTarget(Flash.Range + Q.Range - 130) || (Target.IsValidTarget(Flash.Range + Q.Range - 50) && !Target.CanMove())) && Flash.IsReady() && Q.IsReady() && Player.Instance.Mana >= qwmana)
                             {
                                 Insecing = true;
                                 QWInsec(Target, true);
@@ -197,12 +197,12 @@ namespace WuAIO
 
             if (Target != null && W.IsReady())
             {
-                if (W.IsReady() && (Target.IsValidTarget(600)) && Player.Instance.Mana >= qwmana)
+                if (Q.IsReady() && (Target.IsValidTarget(600)) && Player.Instance.Mana >= qwmana)
                 {
                     Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 180, Color.Yellow, "W/Q is possible !!");
                 }
 
-                if (W.IsReady() && (Target.IsValidTarget(W.Range - 130) || (Target.IsValidTarget(W.Range - 50) && !Target.CanMove()) && Player.Instance.Mana >= qwmana))
+                if (Q.IsReady() && (Target.IsValidTarget(W.Range - 130) || (Target.IsValidTarget(Q.Range - 50) && !Target.CanMove()) && Player.Instance.Mana >= qwmana))
                 {
                     Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Q/W Insec !!");
                     Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 3, Color.Yellow);
@@ -217,7 +217,7 @@ namespace WuAIO
                         Drawing.DrawCircle(WalkPos, 70, Color.BlueViolet);
                     }
 
-                    else if (Flash.IsReady() && W.IsReady() && Target.IsValidTarget(Flash.Range + W.Range - 40) && Player.Instance.Mana >= qwmana)
+                    else if (Flash.IsReady() && Q.IsReady() && Target.IsValidTarget(Flash.Range + W.Range - 40) && Player.Instance.Mana >= qwmana)
                     {
                         Drawing.DrawText(Target.Position.WorldToScreen().X - 30, Target.Position.WorldToScreen().Y - 150, Color.Yellow, "Flash/Q/W Insec !!");
                         Drawing.DrawLine(Target.Position.WorldToScreen(), Game.CursorPos2D, 3, Color.Yellow);
@@ -228,7 +228,7 @@ namespace WuAIO
             }
 
             if (draw.IsActive("q"))
-                Circle.Draw(W.IsReady() ? SharpDX.Color.Blue : SharpDX.Color.Red, W.Range, Player.Instance.Position);
+                Circle.Draw(Q.IsReady() ? SharpDX.Color.Blue : SharpDX.Color.Red, Q.Range, Player.Instance.Position);
 
             if (draw.IsActive("w"))
                 Circle.Draw(W.IsReady() ? SharpDX.Color.Blue : SharpDX.Color.Red, W.Range, Player.Instance.Position);
@@ -246,9 +246,9 @@ namespace WuAIO
 
                 if (Target == null || !Target.IsValidTarget()) return;
 
-                if (W.IsReady() && Target.IsValidTarget(W.Range - 80) && !Player.Instance.IsDashing()) W.Cast();
+                if (Q.IsReady() && Target.IsValidTarget(Q.Range - 80) && !Player.Instance.IsDashing()) Q.Cast();
 
-                else if (W.IsReady() && W.IsReady() && Target.IsValidTarget(625) && Player.Instance.Mana >= qwmana) { WQ(Target); Combing = true; }
+                else if (Q.IsReady() && W.IsReady() && Target.IsValidTarget(625) && Player.Instance.Mana >= qwmana) { WQ(Target); Combing = true; }
 
                 if (R.IsReady() && combo.IsActive("r") && Player.Instance.CountEnemiesInRange(600) >= combo.Value("r.minenemies") && Player.Instance.HealthPercent <= combo.Value("r.health%")) R.Cast();
             }
@@ -264,9 +264,9 @@ namespace WuAIO
 
                 if (Target == null || !Target.IsValidTarget()) return;
 
-                if (W.IsReady() && Target.IsValidTarget(W.Range - 80) && !Player.Instance.IsDashing()) W.Cast();
+                if (Q.IsReady() && Target.IsValidTarget(Q.Range - 80) && !Player.Instance.IsDashing()) Q.Cast();
 
-                else if (W.IsReady() && W.IsReady() && Target.IsValidTarget(625) && Player.Instance.Mana >= qwmana) { WQ(Target); Combing = true; }
+                else if (Q.IsReady() && W.IsReady() && Target.IsValidTarget(625) && Player.Instance.Mana >= qwmana) { WQ(Target); Combing = true; }
             }
 
             return;
@@ -279,7 +279,7 @@ namespace WuAIO
             if (args.DangerLevel == DangerLevel.High)
             {
                 if (W.IsReady() && sender.IsValidTarget(300)) W.Cast(sender);
-                else if (W.IsReady() && sender.IsValidTarget(W.Range)) W.Cast();
+                else if (Q.IsReady() && sender.IsValidTarget(Q.Range)) Q.Cast();
             }
 
             return;
@@ -293,26 +293,26 @@ namespace WuAIO
             {
                 if (args.SData.Name == "KatarinaR")
                 {
-                    if (W.IsReady() && W.IsInRange(sender)) W.Cast();
+                    if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
                     else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
                     return;
                 }
 
                 if (args.SData.Name == "AbsoluteZero")
                 {
-                    if (W.IsReady() && W.IsInRange(sender)) W.Cast();
+                    if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
                     else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
                     return;
                 }
 
                 if (args.SData.Name == "EzrealtrueShotBarrage")
                 {
-                    if (W.IsReady() && W.IsInRange(sender)) W.Cast();
+                    if (Q.IsReady() && Q.IsInRange(sender)) Q.Cast();
                     else if (W.IsReady() && W.IsInRange(sender)) W.Cast(sender);
                     return;
                 }
 
-                if (W.IsReady() && W.IsInRange(sender)) { W.Cast(); return; }
+                if (Q.IsReady() && Q.IsInRange(sender)) { Q.Cast(); return; }
                 if (W.IsReady() && sender.Distance(Player.Instance) <= 300) { W.Cast(sender); return; }
             }
 
@@ -370,7 +370,7 @@ namespace WuAIO
                 {
                     Core.DelayAction(delegate
                     {
-                        if (W.Cast())
+                        if (Q.Cast())
                         {
                             WalkPos = Game.CursorPos.Extend(target, Game.CursorPos.Distance(target) + 150).To3D();
 
@@ -391,7 +391,7 @@ namespace WuAIO
 
             else
             {
-                if (W.Cast())
+                if (Q.Cast())
                 {
                     WalkPos = Game.CursorPos.Extend(target, Game.CursorPos.Distance(target) + 150).To3D();
 
