@@ -20,7 +20,7 @@ namespace WuAIO
 
         Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 1000, SkillShotType.Linear, 125, 1700, 50);
         Spell.Active W = new Spell.Active(SpellSlot.W, 900);
-        Spell.Active E = new Spell.Active(SpellSlot.E, 700);//Kappa
+        Spell.Active E = new Spell.Active(SpellSlot.E, 500);//Kappa
         Spell.Active R = new Spell.Active(SpellSlot.R, 500);
 
         public override void CreateMenu()

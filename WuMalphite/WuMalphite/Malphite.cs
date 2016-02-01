@@ -257,6 +257,19 @@ namespace WuAIO
             return;
         }
 
+        public override void LastHit()
+        {
+            if (Player.ManaPercent <= lasthit.Value("mana%")) return;
+
+            var Minions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Position, Q.Range);
+
+            if (Q.IsReady() && lasthit.IsActive("q"))
+            {
+                var minion = Minions.FirstOrDefault(it => !Player.IsInAutoAttackRange(it) && damageManager.SpellDamage(it, SpellSlot.Q) >= it.Health);
+                if (minion != null) Q.Cast(minion);
+            }
+        }
+
         public override void Flee()
         {
             if (!Q.IsReady() || !flee.IsActive("q")) return;
