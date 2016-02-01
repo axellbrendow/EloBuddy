@@ -30,7 +30,17 @@ namespace WuActivator
             _range = range;
 
             Game.OnTick += Game_OnTick;
+            Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
             AIHeroClient.OnProcessSpellCast += AIHeroClient_OnProcessSpellCast;
+        }
+
+        private void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
+        {
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+            {
+                itens.AutoTiamatHydra();
+                itens.AutoTitanicHydra();
+            }
         }
 
         void InitMenu()
@@ -93,6 +103,8 @@ namespace WuActivator
                 offensives.NewSlider("offensives.botrk/bilgewater.health%", "Use BOTRK/Bilgewater when my health% is at:", 30, 1, 99);
 
                 offensives.NewCheckbox("offensives.hydra/tiamat", "Use Hydra/Tiamat", true, true);
+
+                offensives.NewCheckbox("offensives.titanic", "Use Titanic Hydra");
 
                 offensives.NewCheckbox("offensives.ghostblade", "Use Ghost Blade", true);
             }
@@ -232,8 +244,6 @@ namespace WuActivator
                 //Offensives
                 itens.AutoBilgeBtrk();
                 itens.AutoHextechGunBlade();
-                itens.AutoTiamatHydra();
-                itens.AutoTitanicHydra();
                 itens.AutoYoumuusGhostBlade();
 
                 itens.AutoRanduin();

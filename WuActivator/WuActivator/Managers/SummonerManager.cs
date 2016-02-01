@@ -72,7 +72,7 @@ namespace WuActivator.Managers
                 if (bye != null) { smite.Cast(bye); return; }
             }
 
-            var Mob = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, smite.Range).FirstOrDefault(it => (it.Name.Contains("SRUDragon") || it.Name.Contains("SRUBaron")) && DamageUtil.GetSmiteDamage() >= it.Health);
+            var Mob = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, smite.Range).FirstOrDefault(it => (it.Name.Contains("SRU_Dragon") || it.Name.Contains("SRU_Baron")) && DamageUtil.GetSmiteDamage() >= it.Health);
 
             if (Mob != null) { smite.Cast(Mob); return; }
         }

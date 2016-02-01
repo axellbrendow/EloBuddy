@@ -54,7 +54,7 @@ namespace WuActivator.Managers
             bilgewater = _itemUtil.GetItem(ItemId.Bilgewater_Cutlass, 550);
             tiamat = _itemUtil.GetItem(ItemId.Tiamat_Melee_Only, 325);//range = 400
             hydra = _itemUtil.GetItem(ItemId.Ravenous_Hydra_Melee_Only, 325);//range = 400
-            titanic = _itemUtil.GetItem(3748, 75);//range = 150 (3053)
+            titanic = _itemUtil.GetItem(ItemId.Titanic_Hydra, 100);//range = 150
             youmuus = _itemUtil.GetItem(ItemId.Youmuus_Ghostblade);
 
             #endregion
@@ -119,7 +119,7 @@ namespace WuActivator.Managers
         {
             if (!titanic.IsOwned() || !titanic.IsReady() || !_offensives.IsActive("offensives.titanic")) return;
 
-            if (titanic.IsInRange(Activator.Target) && titanic.Cast()) Orbwalker.ResetAutoAttack();
+            if (Player.IsInAutoAttackRange(Activator.Target) && titanic.Cast()) Orbwalker.ResetAutoAttack();
 
             return;
         }
