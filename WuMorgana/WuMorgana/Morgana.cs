@@ -83,7 +83,7 @@ namespace WuAIO
 
             menu = MenuManager.AddSubMenu("Misc");
             {
-                menu.NewCheckbox("ks", "KS");
+                menu.NewCheckbox("ks", "KS", false);
                 menu.NewCheckbox("aaminionswhenallynear", "AA minions when ally near?");
                 menu.NewCheckbox("autoqonimmobile", "Auto Q on immobile enemies", true);
                 menu.NewCheckbox("autoqonflash", "Auto Q on flash", true);
