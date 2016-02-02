@@ -499,10 +499,10 @@ namespace WuAIO
             else if (!WhyIDidThatAddonInsec && W.IsReady() && E.IsReady() && Q.IsReady() && W.IsInRange(target))
             {
                 var rectangle = new Geometry.Polygon.Rectangle(Player.Position, targetpos, 2 * (target.BoundingRadius + E.Width + 20));
-                rectangle.Draw(System.Drawing.Color.Yellow);
+                //rectangle.Draw(System.Drawing.Color.Yellow);
 
                 var circle = new Geometry.Polygon.Circle(targetpos, (R.Width - 20)/2);
-                circle.Draw(System.Drawing.Color.Red);
+                //circle.Draw(System.Drawing.Color.Red);
 
                 var point = circle.Points.Where(it => !NavMesh.GetCollisionFlags(it).HasFlag(CollisionFlags.Wall) && W.IsInRange(it.To3D()) && !rectangle.IsInside(it)).OrderByDescending(it => it.Distance(Player)).FirstOrDefault();
 
@@ -534,7 +534,7 @@ namespace WuAIO
                         }
                         else WhyIDidThatAddonInsec = false;
 
-                    }, 250);
+                    }, 350);
                 }
 
             }
