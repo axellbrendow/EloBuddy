@@ -27,7 +27,7 @@ namespace WuAIO
         readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 825, SkillShotType.Linear, 250, 1000, 70);
         readonly Spell.Skillshot W = new Spell.Skillshot(SpellSlot.W, 450, SkillShotType.Circular);
         readonly Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 1200, SkillShotType.Linear, 250, 1600, 100);
-        readonly Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 250, SkillShotType.Linear, 500, 1000, 532);
+        readonly Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 300, SkillShotType.Linear, 500, 1000, 532);
 
         public override void CreateMenu()
         {
@@ -245,16 +245,16 @@ namespace WuAIO
                 {
                     Core.DelayAction(delegate
                     {
-                        if (Q.Cast(Vectors.CorrectSpellRange(Game.CursorPos, Q.Range)))
+                        if (E.Cast(Vectors.CorrectSpellRange(Game.CursorPos, E.Range)))
                         {
                             Core.DelayAction(delegate
                             {
-                                E.Cast(Vectors.CorrectSpellRange(Game.CursorPos, W.Range));
+                                Q.Cast(Vectors.CorrectSpellRange(Game.CursorPos, Q.Range));
                             }, 100);
                         }
 
                         //int EDelay = (int)((Player.Distance(WPos) - 150) / 8 * 5);
-                    }, 250);
+                    }, 150);
                 }
 
                 return;
@@ -401,6 +401,8 @@ namespace WuAIO
         {
             //Back distance = 300
 
+            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
+
             //Normal Insec
 
             if (Player.Distance(target) <= W.Range + Q.Range - 300)
@@ -453,19 +455,19 @@ namespace WuAIO
 
             //Why I did that
 
-            if (!WhyIDidThatAddonInsec && Orbwalker.ValidAzirSoldiers.Any(it => it.Distance(target) >= E.Width + target.BoundingRadius && it.Distance(target) <= (R.Width / 2) - 50))
-            {
-                if (!WhyIDidThatAddonInsec)
+            EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
 
-                    WhyIDidThatAddonInsec = true;
+            var targetpos = Prediction.Position.PredictUnitPosition(target, 500).To3D();
+
+            if (!WhyIDidThatAddonInsec && Orbwalker.ValidAzirSoldiers.Any(it => it.Distance(target) >= E.Width + target.BoundingRadius && it.Distance(target) <= (R.Width / 2) - 20))
+            {
+                WhyIDidThatAddonInsec = true;
 
                 Core.DelayAction(() => WhyIDidThatAddonInsec = false, 3000);
 
                 if (E.IsReady())
                 {
-                    InsecSoldier = Orbwalker.ValidAzirSoldiers.Where(it => it.Distance(target) <= (R.Width / 2) - 50).OrderByDescending(it => it.Distance(target)).First();
-
-                    var targetpos = Prediction.Position.PredictUnitPosition(target, 500).To3D();
+                    InsecSoldier = Orbwalker.ValidAzirSoldiers.Where(it => it.Distance(target) <= (R.Width / 2) - 20).OrderByDescending(it => it.Distance(target)).First();
 
                     var rectangle = new Geometry.Polygon.Rectangle(Player.Position, InsecSoldier.Position, E.Width + target.BoundingRadius);
 
@@ -491,8 +493,50 @@ namespace WuAIO
                     }
                     else { WhyIDidThatAddonInsec = false; }
                 }
-
                 else WhyIDidThatAddonInsec = false;
+            }
+
+            else if (!WhyIDidThatAddonInsec && W.IsReady() && E.IsReady() && Q.IsReady() && W.IsInRange(target))
+            {
+                var rectangle = new Geometry.Polygon.Rectangle(Player.Position, targetpos, 2 * (target.BoundingRadius + E.Width + 20));
+                rectangle.Draw(System.Drawing.Color.Yellow);
+
+                var circle = new Geometry.Polygon.Circle(targetpos, (R.Width - 20)/2);
+                circle.Draw(System.Drawing.Color.Red);
+
+                var point = circle.Points.Where(it => !NavMesh.GetCollisionFlags(it).HasFlag(CollisionFlags.Wall) && W.IsInRange(it.To3D()) && !rectangle.IsInside(it)).OrderByDescending(it => it.Distance(Player)).FirstOrDefault();
+
+                if (point != null && W.Cast(point.To3D()))
+                {
+                    WhyIDidThatAddonInsec = true;
+
+                    Core.DelayAction(() => WhyIDidThatAddonInsec = false, 3000);
+
+                    Core.DelayAction(delegate
+                    {
+                        InsecSoldier = Orbwalker.ValidAzirSoldiers.Where(it => it.Distance(target) <= (R.Width / 2) - 20).OrderByDescending(it => it.Distance(target)).First();
+
+                        var EDelay = (int)((((Player.Distance(InsecSoldier) - 100) / 8) * 5));
+
+                        if (E.Cast(Vectors.CorrectSpellRange(InsecSoldier.Position, E.Range)))
+                        {
+                            //Delayed insec
+
+                            Core.DelayAction(delegate
+                            {
+                                if (Player.Spellbook.CastSpell(SpellSlot.Q, Vectors.CorrectSpellRange(Game.CursorPos, Q.Range)))
+                                {
+                                    LastQTime = Game.Time;
+                                }
+
+                                else WhyIDidThatAddonInsec = false;
+                            }, EDelay);
+                        }
+                        else WhyIDidThatAddonInsec = false;
+
+                    }, 250);
+                }
+
             }
 
             return;

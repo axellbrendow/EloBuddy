@@ -41,7 +41,7 @@ namespace WuAIO
                 menu.NewCheckbox("q.afteraa", "Q after AA");
                 menu.NewCheckbox("w", "W", true, true);
                 menu.NewCheckbox("e", "E", true, true);
-                menu.NewCheckbox("e.jaq", "E just after Q");
+                menu.NewCheckbox("e.jaq", "Just E after Q");
                 menu.NewCheckbox("r", "R", true, true);
                 menu.NewCheckbox("r.jotmpt", "Just R on the most prioritized target");
             }
@@ -52,13 +52,13 @@ namespace WuAIO
                 menu.NewCheckbox("q.afteraa", "Q after AA");
                 menu.NewCheckbox("w", "W", true, true);
                 menu.NewCheckbox("e", "E", true, true);
-                menu.NewCheckbox("e.jaq", "E just after Q");
+                menu.NewCheckbox("e.jaq", "Just E after Q");
             }
 
             menu = MenuManager.AddSubMenu("Lane Clear");
             {
                 menu.NewCheckbox("e", "E");
-                menu.NewCheckbox("e.minminions", "Min minions E");
+                menu.NewSlider("e.minminions", "Min minions E", 3, 1, 7);
             }
 
             menu = MenuManager.AddSubMenu("Jungle Clear");
@@ -81,7 +81,7 @@ namespace WuAIO
                 menu.NewCheckbox("interrupter", "Interrupter");
             }
         }
-
+        
         public override void CreateVariables()
         {
             new SkinManager(8);
@@ -149,7 +149,7 @@ namespace WuAIO
 
             if (R.IsReady())
             {
-                var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => !enemy.Buffs.Any(it => buffs.Any(mybuffs => mybuffs == it.Name)) && damageManager.SpellDamage(enemy, SpellSlot.R) >= enemy.Health + 20 && enemy.IsValidTarget(R.Range));
+                var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => !enemy.Buffs.Any(it => buffs.Any(mybuffs => mybuffs == it.Name)) && damageManager.SpellDamage(enemy, SpellSlot.R) >= enemy.Health && enemy.IsValidTarget(R.Range));
 
                 if (bye != null)
                 {
@@ -284,9 +284,11 @@ namespace WuAIO
         {
             var monsters = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, 600).Where(it => it.Health >= 200);
 
+            if (!monsters.Any()) return;
+
             if (monsters.Count(it => it.IsValidTarget(E.Range)) == monsters.Count())
             {
-                if (E.IsReady() && jungleclear.IsActive("e")) E.Cast();
+                if (!Player.HasBuff("GarenE") && E.IsReady() && jungleclear.IsActive("e")) E.Cast();
                 if (W.IsReady() && jungleclear.IsActive("w")) W.Cast();
             }
 
@@ -297,7 +299,7 @@ namespace WuAIO
         {
             if (Player.IsDead || Orbwalker.LastTarget != target) return;
 
-            if (Q.IsReady() && target.IsValidTarget(Player.GetAutoAttackRange() + 200) && (((Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) || (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && harass.IsActive("q.afteraa")))))
+            if (Q.IsReady() && target.IsValidTarget(Player.GetAutoAttackRange() + 200) && (((Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) && combo.IsActive("q.afteraa")) || (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) && harass.IsActive("q.afteraa")))))
             {
                 if (Q.Cast()) Orbwalker.ResetAutoAttack();
             }
@@ -306,7 +308,7 @@ namespace WuAIO
             {
                 var monsters = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Player.GetAutoAttackRange());
 
-                if (monsters != null && Player.IsInAutoAttackRange(monsters.First()))
+                if (monsters.Any() && Player.IsInAutoAttackRange(monsters.First()))
                 {
                     if (Q.Cast()) Orbwalker.ResetAutoAttack();
                 }

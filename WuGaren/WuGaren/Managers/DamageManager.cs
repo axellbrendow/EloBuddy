@@ -50,8 +50,6 @@ namespace WuAIO.Managers
             {
                 var BonusDamage = new float();
 
-                BonusDamage += addedDamage;
-
                 if (dmg.scales != null)
                 {
                     foreach (var scale in dmg.scales)
@@ -84,6 +82,7 @@ namespace WuAIO.Managers
                 }
 
                 damage += Player.CalculateDamageOnUnit(target, dmg.dealtDamageType, dmg.baseDamage[dmg.spell.Level] + BonusDamage, dmg.isAbility, dmg.isAAorTargeted);
+                damage += addedDamage;
             }
 
             return damage;
