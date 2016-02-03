@@ -244,7 +244,7 @@ namespace WuAIO
 
             if (combo.IsActive("r.jiws"))
             {
-                if (R.IsReady() && combo.IsActive("r") && R.IsInRange(Target))
+                if (Player.HasBuff("pyromania_particle") && R.IsReady() && combo.IsActive("r") && R.IsInRange(Target))
                 {
                     var rpos = GetBestRPos(Target.ServerPosition.To2D());
 
@@ -254,13 +254,11 @@ namespace WuAIO
                         R.Cast(pos);
                     }
                 }
-                else
-                {
-                    if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target))
+
+                if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target))
                         W.HitChanceCast(Target, 75);
 
-                    if (Q.IsReady() && combo.IsActive("q") && Q.IsInRange(Target)) Q.Cast(Target);
-                }
+                if (Q.IsReady() && combo.IsActive("q") && Q.IsInRange(Target)) Q.Cast(Target);
             }
             else
             {
