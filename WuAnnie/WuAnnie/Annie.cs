@@ -270,7 +270,7 @@ namespace WuAIO
             }
 
             if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target))
-                    W.HitChanceCast(Target, 75);
+                W.HitChanceCast(Target, 75);
 
             if (Q.IsReady() && combo.IsActive("q") && Q.IsInRange(Target)) Q.Cast(Target);
 
