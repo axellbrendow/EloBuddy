@@ -276,10 +276,11 @@ namespace WuAIO
 
             if (Player.HasBuff("infernalguardiantime"))
             {
-                EloBuddy.Player.IssueOrder(GameObjectOrder.MovePet, Target);
-
-                if (Tibbers != null && Tibbers.IsValid && Tibbers.IsInAutoAttackRange(Target))
+                if (Tibbers != null && Tibbers.IsValid && Tibbers.IsInAutoAttackRange(Target) && Tibbers.CanAttack)
                     EloBuddy.Player.IssueOrder(GameObjectOrder.AutoAttackPet, Target);
+
+                else EloBuddy.Player.IssueOrder(GameObjectOrder.MovePet, Target);
+
             }
 
             return;
