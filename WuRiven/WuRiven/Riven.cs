@@ -490,28 +490,28 @@ namespace WuAIO
 
             if (Player.IsInRange(target, Q.Range + W.Range))
             {
-                Chat.Print("Q.Range + W.Range");
+                //Chat.Print("Q.Range + W.Range");
                 _order = new List<ComboSpell>() { ComboSpell.Q, ComboSpell.R, ComboSpell.Hydras, ComboSpell.E, ComboSpell.W, ComboSpell.AA, ComboSpell.R };
                 PCombo(target);
             }
 
             else if (Player.IsInRange(target, E.Range + W.Range))
             {
-                Chat.Print("E.Range + W.Range");
+                //Chat.Print("E.Range + W.Range");
                 _order = new List<ComboSpell>() { ComboSpell.E, ComboSpell.W, ComboSpell.Hydras, ComboSpell.Q, ComboSpell.R, ComboSpell.AA, ComboSpell.R };
                 PCombo(target);
             }
 
             else if (Player.IsInRange(target, flash.Range + W.Range))
             {
-                Chat.Print("Flash.Range + W.Range");
+                //Chat.Print("Flash.Range + W.Range");
                 _order = new List<ComboSpell>() { ComboSpell.Flash, ComboSpell.W, ComboSpell.Hydras, ComboSpell.Q, ComboSpell.R, ComboSpell.AA, ComboSpell.R };
                 PCombo(target);
             }
 
             else if (Player.IsInRange(target, flash.Range + E.Range + W.Range))
             {
-                Chat.Print("Flash.Range + E.Range + W.Range");
+                //Chat.Print("Flash.Range + E.Range + W.Range");
                 _order = new List<ComboSpell>() { ComboSpell.E, ComboSpell.Flash, ComboSpell.W, ComboSpell.Hydras, ComboSpell.Q, ComboSpell.R, ComboSpell.AA, ComboSpell.R };
                 PCombo(target);
             }
@@ -532,7 +532,7 @@ namespace WuAIO
                 case ComboSpell.Q:
                     if (Q.IsReady() && Q.IsInRange(target))
                     {
-                        if (Q.Cast(Vectors.CorrectSpellRange(target.ServerPosition, Q.Range))) { Chat.Print("q"); NextStep(); return; }
+                        if (Q.Cast(Vectors.CorrectSpellRange(target.ServerPosition, Q.Range))) { /*Chat.Print("q");*/ NextStep(); return; }
                     }
                     else EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
 
@@ -541,7 +541,7 @@ namespace WuAIO
                 case ComboSpell.W:
                     if (W.IsReady() && W.IsInRange(target))
                     {
-                        if (W.Cast()) { Chat.Print("w"); NextStep(); return; }
+                        if (W.Cast()) { /*Chat.Print("w");*/ NextStep(); return; }
                     }
                     else EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
 
@@ -550,7 +550,7 @@ namespace WuAIO
                 case ComboSpell.E:
                     if (E.IsReady())
                     {
-                        if (E.Cast(Vectors.CorrectSpellRange(target.ServerPosition, E.Range))) { Chat.Print("e"); NextStep(); return; }
+                        if (E.Cast(Vectors.CorrectSpellRange(target.ServerPosition, E.Range))) { /*Chat.Print("e");*/ NextStep(); return; }
                     }
                     else EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
 
@@ -559,8 +559,8 @@ namespace WuAIO
                 case ComboSpell.R:
                     if (R.IsReady())
                     {
-                        if (r2Actived && R.IsInRange(target) && R.HitChanceCast(target, HitChance.Low)) { Chat.Print("r2"); rstate = 1; NextStep(); return; }
-                        else if (!r2Actived && R1.Cast()) { Chat.Print("r1"); rstate = 2; NextStep(); return; }
+                        if (r2Actived && R.IsInRange(target) && R.HitChanceCast(target, HitChance.Low)) { /*Chat.Print("r2");*/ rstate = 1; NextStep(); return; }
+                        else if (!r2Actived && R1.Cast()) { /*Chat.Print("r1");*/ rstate = 2; NextStep(); return; }
 
                         if (!R.IsInRange(target)) EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
                     }
@@ -568,11 +568,11 @@ namespace WuAIO
                     break;
 
                 case ComboSpell.Flash:
-                    Chat.Print(Player.IsInRange(target, flash.Range + W.Range));
+                    //Chat.Print(Player.IsInRange(target, flash.Range + W.Range));
 
                     if (flash != null && flash.IsReady() && Player.IsInRange(target, flash.Range + W.Range))
                     {
-                        if (flash.Cast(Vectors.CorrectSpellRange(target.ServerPosition, flash.Range))) { Chat.Print("flash"); NextStep(); return; }
+                        if (flash.Cast(Vectors.CorrectSpellRange(target.ServerPosition, flash.Range))) { /*Chat.Print("flash");*/ NextStep(); return; }
                     }
                     else EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
 
@@ -586,19 +586,19 @@ namespace WuAIO
                     {
                         if (hydra.IsReady() && hydra.IsInRange(target))
                         {
-                            if (hydra.Cast()) { Chat.Print("hydra"); NextStep(); return; }
+                            if (hydra.Cast()) { /*Chat.Print("hydra");*/ NextStep(); return; }
                         }
 
                         if (tiamat.IsReady() && tiamat.IsInRange(target))
                         {
-                            if (tiamat.Cast()) { Chat.Print("tiamat"); NextStep(); return; }
+                            if (tiamat.Cast()) { /*Chat.Print("tiamat");*/ NextStep(); return; }
                         }
                     }
 
                     break;
 
                 case ComboSpell.AA:
-                    if (aaFinished) { Chat.Print("AA"); NextStep(); return; }
+                    if (aaFinished) { /*Chat.Print("AA");*/ NextStep(); return; }
 
                     if (Player.IsInAutoAttackRange(target)) EloBuddy.Player.IssueOrder(GameObjectOrder.AttackTo, target);
 
