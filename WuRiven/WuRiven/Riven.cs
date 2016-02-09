@@ -631,7 +631,7 @@ namespace WuAIO
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
                 EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, EntityManager.MinionsAndMonsters.CombinedAttackable.FirstOrDefault());
 
-            //Orbwalker.ResetAutoAttack();
+            Orbwalker.ResetAutoAttack();
         }
 
         private float GetRDamage(Obj_AI_Base target)
