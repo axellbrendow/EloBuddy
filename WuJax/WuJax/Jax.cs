@@ -44,7 +44,7 @@ namespace WuAIO
                 menu.NewCheckbox("w", "W", true, true);
                 menu.NewCheckbox("w.aareset", "Use W AA Reset");
                 menu.NewCheckbox("e", "E", true, true);
-                menu.NewCheckbox("e.aaj", "Auto stun after jump", false);
+                menu.NewCheckbox("e.aaj", "Auto stun if possible", false);
                 menu.NewCheckbox("r", "R", true, true);
                 menu.NewCheckbox("r.1v1logic", "Use 1v1 R Logic");
                 menu.NewSlider("r.minenemies", "Min enemies R", 2, 1, 5, true);
