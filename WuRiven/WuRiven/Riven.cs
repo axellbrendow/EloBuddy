@@ -59,6 +59,7 @@ namespace WuAIO
                 menu.NewCheckbox("w", "W");
                 menu.NewCheckbox("e", "E");
                 menu.NewCheckbox("r", "R");
+                menu.NewCheckbox("burst", "Burst possible");
                 menu.NewCheckbox("flash+w", "Flash+W", true);
             }
 
@@ -176,13 +177,8 @@ namespace WuAIO
                 Target = TargetSelector.GetTarget((flash != null && flash.IsReady() ? flash.Range : 0) + W.Range + E.Range - 70, DamageType.Physical);
                 Burst(Target);
             }
-            
-            if (Target == null)
-            {
-                _order = default(List<ComboSpell>);
-                _i = 0;
-                aaFinished = false;
-            }
+
+            if (Target == null) ResetCombo();
 
             if (!Player.HasBuff("recall") && misc.IsActive("q.keepalive") && Q.IsReady() && Game.Time - lastq > 3.55f - ((Game.Ping + 100) / 1000) && Game.Time - lastq < 3.8f - ((Game.Ping + 100) / 1000))
                 Q.Cast(Vectors.CorrectSpellRange(Game.CursorPos, Q.Range));
@@ -196,29 +192,37 @@ namespace WuAIO
             if (draw.IsActive("flash+w"))
                 Circle.Draw(flash.IsReady() && W.IsReady() ? Color.Blue : Color.Red, flash.Range + W.Range + E.Range, Player.Position);
 
-            if (Target != null && Target.IsValidTarget() && Q.IsReady() && W.IsReady() && E.IsReady() && R.IsReady())
+            if (Target != null && Target.IsValidTarget() && draw.IsActive("burst") && Q.IsReady() && W.IsReady() && E.IsReady() && R.IsReady())
             {
+                //<Settings>
                 var targetpos = Target.Position.WorldToScreen();
+                targetpos = new Vector2(targetpos.X - 30, targetpos.Y - 150);
+
+                var color = System.Drawing.Color.Yellow;
+                var message = "Burst possible ";
+                var size = 10;
+                //</Settings>
+                
                 if (Player.IsInRange(Target, Q.Range + W.Range))
                 {
-                    Drawing.DrawText(targetpos.X - 30, targetpos.Y - 150, System.Drawing.Color.Yellow, "Burst possible", 10);
+                    Drawing.DrawText(targetpos, color, message + "(Q+W range)", size);
                 }
 
                 else if (Player.IsInRange(Target, E.Range + W.Range))
                 {
-                    Drawing.DrawText(targetpos.X - 30, targetpos.Y - 150, System.Drawing.Color.Yellow, "Burst possible", 10);
+                    Drawing.DrawText(targetpos, color, message + "(E+W range)", size);
                 }
 
                 else if (flash != null && flash.IsReady())
                 {
                     if (Player.IsInRange(Target, flash.Range + W.Range))
                     {
-                        Drawing.DrawText(targetpos.X - 30, targetpos.Y - 150, System.Drawing.Color.Yellow, "Burst possible", 10);
+                        Drawing.DrawText(targetpos, color, message + "(Flash+W range)", size);
                     }
 
                     else if (Player.IsInRange(Target, flash.Range + E.Range + W.Range))
                     {
-                        Drawing.DrawText(targetpos.X - 30, targetpos.Y - 150, System.Drawing.Color.Yellow, "Burst possible", 10);
+                        Drawing.DrawText(targetpos, color, message + "(Flash+E+W range)", size);
                     }
                 }
             }
@@ -519,13 +523,7 @@ namespace WuAIO
 
         private void PCombo(Obj_AI_Base target)
         {
-            if (_i == _order.Count())
-            {
-                _i = 0;
-                _order = default(List<ComboSpell>);
-                aaFinished = false;
-                return;
-            }
+            if (_i == _order.Count()) { ResetCombo(); return; }
 
             switch (_order[_i])
             {
@@ -614,6 +612,13 @@ namespace WuAIO
         private void NextStep()
         {
             _i++;
+        }
+
+        private void ResetCombo()
+        {
+            _i = 0;
+            _order = default(List<ComboSpell>);
+            aaFinished = false;
         }
 
         private void CancelAnimation()
