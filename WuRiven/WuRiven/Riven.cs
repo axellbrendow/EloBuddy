@@ -318,9 +318,20 @@ namespace WuAIO
         {
             if (Target == null || !Target.IsValidTarget()) return;
 
-            if (E.IsReady() && combo.IsActive("e")) E.Cast(Vectors.CorrectSpellRange(Target.ServerPosition, E.Range));
+            if (E.IsReady() && W.IsReady())
+            {
+                if (Player.IsInRange(Target, E.Range + W.Range - 60))
+                {
+                    _order = new List<ComboSpell>() { ComboSpell.E, ComboSpell.W };
+                    PCombo(Target);
+                }
+            }
+            else
+            {
+                if (E.IsReady() && combo.IsActive("e")) E.Cast(Vectors.CorrectSpellRange(Target.ServerPosition, E.Range));
 
-            if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target)) W.Cast();
+                if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target)) W.Cast();
+            }
 
             return;
         }
@@ -459,6 +470,7 @@ namespace WuAIO
             if (Player.IsDead || !sender.IsEnemy || !sender.IsValidTarget() || !misc.IsActive("interrupter")) return;
 
             if (W.IsReady() && W.IsInRange(sender)) W.Cast();
+            if (qstate == 3 && Q.IsReady() && Q.IsInRange(sender)) Q.Cast(sender);
 
             return;
         }
