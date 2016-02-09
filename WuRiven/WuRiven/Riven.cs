@@ -59,8 +59,8 @@ namespace WuAIO
                 menu.NewCheckbox("w", "W");
                 menu.NewCheckbox("e", "E");
                 menu.NewCheckbox("r", "R");
-                menu.NewCheckbox("burst", "Burst possible");
-                menu.NewCheckbox("flash+w", "Flash+W", true);
+                menu.NewCheckbox("burst", "Burst possible", true);
+                menu.NewCheckbox("flash+w", "Flash+W");
             }
 
             menu = MenuManager.AddSubMenu("Combo");
