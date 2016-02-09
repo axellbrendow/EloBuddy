@@ -151,7 +151,7 @@ namespace WuAIO
 
             if (Q.IsReady())
             {
-                var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && damageManager.SpellDamage(enemy, SpellSlot.Q) >= enemy.Health);
+                var bye = EntityManager.Heroes.Enemies.FirstOrDefault(enemy => enemy.IsValidTarget(Q.Range) && GetQDamage(enemy) >= enemy.Health);
                 if (bye != null) { Q.Cast(bye); return; }
             }
         }
@@ -206,7 +206,7 @@ namespace WuAIO
                     {
                         if (laneclear.IsActive("q.jimwd"))
                         {
-                            if ((damageManager.SpellDamage(ListMinions.First(), SpellSlot.Q) > ListMinions.First().Health || damageManager.SpellDamage(ListMinions.ElementAt(1), SpellSlot.Q) > ListMinions.ElementAt(1).Health)) Q.Cast(ListMinions.First());
+                            if ((GetQDamage(ListMinions.First()) > ListMinions.First().Health || GetQDamage(ListMinions.ElementAt(1)) > ListMinions.ElementAt(1).Health)) Q.Cast(ListMinions.First());
                         }
                         else { Q.Cast(ListMinions.First()); }
                     }
@@ -216,7 +216,7 @@ namespace WuAIO
 
         public override void JungleClear()
         {
-            if (E.IsReady() && jungleclear.IsActive("e") && EntityManager.MinionsAndMonsters.CombinedAttackable.Where(it => !it.IsDead && it.IsValidTarget(Player.GetAutoAttackRange())).Any()) E.Cast();
+            if (E.IsReady() && jungleclear.IsActive("e") && EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, Player.GetAutoAttackRange()).Any()) E.Cast();
         }
 
         public override void AIHeroClient_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -231,17 +231,17 @@ namespace WuAIO
             {
                 if (Q.IsReady() && (EOMenu.Value(args.SData.Name) == 1 || EOMenu.Value(args.SData.Name) == 3))
                 {
-                    if (args.SData.Name == "JaxCounterStrike") { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "JaxCounterStrike") { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 200); return; }
 
-                    if (args.SData.Name == "KarthusFallenOne") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "KarthusFallenOne") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 200); return; }
 
-                    if (args.SData.Name == "ZedR" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 750 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "ZedR" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 750 - Game.Ping - 200); return; }
 
-                    if (args.SData.Name == "SoulShackles") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "SoulShackles") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 200); return; }
 
-                    if (args.SData.Name == "AbsoluteZero") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "AbsoluteZero") { Core.DelayAction(() => Dodge(), 3000 - Game.Ping - 200); return; }
 
-                    if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 100); return; }
+                    if (args.SData.Name == "NocturneUnspeakableHorror" && args.Target.IsMe) { Core.DelayAction(() => Dodge(), 2000 - Game.Ping - 200); return; }
 
                     Core.DelayAction(delegate
                     {
@@ -256,7 +256,7 @@ namespace WuAIO
                     return;
                 }
 
-                else if (W.IsReady() && Player.IsFacing(sender) && EOMenu.Value(args.SData.Name) > 1 && (args.Target.IsMe || new Geometry.Polygon.Rectangle(args.Start, args.End, args.SData.LineWidth).IsInside(Player) || new Geometry.Polygon.Circle(args.End, args.SData.CastRadius).IsInside(Player)))
+                else if (W.IsReady() && Player.IsFacing(sender) && EOMenu.Value(args.SData.Name) > 1 && ((args.Target != null && args.Target.IsMe) || Player.Position.To2D().Distance(args.Start.To2D(), args.End.To2D(), true, true) < args.SData.LineWidth * args.SData.LineWidth || args.End.Distance(Player) < args.SData.CastRadius))
                 {
                     int delay = (int)(Player.Distance(sender) / ((args.SData.MissileMaxSpeed + args.SData.MissileMinSpeed) / 2) * 1000) - 150 + (int)args.SData.SpellCastTime;
 
@@ -341,6 +341,19 @@ namespace WuAIO
 
         //------------------------------------|| Methods ||--------------------------------------
 
+        //-------------------------------------GetQDamage()---------------------------------------
+
+        float GetQDamage(Obj_AI_Base unit)
+        {
+            if (!unit.IsValidTarget()) return 0;
+
+            if (unit.IsMinion)
+                return Player.CalculateDamageOnUnit(unit, DamageType.Physical, new[] { 0, 100, 160, 220, 280, 340 }[Q.Level] + Player.TotalAttackDamage, true, true);
+
+            return Player.CalculateDamageOnUnit(unit, DamageType.Physical, new[] { 0, 25, 60, 95, 130, 165 }[Q.Level] + Player.TotalAttackDamage, true, true);
+
+        }
+
         //----------------------------------------QLogic()-----------------------------------------
 
         void QLogic()
@@ -348,7 +361,7 @@ namespace WuAIO
             if (Target.IsDashing()) Q.Cast(Target);
             if (Target.HealthPercent <= 30) Q.Cast(Target);
             if (Player.HealthPercent <= 30) Q.Cast(Target);
-            if (damageManager.SpellDamage(Target, SpellSlot.Q) >= Target.Health) Q.Cast(Target);
+            if (GetQDamage(Target) >= Target.Health) Q.Cast(Target);
         }
 
         //----------------------------------------Dodge()------------------------------------------
