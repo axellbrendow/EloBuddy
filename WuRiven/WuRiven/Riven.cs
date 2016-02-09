@@ -103,8 +103,8 @@ namespace WuAIO
             menu = MenuManager.AddSubMenu("Misc");
             {
                 menu.NewCheckbox("q.keepalive", "Keep Q Alive");
-                menu.NewSlider("q1/q2.delay", "Q1/Q2 Cancel Animation Delay", 0, 0, 450);
-                menu.NewSlider("q3.delay", "Q3 Cancel Animation Delay", 0, 0, 500);
+                menu.NewSlider("q1/q2.delay", "Q1/Q2 Cancel Animation Delay", 250, 0, 450);
+                menu.NewSlider("q3.delay", "Q3 Cancel Animation Delay", 380, 300, 500);
                 menu.NewCheckbox("ks", "KS", true, true);
                 menu.NewCheckbox("interrupter", "Interrupter");
                 menu.NewCheckbox("gapcloser", "Stun on enemy gapcloser");
@@ -410,7 +410,8 @@ namespace WuAIO
                         if (hydra.IsReady()) hydra.Cast();
                         if (tiamat.IsReady()) tiamat.Cast();
                     }
-                    
+                    EloBuddy.Player.DoEmote(Emote.Dance);
+
                     break;
 
                 case "Spell3":
@@ -423,6 +424,7 @@ namespace WuAIO
 
                 case "Spell4b":
                     rstate = 1;
+                    EloBuddy.Player.DoEmote(Emote.Dance);
                     break;
             }
         }
