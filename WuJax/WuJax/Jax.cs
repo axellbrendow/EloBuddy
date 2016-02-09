@@ -44,6 +44,7 @@ namespace WuAIO
                 menu.NewCheckbox("w", "W", true, true);
                 menu.NewCheckbox("w.aareset", "Use W AA Reset");
                 menu.NewCheckbox("e", "E", true, true);
+                menu.NewCheckbox("e.aaj", "Auto stun after jump", false);
                 menu.NewCheckbox("r", "R", true, true);
                 menu.NewCheckbox("r.1v1logic", "Use 1v1 R Logic");
                 menu.NewSlider("r.minenemies", "Min enemies R", 2, 1, 5, true);
@@ -208,7 +209,7 @@ namespace WuAIO
 
             if (Q.IsInRange(Target))
             {
-                if (!Player.HasBuff("JaxCounterStrike") && E.IsReady() && combo.IsActive("e") && E.Cast()) ETime = Environment.TickCount;
+                if (E.IsReady() && combo.IsActive("e") && (!Player.HasBuff("JaxCounterStrike") && E.Cast()) || (combo.IsActive("e.aaj") && Player.HasBuff("JaxCounterStrike") && E.IsInRange(Target) && E.Cast())) ETime = Environment.TickCount;
 
                 if (Q.IsReady() && combo.IsActive("q"))
                 {
