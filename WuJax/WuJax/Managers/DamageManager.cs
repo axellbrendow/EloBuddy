@@ -14,9 +14,10 @@ namespace WuAIO.Managers
         private readonly AIHeroClient Player = EloBuddy.Player.Instance;
 
         private bool _enabled { get { return MenuManager.Menus[HeroBase.HERO_MENU]["Drawings"].Keys.Last().IsActive("damageindicator"); } }
-        private readonly List<Bases.Damage> _damages;
-
+        
         private Item _shiv, _trinity, _sheen, _echo, _iceborn;
+
+        public readonly List<Bases.Damage> _damages;
 
         public enum ScalingTypes
         {
@@ -67,9 +68,9 @@ namespace WuAIO.Managers
                 {
                     if (_trinity.IsOwned() && (_trinity.IsReady() || Player.HasBuff("sheen"))) BonusDamage += 2 * Player.BaseAttackDamage;
                     else if (_sheen.IsOwned() && (_sheen.IsReady() || Player.HasBuff("sheen"))) BonusDamage += Player.BaseAttackDamage;
-                    
+
                     if (_iceborn.IsOwned() && ((_iceborn.IsReady() && !Player.HasBuff("itemfrozenfist")) || Player.HasBuff("itemfrozenfist"))) BonusDamage += 1.25f * Player.BaseAttackDamage;
-                    
+
                     /*if (_shiv.IsOwned() && _shiv.Stacks == 100)
                     {
                         if (target.IsMinion)
@@ -98,6 +99,37 @@ namespace WuAIO.Managers
             damage += SpellDamage(target, SpellSlot.R);
 
             return damage;
+        }
+
+        public float GetSpellBonusDamage(SpellSlot slot)
+        {
+            if (!_damages.Any(it => it.spell.Slot == slot)) return 0;
+
+            var scaleDamage = new float();
+
+            foreach (var dmg in _damages.Where(it => it.spell.Slot == slot))
+            {
+                foreach (var scale in dmg.scales)
+                {
+                    scaleDamage += scale.scaling[dmg.spell.Level] * GetProperty(scale.scalingType);
+                }
+            }
+
+            return scaleDamage;
+        }
+
+        public float GetSpellBaseDamage(SpellSlot slot)
+        {
+            if (!_damages.Any(it => it.spell.Slot == slot)) return 0;
+
+            var baseDamage = new float();
+
+            foreach (var dmg in _damages.Where(it => it.spell.Slot == slot))
+            {
+                baseDamage += dmg.baseDamage[dmg.spell.Level];
+            }
+
+            return baseDamage;
         }
 
         private float GetProperty(ScalingTypes type, Obj_AI_Base target = null)

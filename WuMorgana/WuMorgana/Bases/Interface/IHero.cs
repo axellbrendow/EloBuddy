@@ -26,6 +26,7 @@ namespace WuAIO.Bases.Interface
         void Game_OnTick(EventArgs args);
         void Drawing_OnDraw(EventArgs args);
         void Dash_OnDash(Obj_AI_Base sender, Dash.DashEventArgs e);
+        void Orbwalker_OnAttack(AttackableUnit target, EventArgs args);
         void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args);
         void Orbwalker_OnPreAttack(AttackableUnit target, Orbwalker.PreAttackArgs args);
         void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e);

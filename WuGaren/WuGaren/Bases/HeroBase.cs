@@ -60,6 +60,7 @@ namespace WuAIO.Bases
             Game.OnTick += Game_OnTick;
             Dash.OnDash += Dash_OnDash;
             Drawing.OnDraw += Drawing_OnDraw;
+            Orbwalker.OnAttack += Orbwalker_OnAttack;
             Orbwalker.OnPreAttack += Orbwalker_OnPreAttack;
             Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
             Orbwalker.OnPostAttack += Orbwalker_OnPostAttack;
@@ -137,6 +138,11 @@ namespace WuAIO.Bases
         public virtual void Dash_OnDash(Obj_AI_Base sender, Dash.DashEventArgs e)
         {
             //if (Player.IsDead || !sender.IsEnemy) return;
+        }
+
+        public virtual void Orbwalker_OnAttack(AttackableUnit target, EventArgs args)
+        {
+            //if (Player.IsDead) return;
         }
 
         public virtual void Orbwalker_OnPostAttack(AttackableUnit target, EventArgs args)
