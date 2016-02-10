@@ -47,7 +47,7 @@ namespace WuAIO
         readonly Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 325, SkillShotType.Linear);
         readonly Spell.Active R1 = new Spell.Active(SpellSlot.R);
         readonly Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Cone, 250, 1600, 900);
-        //                                                            1000
+        //                                         h                  1000
 
         public override void CreateMenu()
         {
@@ -118,7 +118,7 @@ namespace WuAIO
         public override void CreateVariables()
         {
             new SkinManager(8);
-
+            
             R.ConeAngleDegrees = 45;
             R.AllowedCollisionCount = int.MaxValue;
             E.AllowedCollisionCount = int.MaxValue;
