@@ -69,6 +69,7 @@ namespace WuAIO
                 menu.NewCheckbox("w", "W");
                 menu.NewCheckbox("e", "E");
                 menu.NewCheckbox("r", "R");
+                menu.NewCheckbox("r.noprediction", "Don't use prediction for R (faster cast)", true, true);
                 menu.NewSlider("r.minenemies", "Min enemies R", 1, 1, 5, true);
             }
 
@@ -106,7 +107,8 @@ namespace WuAIO
                 menu.NewSlider("q1/q2.delay", "Q1/Q2 Cancel Animation Delay", 250, 0, 450);
                 menu.NewSlider("q3.delay", "Q3 Cancel Animation Delay", 380, 300, 500);
                 menu.NewCheckbox("ks", "KS", true, true);
-                menu.NewCheckbox("interrupter", "Interrupter");
+                menu.NewCheckbox("ks.r.noprediction", "[KS] Don't use prediction for R (faster cast)");
+                menu.NewCheckbox("interrupter", "Interrupter", true, true);
                 menu.NewCheckbox("gapcloser", "Stun on enemy gapcloser");
                 menu.NewKeybind("burst", "Burst/FlashBurst", false, KeyBind.BindTypes.HoldActive, 'J');
             }
@@ -312,7 +314,11 @@ namespace WuAIO
             {
                 if (!r2Actived && combo.Value("r.minenemies") >= Player.CountEnemiesInRange(600) && Player.IsInRange(Target, E.Range)) R1.Cast();
 
-                else if (r2Actived && R.IsInRange(Target) && GetRDamage(Target) >= Target.Health) R.HitChanceCast(Target, HitChance.Low);
+                else if (r2Actived && R.IsInRange(Target) && GetRDamage(Target) >= Target.Health)
+                {
+                    if (combo.IsActive("r.noprediction")) R.Cast(Prediction.Position.PredictUnitPosition(Target, 500).To3D());
+                    else R.HitChanceCast(Target, HitChance.Low);
+                }
             }
 
             return;
@@ -411,11 +417,13 @@ namespace WuAIO
                         if (tiamat.IsReady()) tiamat.Cast();
                     }
                     EloBuddy.Player.DoEmote(Emote.Dance);
+                    Orbwalker.ResetAutoAttack();
 
                     break;
 
                 case "Spell3":
                     if ((Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) && youmouu.IsReady()) youmouu.Cast();
+                    Orbwalker.ResetAutoAttack();
                     break;
 
                 case "Spell4a":
