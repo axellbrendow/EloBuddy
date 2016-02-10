@@ -278,7 +278,7 @@ namespace WuAIO
                 var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(R.Range) && TargetSelector.GetPriority(it) >= 3 && GetRDamage(it) >= it.Health);
                 if (bye != null)
                 {
-                    if (combo.IsActive("r.noprediction")) R.Cast(Prediction.Position.PredictUnitPosition(Target, 500).To3D());
+                    if (misc.IsActive("ks.r.noprediction")) R.Cast(Prediction.Position.PredictUnitPosition(Target, 500).To3D());
                     else R.HitChanceCast(Target, HitChance.Low);
                 }
             }
