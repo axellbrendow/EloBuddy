@@ -41,8 +41,8 @@ namespace WuAIO
             titanic = new Item(ItemId.Titanic_Hydra, 100),
             youmouu = new Item(ItemId.Youmuus_Ghostblade);//150
 
-        //readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 260, SkillShotType.Linear);
-        readonly Spell.Active Q = new Spell.Active(SpellSlot.Q);
+        readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 260, SkillShotType.Linear);
+        //readonly Spell.Active Q = new Spell.Active(SpellSlot.Q);
         readonly Spell.Active W = new Spell.Active(SpellSlot.W, 250);//250+/-
         readonly Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 325, SkillShotType.Linear);
         readonly Spell.Active R1 = new Spell.Active(SpellSlot.R);
@@ -184,7 +184,7 @@ namespace WuAIO
             if (Target == null) ResetCombo();
 
             if (!Player.HasBuff("recall") && misc.IsActive("q.keepalive") && Q.IsReady() && Game.Time - lastq > 3.55f - ((Game.Ping + 100) / 1000) && Game.Time - lastq < 3.8f - ((Game.Ping + 100) / 1000))
-                Q.Cast();
+                Q.Cast(Vectors.CorrectSpellRange(Game.CursorPos, Q.Range));
             //Vectors.CorrectSpellRange(Game.CursorPos, Q.Range)
 
         }
@@ -259,7 +259,7 @@ namespace WuAIO
                     if (bye != null)
                     {
                         EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, bye);
-                        Core.DelayAction(() => Q.Cast(/*Vectors.CorrectSpellRange(bye.ServerPosition, Q.Range)*/), 100);
+                        Core.DelayAction(() => Q.Cast(Vectors.CorrectSpellRange(bye.ServerPosition, Q.Range)), 100);
                         Core.DelayAction(() => W.Cast(), 200);
                     }
                 }
@@ -292,7 +292,7 @@ namespace WuAIO
 
             if (E.IsReady() && flee.IsActive("e")) E.Cast(Vectors.CorrectSpellRange(Game.CursorPos, E.Range));
 
-            if (Q.IsReady() && flee.IsActive("q")) Q.Cast();
+            if (Q.IsReady() && flee.IsActive("q")) Q.Cast(Vectors.CorrectSpellRange(Game.CursorPos, Q.Range));
             //Vectors.CorrectSpellRange(Game.CursorPos, Q.Range)
 
             return;
@@ -451,7 +451,7 @@ namespace WuAIO
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
             {
                 EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
-                Core.DelayAction(() => Q.Cast(), 100);
+                Core.DelayAction(() => Q.Cast(Vectors.CorrectSpellRange(target.Position, Q.Range)), 100);
                 //Vectors.CorrectSpellRange(target.Position, Q.Range)
             }
         }
@@ -471,17 +471,17 @@ namespace WuAIO
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
-                if (Q.IsReady() && combo.IsActive("q")) Q.Cast();
+                if (Q.IsReady() && combo.IsActive("q")) Q.Cast(pos);
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
-                if (Q.IsReady() && harass.IsActive("q")) Q.Cast();
+                if (Q.IsReady() && harass.IsActive("q")) Q.Cast(pos);
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                if (Q.IsReady() && jungleclear.IsActive("q") && Player.GetAutoAttackDamage((Obj_AI_Base)target) < target.Health) Q.Cast();
+                if (Q.IsReady() && jungleclear.IsActive("q") && Player.GetAutoAttackDamage((Obj_AI_Base)target) < target.Health) Q.Cast(pos);
             }
 
             if (_order != default(List<ComboSpell>) && _i != _order.Count() && _order[_i] == ComboSpell.AA) aaFinished = true;
@@ -550,7 +550,7 @@ namespace WuAIO
                 case ComboSpell.Q:
                     if (Q.IsReady() && Player.IsInRange(target, 200))
                     {
-                        if (Q.Cast()) { /*Chat.Print("q");*/ NextStep(); return; }
+                        if (Q.Cast(Vectors.CorrectSpellRange(target.ServerPosition, 200))) { /*Chat.Print("q");*/ NextStep(); return; }
                     }
                     else EloBuddy.Player.IssueOrder(GameObjectOrder.MoveTo, target);
 
