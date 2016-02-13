@@ -25,7 +25,7 @@ namespace WuAIO
         byte rstate = 1;
         float lastq;
 
-        bool r2Actived { get { return rstate == 2 || R1.Name == "rivenizunablad"; } }
+        bool r2Actived { get { return rstate == 2 || R.Name == "rivenizunablad" || R1.Name == "rivenizunablad"; } }
 
         //bool nextStep, forceR, forceW, forceQ, forceE, forceHydra, forceTiamat, forceFlash;
 
@@ -280,7 +280,7 @@ namespace WuAIO
                 var bye = EntityManager.Heroes.Enemies.FirstOrDefault(it => it.IsValidTarget(R.Range) && TargetSelector.GetPriority(it) >= 3 && GetRDamage(it) >= it.Health);
                 if (bye != null)
                 {
-                    if (misc.IsActive("ks.r.noprediction")) R.Cast(Prediction.Position.PredictUnitPosition(Target, 500).To3D());
+                    if (misc.IsActive("ks.r.noprediction")) R.Cast(Target.ServerPosition);
                     else R.HitChanceCast(Target, HitChance.Low);
                 }
             }
@@ -302,7 +302,7 @@ namespace WuAIO
         {
             if (Target == null || !Target.IsValidTarget()) return;
 
-            if (E.IsReady() && W.IsReady())
+            if (E.IsReady() && W.IsReady() && combo.IsActive("e") && combo.IsActive("w"))
             {
                 if (Player.IsInRange(Target, E.Range + W.Range - 60))
                 {
@@ -323,7 +323,7 @@ namespace WuAIO
 
                 else if (r2Actived && R.IsInRange(Target) && GetRDamage(Target) >= Target.Health)
                 {
-                    if (combo.IsActive("r.noprediction")) R.Cast(Prediction.Position.PredictUnitPosition(Target, 500).To3D());
+                    if (combo.IsActive("r.noprediction")) R.Cast(Target.ServerPosition);
                     else R.HitChanceCast(Target, HitChance.Low);
                 }
             }
@@ -335,7 +335,7 @@ namespace WuAIO
         {
             if (Target == null || !Target.IsValidTarget()) return;
 
-            if (E.IsReady() && W.IsReady())
+            if (E.IsReady() && W.IsReady() && harass.IsActive("e") && harass.IsActive("w"))
             {
                 if (Player.IsInRange(Target, E.Range + W.Range - 60))
                 {
@@ -345,9 +345,9 @@ namespace WuAIO
             }
             else
             {
-                if (E.IsReady() && combo.IsActive("e")) E.Cast(Vectors.CorrectSpellRange(Target.ServerPosition, E.Range));
+                if (E.IsReady() && harass.IsActive("e")) E.Cast(Vectors.CorrectSpellRange(Target.ServerPosition, E.Range));
 
-                if (W.IsReady() && combo.IsActive("w") && W.IsInRange(Target)) W.Cast();
+                if (W.IsReady() && harass.IsActive("w") && W.IsInRange(Target)) W.Cast();
             }
 
             return;
@@ -418,7 +418,7 @@ namespace WuAIO
                     break;
 
                 case "Spell2":
-                    if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget(hydra.Range)) || EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, hydra.Range).Any())
+                    if ((hydra.IsReady() || tiamat.IsReady()) && EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget(hydra.Range)) || EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, hydra.Range).Any())
                     {
                         if (hydra.IsReady()) hydra.Cast();
                         if (tiamat.IsReady()) tiamat.Cast();
@@ -430,6 +430,13 @@ namespace WuAIO
 
                 case "Spell3":
                     if ((Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) && youmouu.IsReady()) youmouu.Cast();
+
+                    if (EntityManager.Heroes.Enemies.Any(it => it.IsValidTarget(hydra.Range)) || EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Position, hydra.Range).Any())
+                    {
+                        if (hydra.IsReady()) hydra.Cast();
+                        if (tiamat.IsReady()) tiamat.Cast();
+                    }
+
                     Orbwalker.ResetAutoAttack();
                     break;
 
